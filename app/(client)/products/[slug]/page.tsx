@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
 
     if (!product) return { title: 'Sản phẩm không tồn tại' };
 
-    let imageUrl = product.hero_banner_url || product.thumbnail_url || `https://vinfastxanhmekong.com/images/products/${product.slug}.webp`;
+    let imageUrl = product.thumbnail_url || product.hero_banner_url || `https://vinfastxanhmekong.com/images/products/${product.slug}.webp`;
     if (imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
         imageUrl = `https://vinfastxanhmekong.com${imageUrl}`;
     }
