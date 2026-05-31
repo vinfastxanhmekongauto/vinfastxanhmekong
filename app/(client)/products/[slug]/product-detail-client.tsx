@@ -4,15 +4,12 @@ import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import { ChevronLeft, ChevronRight, Check, Timer, Gauge, Zap, Users, Battery, BatteryCharging, Weight, Ruler, Settings2, Car, Calculator, BadgePercent, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Timer, Gauge, Zap, Battery, BatteryCharging, Weight, Ruler, Settings2, Car, Calculator, BadgePercent, FileText } from 'lucide-react';
 import Image from 'next/image';
 import ProductGallery from '@/components/client/product-gallery';
-import ProductDescriptionDisplay from '@/components/client/product-description-display';
 import ProductHeroActions from '@/components/client/product-hero-actions';
 import { ProductDisplay } from '@/components/client/product-card';
-import StickyActionBar from '@/components/client/sticky-action-bar';
 import ScrollToTop from '@/components/client/scroll-to-top';
-import QuickActionCard from '@/components/client/quick-action-card';
 import { ModalWrapper, LeadFormModal, CostEstimateModal, InstallmentModal } from '@/components/client/quick-action-modals';
 import ChargingNetwork from '@/components/shared/charging-network';
 import TechSpecsTable from '@/components/client/tech-specs-table';
@@ -193,7 +190,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                     </div>
                 </section>
             )}
-            
+
             {/* ━━━ ACTIONS ━━━ */}
             <section className=" pt-8 pb-20 md:pt-8 md:pb-28">
                 <div className="container mx-auto px-4 md:px-8">
@@ -499,8 +496,6 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                 {activeModal === 'installment' && <InstallmentModal />}
                 {activeModal === 'quote' && <LeadFormModal title={`Báo Giá ${product?.name}`} onClose={() => setActiveModal(null)} selectedCar={product?.name} />}
             </ModalWrapper>
-
-            <StickyActionBar product={product} />
         </div>
     );
 }
