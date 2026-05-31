@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-vinfast-blue: #00358E;
+  --color-vinfast-white: #FFFFFF;
+  --color-vinfast-gray: #F5F5F5;
+  /* Body font: Plus Jakarta Sans (modern, clean) with Vietnamese fallback */
+  --font-sans: var(--font-jakarta), var(--font-be-vietnam), ui-sans-serif, system-ui, sans-serif;
+  /* Display font: Montserrat (bold automotive headings) */
+  --font-display: var(--font-montserrat), sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+@utility tech-table {
+  @apply prose prose-invert max-w-none prose-td:py-4 prose-td:border-b prose-td:border-gray-600 prose-th:text-left prose-th:text-gray-400 prose-th:font-normal;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+/* Montserrat for all headings — tight automotive look */
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Custom Typography Overrides */
+.prose ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+}
+
+.prose p {
+  text-align: justify !important;
+  text-justify: inter-word;
+}
+
+.prose p:empty::before,
+.prose p br::before {
+  content: '\00a0';
+  display: block;
+  height: 1rem;
+}

@@ -1,0 +1,50 @@
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
+
+export async function POST(request: Request) {
+    try {
+        const data = await request.json();
+        const { full_name, phone, car_model, notes, email, status } = data;
+
+        // Capture IP Address from headers
+        const forwardedFor = request.headers.get('x-forwarded-for');
+        const realIp = request.headers.get('x-real-ip');
+        const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (realIp || 'Unknown');
+
+        // 1. Validate incoming data
+        if (!full_name || !phone) {
+            return NextResponse.json({ error: 'Vui lòng cung cấp đầy đủ Họ tên và Số điện thoại.' }, { status: 400 });
+        }
+
+        const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
+        if (!phoneRegex.test(phone)) {
+            return NextResponse.json({ error: 'Số điện thoại không hợp lệ. Vui lòng nhập số Việt Nam hợp lệ.' }, { status: 400 });
+        }
+
+        // 2. Save data to Supabase
+        const { error: dbError } = await supabase
+            .from('leads')
+            .insert([
+                {
+                    full_name: full_name?.trim() || null,
+                    phone: phone?.trim() || null,
+                    email: email?.trim() || null,
+                    car_model: car_model?.trim() || null,
+                    notes: notes?.trim() || null,
+                    ip_address: ip, // Save customer IP
+                    status: 'Mới'
+                }
+            ]);
+
+        if (dbError) {
+            console.error('Database Error:', dbError);
+            // If the error is due to missing ip_address column, we could fallback, but based on requirements, it should exist.
+            return NextResponse.json({ error: 'Hệ thống đang bận. Vui lòng thử lại sau ít phút.' }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error: any) {
+        console.error('API Error:', error);
+        return NextResponse.json({ error: 'Lỗi định dạng dữ liệu.' }, { status: 400 });
+    }
+}

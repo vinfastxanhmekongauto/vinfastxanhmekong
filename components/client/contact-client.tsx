@@ -1,0 +1,286 @@
+'use client';
+
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle, MessageSquare } from 'lucide-react';
+import { submitLead } from '@/app/actions/lead';
+import { useSiteSettings } from '@/components/client/SiteSettingsProvider';
+
+export default function ContactClient() {
+    const { settings } = useSiteSettings();
+    const fallbackAddress = "Số 10362, đường Võ Nguyên Giáp, P.Hưng Phú, TP.Cần Thơ";
+    const fallbackPhone = "0907 697 036";
+    const fallbackEmail = "vinfastxanhmekong@gmail.com";
+    const fallbackGoogleMaps = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.84145437704!2d105.76802281479443!3d10.029938992830847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0883d2192b0f1%3A0x4c90a391d232ccce!2zMjc0IMSQLiAzMCBUaMOhbmcgNCwgWHXDom4gS2jDoW5oLCBOaW5oIEtp4buBdSwgQ-G6p24gVGjGoSwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1680000000000!5m2!1svi!2s";
+
+    const [formData, setFormData] = useState({
+        full_name: '',
+        phone: '',
+        car_model: '',
+        notes: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatus('idle');
+
+        // Validation
+        if (!formData.full_name.trim() || !formData.phone.trim()) {
+            setStatus('error');
+            setErrorMessage('Vui lòng nhập đầy đủ Họ tên và Số điện thoại.');
+            setLoading(false);
+            return;
+        }
+
+        const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
+        if (!phoneRegex.test(formData.phone)) {
+            setStatus('error');
+            setErrorMessage('Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const result = await submitLead(formData);
+
+            if (!result.success) {
+                throw new Error(result.error);
+            }
+
+            setStatus('success');
+            setFormData({ full_name: '', phone: '', car_model: '', notes: '' });
+        } catch (error) {
+            console.error('Submit error:', error);
+            setStatus('error');
+            setErrorMessage('Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="bg-vinfast-gray min-h-screen pb-20">
+            {/* Page Header */}
+            <div className="bg-vinfast-blue text-white py-16 md:py-24 mb-12 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=2000')] opacity-20 bg-cover bg-center mix-blend-overlay"></div>
+                <div className="container relative z-10 mx-auto px-4 md:px-8 text-center max-w-4xl">
+                    <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight drop-shadow-md">
+                        Liên Hệ VinFast Xanh Mekong
+                    </h1>
+                    <p className="text-lg md:text-xl text-blue-100 leading-relaxed font-light">
+                        Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về các dòng xe máy điện VinFast.
+                    </p>
+                </div>
+            </div>
+
+            <div className="container mx-auto px-4 md:px-8 -mt-10 relative z-20">
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                    <div className="grid grid-cols-1 lg:grid-cols-2">
+
+                        {/* LEFT COLUMN: Contact Info & Map */}
+                        <div className="p-8 md:p-12 bg-gray-50 flex flex-col h-full border-b lg:border-b-0 lg:border-r border-gray-200">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-8">Thông Tin Liên Hệ</h2>
+
+                            <ul className="space-y-6 text-lg text-gray-700 mb-10">
+                                <li className="flex items-start gap-4">
+                                    <div className="p-3 bg-white rounded-full shadow-sm text-vinfast-blue shrink-0">
+                                        <MapPin size={24} />
+                                    </div>
+                                    <div className="pt-1">
+                                        <h4 className="font-bold text-gray-900 mb-1">Địa chỉ Showroom</h4>
+                                        <p className="leading-relaxed text-gray-600">{settings?.address || fallbackAddress}</p>
+                                    </div>
+                                </li>
+
+                                <li className="flex items-start gap-4">
+                                    <div className="p-3 bg-white rounded-full shadow-sm text-vinfast-blue shrink-0">
+                                        <Phone size={24} />
+                                    </div>
+                                    <div className="pt-1">
+                                        <h4 className="font-bold text-gray-900 mb-1">Hotline Tư Vấn</h4>
+                                        <a href={`tel:${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`} className="text-vinfast-blue font-bold hover:underline">{settings?.phone || fallbackPhone}</a>
+                                    </div>
+                                </li>
+
+                                <li className="flex items-start gap-4">
+                                    <div className="p-3 bg-white rounded-full shadow-sm text-vinfast-blue shrink-0">
+                                        <Mail size={24} />
+                                    </div>
+                                    <div className="pt-1">
+                                        <h4 className="font-bold text-gray-900 mb-1">Email Kỹ Thuật & Bán Hàng</h4>
+                                        <a href={`mailto:${settings?.email || fallbackEmail}`} className="text-vinfast-blue hover:underline">{settings?.email || fallbackEmail}</a>
+                                    </div>
+                                </li>
+
+                                <li className="flex items-start gap-4">
+                                    <div className="p-3 bg-white rounded-full shadow-sm text-vinfast-blue shrink-0">
+                                        <Clock size={24} />
+                                    </div>
+                                    <div className="pt-1">
+                                        <h4 className="font-bold text-gray-900 mb-1">Giờ Mở Cửa</h4>
+                                        <p className="text-gray-600">08:00 - 20:00 (Thứ 2 - Chủ Nhật)</p>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                                <a
+                                    href="https://facebook.com/vinfastxanhmekong"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md text-center"
+                                >
+                                    Fanpage Facebook
+                                </a>
+                                <a
+                                    href={`https://zalo.me/${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md text-center"
+                                >
+                                    <MessageSquare size={20} /> Chat Zalo
+                                </a>
+                            </div>
+
+                            {/* Google Maps Embed */}
+                            {settings?.google_maps_link ? (
+                                <div className="mt-auto h-64 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-200 shrink-0">
+                                    <iframe
+                                        src={settings.google_maps_link}
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        allowFullScreen={true}
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        className="border-0"
+                                    ></iframe>
+                                </div>
+                            ) : !settings ? (
+                                <div className="mt-auto h-64 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-200 shrink-0">
+                                    <iframe
+                                        src={fallbackGoogleMaps}
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        allowFullScreen={true}
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        className="border-0"
+                                    ></iframe>
+                                </div>
+                            ) : null}
+                        </div>
+
+                        {/* RIGHT COLUMN: Lead Form */}
+                        <div className="p-8 md:p-12 flex flex-col justify-center bg-white">
+                            {status === 'success' ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12 animate-fade-in">
+                                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 shadow-sm border border-green-200">
+                                        <CheckCircle2 size={40} />
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-gray-900">Đăng ký thành công!</h3>
+                                    <p className="text-gray-600 text-lg leading-relaxed max-w-md">
+                                        Cảm ơn bạn! Chuyên viên tư vấn của VinFast Xanh Mekong sẽ liên hệ lại trong ít phút để hỗ trợ bạn.
+                                    </p>
+                                    <button
+                                        onClick={() => setStatus('idle')}
+                                        className="mt-8 px-8 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full font-bold transition-colors"
+                                    >
+                                        Gửi thêm yêu cầu khác
+                                    </button>
+                                </div>
+                            ) : (
+                                <div>
+                                    <h2 className="text-3xl font-bold text-vinfast-blue mb-2">Đăng Ký Tư Vấn & Lái Thử</h2>
+                                    <p className="text-gray-500 mb-8">Vui lòng điền thông tin bên dưới, chúng tôi sẽ hỗ trợ bạn nhanh nhất.</p>
+
+                                    <form onSubmit={handleSubmit} className="space-y-6">
+                                        {status === 'error' && (
+                                            <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-xl flex items-start gap-3 text-sm animate-fade-in shadow-sm">
+                                                <AlertCircle size={20} className="shrink-0 mt-0.5 text-red-500" />
+                                                <span className="font-medium">{errorMessage}</span>
+                                            </div>
+                                        )}
+
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Họ và tên <span className="text-red-500">*</span></label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.full_name}
+                                                onChange={e => setFormData({ ...formData, full_name: e.target.value })}
+                                                className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-all outline-none text-gray-800"
+                                                placeholder="VD: Nguyễn Văn A"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Số điện thoại <span className="text-red-500">*</span></label>
+                                            <input
+                                                type="tel"
+                                                required
+                                                value={formData.phone}
+                                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                                className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-all outline-none text-gray-800"
+                                                placeholder="VD: 0912345678"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Dòng xe quan tâm <span className="text-gray-400 font-normal ml-1">(Tùy chọn)</span></label>
+                                            <select
+                                                value={formData.car_model}
+                                                onChange={e => setFormData({ ...formData, car_model: e.target.value })}
+                                                className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-all outline-none text-gray-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209L12%2015L18%209%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[position:right_1rem_center] bg-no-repeat pr-10"
+                                            >
+                                                <option value="">-- Chọn dòng xe muốn lái thử --</option>
+                                                <option value="Evo200 / Evo200 Lite">Evo200 / Evo200 Lite</option>
+                                                <option value="Feliz S">Feliz S</option>
+                                                <option value="Klara S (2022)">Klara S (2022)</option>
+                                                <option value="Vento S">Vento S</option>
+                                                <option value="Theon S">Theon S</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Lời nhắn bổ sung <span className="text-gray-400 font-normal ml-1">(Tùy chọn)</span></label>
+                                            <textarea
+                                                rows={3}
+                                                value={formData.notes}
+                                                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                                className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-all outline-none text-gray-800 resize-none"
+                                                placeholder="Ví dụ: Tôi muốn tư vấn trả góp, tôi muốn lái thử vào thứ 7..."
+                                            ></textarea>
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="w-full bg-vinfast-blue text-white py-4 px-6 rounded-xl font-bold hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 mt-4 shadow-lg hover:shadow-xl disabled:bg-blue-300 disabled:cursor-not-allowed"
+                                        >
+                                            {loading ? (
+                                                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <>
+                                                    Gửi Yêu Cầu <Send size={20} className="ml-1" />
+                                                </>
+                                            )}
+                                        </button>
+                                        <p className="text-center text-xs text-gray-500 mt-4">
+                                            Thông tin của bạn sẽ được bảo mật tuyệt đối theo chính sách của chúng tôi.
+                                        </p>
+                                    </form>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
