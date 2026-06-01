@@ -221,6 +221,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                 </div>
                             </div>
 
+                            <Link href="/tuyen-dung" className={`${getLinkClass('/tuyen-dung')} pb-3`}>TUYỂN DỤNG</Link>
                             <Link href="/contact" className={`${getLinkClass('/contact')} pb-3`}>LIÊN HỆ</Link>
                         </nav>
                     </div>
@@ -297,6 +298,10 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                 <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Giấy phép môi trường</Link>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="border-b border-gray-100">
+                        <Link href="/tuyen-dung" onClick={() => setIsMenuOpen(false)} className={`block py-4 ${getLinkClass('/tuyen-dung')}`}>TUYỂN DỤNG</Link>
                     </div>
 
                     <div className="border-b border-gray-100">
