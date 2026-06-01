@@ -7,6 +7,14 @@ import QuickActionCard from './quick-action-card';
 
 export default function AboutDealership() {
     const [activeModal, setActiveModal] = useState<'testDrive' | 'estimate' | 'installment' | 'quote' | null>(null);
+    const [preFilledCar, setPreFilledCar] = useState('');
+    const [preFilledNotes, setPreFilledNotes] = useState('');
+
+    const handleCloseModal = () => {
+        setActiveModal(null);
+        setPreFilledCar('');
+        setPreFilledNotes('');
+    };
 
     return (
         <section className="relative w-full bg-white pb-12">
@@ -43,7 +51,11 @@ export default function AboutDealership() {
                         title="ĐĂNG KÝ LÁI THỬ"
                         icon={Car}
                         desc="Trải nghiệm thực tế cảm giác lái mượt mà của các dòng xe điện VinFast."
-                        onClick={() => setActiveModal('testDrive')}
+                        onClick={() => {
+                            setPreFilledCar('');
+                            setPreFilledNotes('');
+                            setActiveModal('testDrive');
+                        }}
                     />
                     <QuickActionCard
                         title="DỰ TOÁN CHI PHÍ"
@@ -61,24 +73,50 @@ export default function AboutDealership() {
                         title="BÁO GIÁ XE"
                         icon={FileText}
                         desc="Nhận báo giá nhanh chóng và chi tiết các gói ưu đãi khuyến mãi ngay hôm nay."
-                        onClick={() => setActiveModal('quote')}
+                        onClick={() => {
+                            setPreFilledCar('');
+                            setPreFilledNotes('');
+                            setActiveModal('quote');
+                        }}
                     />
                 </div>
             </div>
 
             {/* Modals */}
-            <ModalWrapper isOpen={activeModal !== null} onClose={() => setActiveModal(null)}>
+            <ModalWrapper isOpen={activeModal !== null} onClose={handleCloseModal}>
                 {activeModal === 'testDrive' && (
-                    <LeadFormModal title="Đăng Ký Lái Thử" onClose={() => setActiveModal(null)} />
+                    <LeadFormModal 
+                        title="Đăng Ký Lái Thử" 
+                        onClose={handleCloseModal} 
+                        selectedCar={preFilledCar}
+                        initialNotes={preFilledNotes}
+                    />
                 )}
                 {activeModal === 'estimate' && (
-                    <CostEstimateModal />
+                    <CostEstimateModal 
+                        onQuoteTrigger={(carName, notes) => {
+                            setPreFilledCar(carName);
+                            setPreFilledNotes(notes);
+                            setActiveModal('quote');
+                        }}
+                    />
                 )}
                 {activeModal === 'installment' && (
-                    <InstallmentModal />
+                    <InstallmentModal 
+                        onQuoteTrigger={(carName, notes) => {
+                            setPreFilledCar(carName);
+                            setPreFilledNotes(notes);
+                            setActiveModal('quote');
+                        }}
+                    />
                 )}
                 {activeModal === 'quote' && (
-                    <LeadFormModal title="Nhận Báo Giá Chi Tiết" onClose={() => setActiveModal(null)} />
+                    <LeadFormModal 
+                        title="Nhận Báo Giá Chi Tiết" 
+                        onClose={handleCloseModal} 
+                        selectedCar={preFilledCar}
+                        initialNotes={preFilledNotes}
+                    />
                 )}
             </ModalWrapper>
         </section>

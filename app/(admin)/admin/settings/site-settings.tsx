@@ -77,7 +77,7 @@ export default function SiteSettings() {
             // URL Cleaner: Extract `src` if iframe tag is present, otherwise use raw
             let rawMapUrl = formData.google_maps_link?.trim();
             let cleanMapUrl = rawMapUrl;
-            
+
             if (rawMapUrl && rawMapUrl.includes('<iframe')) {
                 const srcMatch = rawMapUrl.match(/src="([^"]+)"/);
                 if (srcMatch && srcMatch[1]) {
@@ -86,13 +86,13 @@ export default function SiteSettings() {
                     cleanMapUrl = ''; // fallback to empty if parse fails
                 }
             }
-            
+
             // Re-update the state locally so the user sees the cleaned URL
             setFormData(prev => ({ ...prev, google_maps_link: cleanMapUrl }));
 
             const { data: sessionData } = await supabase.auth.getSession();
             const token = sessionData.session?.access_token;
-            
+
             const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
             };
@@ -233,7 +233,7 @@ export default function SiteSettings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200">
                     <div className="sm:col-span-1">
                         <label htmlFor="link_xe_may_dien" className="block text-sm font-medium text-gray-700">
-                            Link Xe máy điện
+                            Link ôtô điện
                         </label>
                         <div className="mt-1">
                             <input

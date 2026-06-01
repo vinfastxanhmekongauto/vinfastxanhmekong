@@ -70,7 +70,7 @@ export default async function BlogPage() {
                         Blog VinFast Xanh Mekong
                     </h1>
                     <p className="text-gray-600 text-lg leading-relaxed">
-                        Cập nhật những thông tin mới nhất về xe máy điện VinFast, các sự kiện lái thử tại Showroom và kinh nghiệm sử dụng xe hiệu quả.
+                        Cập nhật những thông tin mới nhất về ôtô điện VinFast, các sự kiện lái thử tại Showroom và kinh nghiệm sử dụng xe hiệu quả.
                     </p>
                 </div>
             </div>

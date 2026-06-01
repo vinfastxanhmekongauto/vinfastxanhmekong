@@ -36,7 +36,7 @@ export default function Footer() {
                             </div>
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed">
-                            Đại lý xe máy điện VinFast chính hãng tại Cần Thơ. Chúng tôi cam kết mang đến những phương tiện di chuyển xanh, thông minh và thân thiện với môi trường, hướng tới một tương lai bền vững.
+                            Đại lý ôtô điện VinFast chính hãng tại Cần Thơ. Chúng tôi cam kết mang đến những phương tiện di chuyển xanh, thông minh và thân thiện với môi trường, hướng tới một tương lai bền vững.
                         </p>
                     </div>
 
@@ -44,7 +44,7 @@ export default function Footer() {
                     <div className="space-y-4">
                         <h4 className="text-lg font-bold mb-6">Liên Kết Nhanh</h4>
                         <ul className="space-y-3 text-sm text-gray-400">
-                            <li><Link href="/products" className="hover:text-vinfast-blue transition-colors">Tất cả xe máy điện</Link></li>
+                            <li><Link href="/products" className="hover:text-vinfast-blue transition-colors">Tất cả ôtô điện</Link></li>
                             <li><Link href="/promotions" className="hover:text-vinfast-blue transition-colors">Chương trình khuyến mãi</Link></li>
                             <li><Link href="/about" className="hover:text-vinfast-blue transition-colors">Về chúng tôi</Link></li>
                             <li><Link href="/blog" className="hover:text-vinfast-blue transition-colors">Tin tức & Sự kiện</Link></li>
@@ -73,10 +73,10 @@ export default function Footer() {
                             </li>
                         </ul>
                         <div className="pt-4 flex items-center gap-4">
-                            <a href="https://facebook.com/vinfastxanhmekong" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition">
+                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition">
                                 <Facebook size={20} fill="white" />
                             </a>
-                            <a href={`https://zalo.me/${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`} target="_blank" rel="noreferrer" className="h-10 px-4 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm hover:bg-blue-600 transition">
+                            <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="h-10 px-4 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm hover:bg-blue-600 transition">
                                 Zalo Chat
                             </a>
                         </div>

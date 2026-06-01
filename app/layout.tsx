@@ -27,7 +27,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://vinfastxanhmekong.vn'),
   title: "VinFast Xanh Mekong",
-  description: "Đại lý xe máy điện VinFast chính hãng hàng đầu tại khu vực.",
+  description: "Đại lý ôtô điện VinFast chính hãng hàng đầu tại khu vực.",
   icons: {
     icon: "/logo-vinfast.svg",
     shortcut: "/logo-vinfast.svg",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "VinFast Xanh Mekong",
-    description: "Đại lý xe máy điện VinFast chính hãng hàng đầu tại khu vực.",
+    description: "Đại lý ôtô điện VinFast chính hãng hàng đầu tại khu vực.",
     url: '/',
     siteName: 'VinFast Xanh Mekong',
     images: [

@@ -21,6 +21,14 @@ interface ProductDetailPageClientProps {
 
 export default function ProductDetailPageClient({ product, similarProducts }: ProductDetailPageClientProps) {
     const [activeModal, setActiveModal] = useState<'testDrive' | 'estimate' | 'installment' | 'quote' | null>(null);
+    const [preFilledCar, setPreFilledCar] = useState('');
+    const [preFilledNotes, setPreFilledNotes] = useState('');
+
+    const handleCloseModal = () => {
+        setActiveModal(null);
+        setPreFilledCar('');
+        setPreFilledNotes('');
+    };
 
     const autoplayPlugin = React.useRef(Autoplay({ delay: 5000, stopOnInteraction: false }));
     const extraAutoplayPlugin = React.useRef(Autoplay({ delay: 5000, stopOnInteraction: false }));
@@ -434,6 +442,213 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                 </section>
             ))}
 
+            {/* ━━━ ADVANCED DYNAMIC BLOCKS ━━━ */}
+            {product?.advanced_features_blocks && product.advanced_features_blocks.length > 0 && (
+                <section className="py-20 md:py-28 bg-white border-t border-b border-gray-100">
+                    <div className="container mx-auto px-4 md:px-8 max-w-7xl">
+                        <div className="text-center mb-16 md:mb-24">
+                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-[#152B4D] mb-4">
+                                {product?.advanced_features_title || 'TÍNH NĂNG NÂNG CAO'}
+                            </h2>
+                            {product.advanced_features_desc && (
+                                <p className="text-gray-600 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+                                    {product.advanced_features_desc}
+                                </p>
+                            )}
+                            <div className="w-24 h-1.5 bg-[#00358E] mx-auto rounded-full mt-6" />
+                        </div>
+
+                        <div className="space-y-16 md:space-y-24">
+                            {product.advanced_features_blocks.map((block: any, idx: number) => {
+                                switch (block.type) {
+                                    case 'hero_full':
+                                        return (
+                                            <div key={idx} className="relative w-full rounded-[2rem] overflow-hidden shadow-xl group">
+                                                <div className="relative aspect-video md:aspect-[21/9] w-full bg-slate-100">
+                                                    {block.image_url ? (
+                                                        <Image
+                                                            src={block.image_url}
+                                                            alt={block.title || 'Advanced feature'}
+                                                            fill
+                                                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                                            unoptimized
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                                            No Image
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-12" />
+                                                </div>
+                                                <div className="bg-white p-6 md:p-10 border border-t-0 border-gray-100 rounded-b-[2rem]">
+                                                    <h3 className="text-2xl md:text-3xl font-bold text-[#152B4D] mb-4 tracking-tight">
+                                                        {block.title}
+                                                    </h3>
+                                                    {block.description && (
+                                                        <p className="text-gray-600 text-base md:text-lg leading-relaxed text-justify whitespace-pre-line">
+                                                            {block.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+
+                                    case 'split_left':
+                                        return (
+                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                                                <div className="relative aspect-video md:aspect-[4/3] w-full rounded-[2rem] overflow-hidden shadow-xl bg-slate-100">
+                                                    {block.image_url ? (
+                                                        <Image
+                                                            src={block.image_url}
+                                                            alt={block.title || 'Advanced feature'}
+                                                            fill
+                                                            className="object-cover"
+                                                            unoptimized
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                                            No Image
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-4 px-2">
+                                                    <h3 className="text-2xl md:text-3xl font-bold text-[#152B4D] tracking-tight">
+                                                        {block.title}
+                                                    </h3>
+                                                    {block.description && (
+                                                        <p className="text-gray-600 text-base md:text-lg leading-relaxed text-justify whitespace-pre-line">
+                                                            {block.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+
+                                    case 'split_right':
+                                        return (
+                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                                                <div className="md:order-last relative aspect-video md:aspect-[4/3] w-full rounded-[2rem] overflow-hidden shadow-xl bg-slate-100">
+                                                    {block.image_url ? (
+                                                        <Image
+                                                            src={block.image_url}
+                                                            alt={block.title || 'Advanced feature'}
+                                                            fill
+                                                            className="object-cover"
+                                                            unoptimized
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                                            No Image
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-4 px-2">
+                                                    <h3 className="text-2xl md:text-3xl font-bold text-[#152B4D] tracking-tight">
+                                                        {block.title}
+                                                    </h3>
+                                                    {block.description && (
+                                                        <p className="text-gray-600 text-base md:text-lg leading-relaxed text-justify whitespace-pre-line">
+                                                            {block.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+
+                                    case 'grid_2':
+                                        return (
+                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                                                {(block.items || []).slice(0, 2).map((item: any, subIdx: number) => {
+                                                    const textBlock = (
+                                                        <div key="text" className="space-y-3 px-2 flex-grow">
+                                                            <h4 className="text-xl md:text-2xl font-bold text-[#152B4D] tracking-tight">
+                                                                {item.title}
+                                                            </h4>
+                                                            {item.description && (
+                                                                <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify whitespace-pre-line">
+                                                                    {item.description}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    );
+
+                                                    const imageBlock = (
+                                                        <div key="image" className="relative aspect-video md:aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-md bg-slate-50 shrink-0">
+                                                            {item.image_url ? (
+                                                                <Image
+                                                                    src={item.image_url}
+                                                                    alt={item.title || 'Grid 2 feature'}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                    unoptimized
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                                                    No Image
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+
+                                                    return (
+                                                        <div key={subIdx} className="flex flex-col gap-4 h-full">
+                                                            {item.layout_style === 'text_top' ? (
+                                                                <>
+                                                                    {textBlock}
+                                                                    {imageBlock}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    {imageBlock}
+                                                                    {textBlock}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        );
+
+                                    case 'grid_4':
+                                        return (
+                                            <div key={idx} className="space-y-8">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                                                    {block.items?.map((subItem: any, subIdx: number) => (
+                                                        <div key={subIdx} className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 flex flex-col h-full hover:shadow-lg transition-all duration-300">
+                                                            <div className="relative w-full aspect-[16/10] mb-6 rounded-2xl overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
+                                                                {subItem.image_url ? (
+                                                                    <Image
+                                                                        src={subItem.image_url}
+                                                                        alt={subItem.title || 'Sub feature'}
+                                                                        fill
+                                                                        className="object-cover"
+                                                                        unoptimized
+                                                                    />
+                                                                ) : (
+                                                                    <div className="text-slate-300 font-medium text-xs">No Icon</div>
+                                                                )}
+                                                            </div>
+                                                            <h4 className="text-lg font-bold text-[#152B4D] mb-2 tracking-tight">
+                                                                {subItem.title}
+                                                            </h4>
+                                                            <p className="text-gray-500 text-sm leading-relaxed flex-grow text-justify whitespace-pre-line">
+                                                                {subItem.description}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+
+                                    default:
+                                        return null;
+                                }
+                            })}
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {product?.tech_specs_markdown && <TechSpecsTable markdown={product.tech_specs_markdown} productName={product.name} onQuoteClick={() => setActiveModal('quote')} brochureUrl={product.brochure_url} />}
 
             <ChargingNetwork />
@@ -490,11 +705,41 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                 </div>
             </section>
 
-            <ModalWrapper isOpen={activeModal !== null} onClose={() => setActiveModal(null)}>
-                {activeModal === 'testDrive' && <LeadFormModal title={`Lái Thử ${product?.name}`} onClose={() => setActiveModal(null)} selectedCar={product?.name} />}
-                {activeModal === 'estimate' && <CostEstimateModal />}
-                {activeModal === 'installment' && <InstallmentModal />}
-                {activeModal === 'quote' && <LeadFormModal title={`Báo Giá ${product?.name}`} onClose={() => setActiveModal(null)} selectedCar={product?.name} />}
+            <ModalWrapper isOpen={activeModal !== null} onClose={handleCloseModal}>
+                {activeModal === 'testDrive' && (
+                    <LeadFormModal 
+                        title={`Lái Thử ${preFilledCar || product?.name}`} 
+                        onClose={handleCloseModal} 
+                        selectedCar={preFilledCar || product?.name} 
+                        initialNotes={preFilledNotes}
+                    />
+                )}
+                {activeModal === 'estimate' && (
+                    <CostEstimateModal 
+                        onQuoteTrigger={(carName, notes) => {
+                            setPreFilledCar(carName);
+                            setPreFilledNotes(notes);
+                            setActiveModal('quote');
+                        }}
+                    />
+                )}
+                {activeModal === 'installment' && (
+                    <InstallmentModal 
+                        onQuoteTrigger={(carName, notes) => {
+                            setPreFilledCar(carName);
+                            setPreFilledNotes(notes);
+                            setActiveModal('quote');
+                        }}
+                    />
+                )}
+                {activeModal === 'quote' && (
+                    <LeadFormModal 
+                        title={`Báo Giá ${preFilledCar || product?.name}`} 
+                        onClose={handleCloseModal} 
+                        selectedCar={preFilledCar || product?.name} 
+                        initialNotes={preFilledNotes}
+                    />
+                )}
             </ModalWrapper>
         </div>
     );

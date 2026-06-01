@@ -37,7 +37,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
     const [coverImage, setCoverImage] = useState<string | null>(initialData?.cover_image || null);
     const [headerContent, setHeaderContent] = useState(initialData?.header_content || '');
     const [footerContent, setFooterContent] = useState(initialData?.footer_content || '');
-    
+
     // Dynamic positions array (initially has at least one blank position if editing is blank)
     const [positions, setPositions] = useState<PositionFormData[]>(
         initialData?.positions || [
@@ -230,13 +230,13 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
 
             <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                 <div className="p-6 md:p-8 space-y-6">
-                    
+
                     {/* Part 1: Campaign Basic Info */}
                     <div className="space-y-4">
                         <h3 className="text-base font-bold text-gray-900 border-l-4 border-vinfast-blue pl-3">
                             Thông Tin Chiến Dịch Tuyển Dụng
                         </h3>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-gray-700 block">
@@ -271,7 +271,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                             <label className="text-sm font-semibold text-gray-700 block">
                                 Ảnh nền chiến dịch (Cover Image)
                             </label>
-                            
+
                             {coverImage ? (
                                 <div className="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-50 max-w-lg shadow-sm group">
                                     <div className="relative aspect-video w-full">
@@ -295,7 +295,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                                     </div>
                                 </div>
                             ) : (
-                                <div 
+                                <div
                                     onClick={() => fileInputRef.current?.click()}
                                     className={`border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-vinfast-blue hover:bg-blue-50/20 transition-all ${isUploading ? 'pointer-events-none' : ''}`}
                                 >
@@ -354,7 +354,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                         <h3 className="text-base font-bold text-gray-900 border-l-4 border-vinfast-blue pl-3">
                             Nội Dung Mô Tả Chiến Dịch (Markdown)
                         </h3>
-                        
+
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-gray-700 block">
                                 Nội dung mở đầu chiến dịch (Header Content)
@@ -407,7 +407,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                         ) : (
                             <div className="space-y-8">
                                 {positions.map((pos, index) => (
-                                    <div 
+                                    <div
                                         key={index}
                                         className="relative bg-gray-50/50 border border-gray-200 rounded-xl p-4 md:p-6 space-y-4 shadow-sm"
                                     >
@@ -490,7 +490,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                                                 <textarea
                                                     value={pos.description}
                                                     onChange={(e) => handlePositionChange(index, 'description', e.target.value)}
-                                                    placeholder="- Thực hiện sửa chữa xe máy điện&#10;- Báo cáo cấp trên..."
+                                                    placeholder="- Thực hiện sửa chữa ôtô điện&#10;- Báo cáo cấp trên..."
                                                     rows={5}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-800 font-mono focus:outline-none focus:ring-1 focus:ring-vinfast-blue leading-relaxed"
                                                 />

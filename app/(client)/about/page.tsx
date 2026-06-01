@@ -3,11 +3,11 @@ import { Target, Eye, ShieldCheck, Wrench, MapPin } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Giới thiệu VinFast Xanh Mekong | Showroom Xe Máy Điện Cần Thơ',
-    description: 'Tìm hiểu về VinFast Xanh Mekong - Đại lý ủy quyền xe máy điện VinFast uy tín hàng đầu tại khu vực Cần Thơ và miền Tây.',
+    title: 'Giới thiệu VinFast Xanh Mekong | Showroom Ôtô Điện Cần Thơ',
+    description: 'Tìm hiểu về VinFast Xanh Mekong - Đại lý ủy quyền ôtô điện VinFast uy tín hàng đầu tại khu vực Cần Thơ và miền Tây.',
     openGraph: {
-        title: 'Giới thiệu VinFast Xanh Mekong | Showroom Xe Máy Điện Cần Thơ',
-        description: 'Tìm hiểu về VinFast Xanh Mekong - Đại lý ủy quyền xe máy điện VinFast uy tín hàng đầu tại khu vực Cần Thơ và miền Tây.',
+        title: 'Giới thiệu VinFast Xanh Mekong | Showroom Ôtô Điện Cần Thơ',
+        description: 'Tìm hiểu về VinFast Xanh Mekong - Đại lý ủy quyền ôtô điện VinFast uy tín hàng đầu tại khu vực Cần Thơ và miền Tây.',
         url: '/about',
         images: [{ url: '/logo-vinfast.jpg' }],
     }
@@ -31,7 +31,7 @@ export default function AboutPage() {
                         <span className="text-blue-200">Tiên Phong Kỷ Nguyên Di Chuyển Xanh</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-blue-50 font-light leading-relaxed drop-shadow-md">
-                        Đại lý xe máy điện VinFast chính hãng hàng đầu tại Cần Thơ, mang đến giải pháp di chuyển thông minh và thân thiện với môi trường.
+                        Đại lý ôtô điện VinFast chính hãng hàng đầu tại Cần Thơ, mang đến giải pháp di chuyển thông minh và thân thiện với môi trường.
                     </p>
                 </div>
                 {/* Decorative bottom curve */}
@@ -62,7 +62,7 @@ export default function AboutPage() {
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-3">Sứ Mệnh</h3>
                                     <p className="text-gray-600 leading-relaxed text-lg">
-                                        Cam kết cung cấp các dòng xe máy điện VinFast thế hệ mới nhất (Evo200, Feliz S, Klara S...) với chất lượng kiểm định nghiêm ngặt, trải nghiệm mua sắm tuyệt vời cùng dịch vụ bảo trì chuyên nghiệp, tận tâm trọn đời.
+                                        Cam kết cung cấp các dòng xe ôtô điện VinFast thế hệ mới nhất với chất lượng kiểm định nghiêm ngặt, trải nghiệm mua sắm tuyệt vời cùng dịch vụ bảo trì chuyên nghiệp, tận tâm trọn đời.
                                     </p>
                                 </div>
                             </div>
@@ -92,7 +92,7 @@ export default function AboutPage() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Chính Hãng 100%</h3>
                             <p className="text-gray-600 leading-relaxed">
-                                Cam kết phân phối xe máy điện, phụ tùng và phụ kiện chính hãng nhập trực tiếp từ nhà máy VinFast, đảm bảo chất lượng tuyệt đối.
+                                Cam kết phân phối xe ôtô điện, phụ tùng và phụ kiện chính hãng nhập trực tiếp từ nhà máy VinFast, đảm bảo chất lượng tuyệt đối.
                             </p>
                         </div>
 

@@ -10,6 +10,7 @@ export async function submitLead(formData: {
     phone: string;
     car_model: string;
     notes: string;
+    email?: string;
 }) {
     try {
         // 1. Insert into Supabase
@@ -18,6 +19,7 @@ export async function submitLead(formData: {
             .insert([{
                 full_name: formData.full_name,
                 phone: formData.phone,
+                email: formData.email || null,
                 car_model: formData.car_model, // Extra fields handled similarly
                 notes: formData.car_model ? `Quan tâm: ${formData.car_model} - Lời nhắn: ${formData.notes}` : formData.notes,
                 status: 'Mới'
@@ -54,6 +56,12 @@ export async function submitLead(formData: {
                                 <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Số điện thoại</th>
                                 <td style="border: 1px solid #ddd; padding: 8px;">${formData.phone}</td>
                             </tr>
+                            ${formData.email ? `
+                            <tr>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Email</th>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${formData.email}</td>
+                            </tr>
+                            ` : ''}
                             <tr>
                                 <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Dòng xe quan tâm</th>
                                 <td style="border: 1px solid #ddd; padding: 8px;">${formData.car_model || 'Trống'}</td>

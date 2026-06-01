@@ -6,10 +6,10 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Chương Trình Khuyến Mãi & Ưu Đãi | VinFast Xanh Mekong',
-    description: 'Tổng hợp các chương trình ưu đãi, tặng voucher và chính sách thuê pin mới nhất cho các dòng xe máy điện VinFast tại Cần Thơ.',
+    description: 'Tổng hợp các chương trình ưu đãi, tặng voucher và chính sách thuê pin mới nhất cho các dòng ôtô điện VinFast tại Cần Thơ.',
     openGraph: {
         title: 'Chương Trình Khuyến Mãi & Ưu Đãi | VinFast Xanh Mekong',
-        description: 'Tổng hợp các chương trình ưu đãi, tặng voucher và chính sách thuê pin mới nhất cho các dòng xe máy điện VinFast tại Cần Thơ.',
+        description: 'Tổng hợp các chương trình ưu đãi, tặng voucher và chính sách thuê pin mới nhất cho các dòng ôtô điện VinFast tại Cần Thơ.',
         url: '/promotions',
         images: [{ url: '/logo-vinfast.jpg' }],
     }
@@ -57,7 +57,7 @@ export default async function PromotionsPage() {
                     </h1>
                     <p className="text-lg md:text-xl text-blue-100 leading-relaxed font-light">
                         Cập nhật các chính sách bán hàng mới nhất từ VinFast Xanh Mekong.
-                        Cơ hội sở hữu xe máy điện thông minh với mức giá tốt nhất cùng hàng ngàn quà tặng hấp dẫn.
+                        Cơ hội sở hữu ôtô điện thông minh với mức giá tốt nhất cùng hàng ngàn quà tặng hấp dẫn.
                     </p>
                 </div>
             </div>

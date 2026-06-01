@@ -71,7 +71,7 @@ export default function LeadForm() {
                 <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
                     <div className="flex flex-col justify-center">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">Đăng Ký Lái Thử <br /> & Nhận Tư Vấn</h2>
-                        <p className="text-blue-100 text-lg mb-8">Trải nghiệm thực tế các dòng xe máy điện VinFast tiên tiến nhất. Đội ngũ chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ bạn.</p>
+                        <p className="text-blue-100 text-lg mb-8">Trải nghiệm thực tế các dòng ôtô điện VinFast tiên tiến nhất. Đội ngũ chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ bạn.</p>
                         <ul className="space-y-4 text-blue-50 font-medium">
                             <li className="flex items-center gap-3">
                                 <CheckCircle2 className="text-green-400" size={20} /> Tư vấn chọn xe phù hợp nhu cầu.

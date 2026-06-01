@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { Pencil, Trash2, X, Plus, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, CheckSquare, Square, Star, StarOff, Search, Copy, Upload, Settings2 } from 'lucide-react';
+import { Pencil, Trash2, X, Plus, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckSquare, Square, Star, StarOff, Search, Copy, Upload, Settings2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import type { JSONContent } from '@tiptap/react';
 
@@ -62,6 +62,9 @@ type Product = {
     } | null;
     sale_status?: 'available' | 'booking' | 'coming_soon' | null;
     brochure_url?: string | null;
+    advanced_features_desc?: string;
+    advanced_features_blocks?: any[];
+    advanced_features_title?: string;
 };
 
 export default function AdminProductsPage() {
@@ -102,7 +105,10 @@ export default function AdminProductsPage() {
         tagline: '',
         homepage_specs: { range: '', charge_time: '', segment: '' },
         sale_status: 'available',
-        brochure_url: ''
+        brochure_url: '',
+        advanced_features_desc: '',
+        advanced_features_blocks: [] as any[],
+        advanced_features_title: ''
     });
 
     // States cho upload Feature images
@@ -125,6 +131,7 @@ export default function AdminProductsPage() {
 
     // Storage cleanup state
     const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+    const [selectedBlockType, setSelectedBlockType] = useState<'hero_full' | 'split_left' | 'split_right' | 'grid_4' | 'grid_2'>('hero_full');
 
     const queueImageForDeletion = (url: string | null) => {
         if (!url) return;
@@ -434,6 +441,139 @@ export default function AdminProductsPage() {
         }
     };
 
+    const [uploadingBlocks, setUploadingBlocks] = useState<string[]>([]);
+
+    const handleBlockImageUpload = async (blockIdx: number, file: File, subIdx?: number) => {
+        const key = subIdx !== undefined ? `${blockIdx}-${subIdx}` : `${blockIdx}`;
+        setUploadingBlocks(prev => [...prev, key]);
+        try {
+            const upFormData = new FormData();
+            upFormData.append('file', file);
+            upFormData.append('folder', 'products/advanced_features');
+
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: upFormData
+            });
+
+            if (res.ok) {
+                const { url } = await res.json();
+                const newBlocks = [...formData.advanced_features_blocks];
+                if (subIdx !== undefined) {
+                    if (!newBlocks[blockIdx].items) newBlocks[blockIdx].items = [];
+                    const oldUrl = newBlocks[blockIdx].items[subIdx]?.image_url;
+                    if (oldUrl) {
+                        queueImageForDeletion(oldUrl);
+                    }
+                    newBlocks[blockIdx].items[subIdx] = {
+                        ...newBlocks[blockIdx].items[subIdx],
+                        image_url: url
+                    };
+                } else {
+                    const oldUrl = newBlocks[blockIdx].image_url;
+                    if (oldUrl) {
+                        queueImageForDeletion(oldUrl);
+                    }
+                    newBlocks[blockIdx].image_url = url;
+                }
+                setFormData({ ...formData, advanced_features_blocks: newBlocks });
+            } else {
+                showNotification('error', 'Lỗi khi tải ảnh lên');
+            }
+        } catch (error) {
+            console.error('Block upload error:', error);
+            showNotification('error', 'Lỗi kết nối khi tải ảnh');
+        } finally {
+            setUploadingBlocks(prev => prev.filter(k => k !== key));
+        }
+    };
+
+    const addBlock = (type: 'hero_full' | 'split_left' | 'split_right' | 'grid_4' | 'grid_2') => {
+        const newBlock = type === 'grid_4' 
+            ? { type, items: [] as any[] } 
+            : type === 'grid_2'
+                ? { type, items: [
+                    { title: '', description: '', image_url: '', layout_style: 'image_top' },
+                    { title: '', description: '', image_url: '', layout_style: 'image_top' }
+                  ] }
+                : { type, title: '', description: '', image_url: '' };
+        
+        setFormData({
+            ...formData,
+            advanced_features_blocks: [...formData.advanced_features_blocks, newBlock]
+        });
+    };
+
+    const removeBlock = (index: number) => {
+        const block = formData.advanced_features_blocks[index];
+        if (block.image_url) {
+            queueImageForDeletion(block.image_url);
+        }
+        if (Array.isArray(block.items)) {
+            block.items.forEach((item: any) => {
+                if (item.image_url) {
+                    queueImageForDeletion(item.image_url);
+                }
+            });
+        }
+        const newBlocks = formData.advanced_features_blocks.filter((_, i) => i !== index);
+        setFormData({ ...formData, advanced_features_blocks: newBlocks });
+    };
+
+    const moveBlock = (index: number, direction: 'up' | 'down') => {
+        const newBlocks = [...formData.advanced_features_blocks];
+        if (direction === 'up' && index > 0) {
+            const temp = newBlocks[index];
+            newBlocks[index] = newBlocks[index - 1];
+            newBlocks[index - 1] = temp;
+        } else if (direction === 'down' && index < newBlocks.length - 1) {
+            const temp = newBlocks[index];
+            newBlocks[index] = newBlocks[index + 1];
+            newBlocks[index + 1] = temp;
+        }
+        setFormData({ ...formData, advanced_features_blocks: newBlocks });
+    };
+
+    const updateBlockField = (index: number, field: string, value: any) => {
+        const newBlocks = [...formData.advanced_features_blocks];
+        newBlocks[index] = { ...newBlocks[index], [field]: value };
+        setFormData({ ...formData, advanced_features_blocks: newBlocks });
+    };
+
+    const updateSubItemField = (blockIdx: number, subIdx: number, field: string, value: any) => {
+        const newBlocks = [...formData.advanced_features_blocks];
+        if (!newBlocks[blockIdx].items) newBlocks[blockIdx].items = [];
+        newBlocks[blockIdx].items[subIdx] = {
+            ...newBlocks[blockIdx].items[subIdx],
+            [field]: value
+        };
+        setFormData({ ...formData, advanced_features_blocks: newBlocks });
+    };
+
+    const addSubItem = (blockIdx: number) => {
+        const newBlocks = [...formData.advanced_features_blocks];
+        if (!newBlocks[blockIdx].items) newBlocks[blockIdx].items = [];
+        if (newBlocks[blockIdx].items.length >= 4) {
+            showNotification('error', 'Chỉ có thể thêm tối đa 4 sub-items');
+            return;
+        }
+        newBlocks[blockIdx].items.push({ title: '', description: '', image_url: '' });
+        setFormData({ ...formData, advanced_features_blocks: newBlocks });
+    };
+
+    const removeSubItem = (blockIdx: number, subIdx: number) => {
+        const newBlocks = [...formData.advanced_features_blocks];
+        if (newBlocks[blockIdx].items) {
+            const itemToDelete = newBlocks[blockIdx].items[subIdx];
+            if (itemToDelete?.image_url) {
+                queueImageForDeletion(itemToDelete.image_url);
+            }
+            newBlocks[blockIdx].items = newBlocks[blockIdx].items.filter((_: any, i: number) => i !== subIdx);
+            setFormData({ ...formData, advanced_features_blocks: newBlocks });
+        }
+    };
+
+
     const removeGalleryImage = (index: number, url: string) => {
         // If it's a blob URL, revoke it
         if (url.startsWith('blob:')) {
@@ -494,7 +634,10 @@ export default function AdminProductsPage() {
                     segment: product.homepage_specs?.segment || ''
                 },
                 sale_status: product.sale_status || 'available',
-                brochure_url: product.brochure_url || ''
+                brochure_url: product.brochure_url || '',
+                advanced_features_desc: product.advanced_features_desc || '',
+                advanced_features_blocks: Array.isArray(product.advanced_features_blocks) ? product.advanced_features_blocks : [],
+                advanced_features_title: product.advanced_features_title || ''
             });
         } else {
             setEditingProduct(null);
@@ -518,7 +661,10 @@ export default function AdminProductsPage() {
                 tagline: '',
                 homepage_specs: { range: '', charge_time: '', segment: '' },
                 sale_status: 'available',
-                brochure_url: ''
+                brochure_url: '',
+                advanced_features_desc: '',
+                advanced_features_blocks: [],
+                advanced_features_title: ''
             });
         }
         setIsModalOpen(true);
@@ -661,7 +807,10 @@ export default function AdminProductsPage() {
                 tagline: formData.tagline || null,
                 homepage_specs: formData.homepage_specs,
                 sale_status: formData.sale_status || null,
-                brochure_url: formData.brochure_url || null
+                brochure_url: formData.brochure_url || null,
+                advanced_features_desc: formData.advanced_features_desc,
+                advanced_features_blocks: formData.advanced_features_blocks,
+                advanced_features_title: formData.advanced_features_title
             };
 
             const { error } = await supabase
@@ -2272,6 +2421,417 @@ export default function AdminProductsPage() {
                                             <Plus className="w-4 h-4" />
                                             Thêm chính sách
                                         </button>
+                                    </div>
+                                </div>
+
+                                {/* TÍNH NĂNG NÂNG CAO (ADVANCED FEATURES BUILDER) */}
+                                <div className="pt-8 border-t border-gray-100">
+                                    <div className="bg-gray-50/80 rounded-2xl p-6 border border-gray-200 space-y-6">
+                                        <div>
+                                            <h4 className="text-base font-black text-[#152B4D] uppercase tracking-wider">Tính Năng Nâng Cao (Magazine Layout)</h4>
+                                            <p className="text-xs text-gray-500 mt-1">Xây dựng giao diện giới thiệu tính năng nâng cao kiểu tạp chí</p>
+                                        </div>
+
+                                        {/* Title & Description */}
+                                        <div className="space-y-1.5">
+                                            <label className="text-sm font-medium text-gray-700">Tiêu đề phần Tính Năng Nâng Cao</label>
+                                            <input
+                                                type="text"
+                                                value={formData.advanced_features_title}
+                                                onChange={e => setFormData({ ...formData, advanced_features_title: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue transition-all"
+                                                placeholder="VD: Tính Năng Nâng Cao"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-sm font-medium text-gray-700">Mô tả chung phần Tính Năng Nâng Cao</label>
+                                            <textarea
+                                                value={formData.advanced_features_desc}
+                                                onChange={e => setFormData({ ...formData, advanced_features_desc: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue transition-all"
+                                                placeholder="VD: Khám phá những công nghệ vượt trội và tính năng an toàn tiên tiến..."
+                                                rows={3}
+                                            />
+                                        </div>
+
+                                        {/* Add Block Controller */}
+                                        <div className="flex flex-col sm:flex-row gap-3 items-end sm:items-center bg-white p-4 rounded-xl border border-gray-200">
+                                            <div className="flex-1 space-y-1.5 w-full">
+                                                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Chọn loại Block hiển thị</label>
+                                                <select
+                                                    value={selectedBlockType}
+                                                    onChange={e => setSelectedBlockType(e.target.value as any)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue bg-white text-sm"
+                                                >
+                                                    <option value="hero_full">Hero Full Width (Ảnh lớn tràn lề)</option>
+                                                    <option value="split_left">Split Left (Ảnh bên trái, chữ bên phải)</option>
+                                                    <option value="split_right">Split Right (Chữ bên trái, ảnh bên phải)</option>
+                                                    <option value="grid_4">Grid 4 Columns (Khung lưới tối đa 4 cột)</option>
+                                                    <option value="grid_2">Grid 2 Columns (Lưới 2 cột tùy chỉnh)</option>
+                                                </select>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => addBlock(selectedBlockType)}
+                                                className="flex items-center gap-1.5 px-4 py-2 bg-vinfast-blue hover:bg-blue-800 text-white rounded-xl transition-all text-sm font-bold shadow-md shrink-0 w-full sm:w-auto justify-center"
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Thêm Khối
+                                            </button>
+                                        </div>
+
+                                        {/* Block List */}
+                                        <div className="space-y-6">
+                                            {formData.advanced_features_blocks.length === 0 ? (
+                                                <p className="text-sm text-gray-400 italic text-center py-8 bg-white rounded-xl border border-dashed border-gray-200">
+                                                    Chưa có block tính năng nào. Hãy thêm block đầu tiên của bạn.
+                                                </p>
+                                            ) : (
+                                                formData.advanced_features_blocks.map((block, blockIdx) => (
+                                                    <div key={blockIdx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden animate-fade-in">
+                                                        {/* Block Header Controls */}
+                                                        <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="bg-vinfast-blue text-white w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs">
+                                                                    {blockIdx + 1}
+                                                                </span>
+                                                                <span className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-200/60 px-2 py-0.5 rounded-full">
+                                                                    {block.type === 'hero_full' && 'Hero Full'}
+                                                                    {block.type === 'split_left' && 'Split Left'}
+                                                                    {block.type === 'split_right' && 'Split Right'}
+                                                                    {block.type === 'grid_4' && 'Grid 4 Columns'}
+                                                                    {block.type === 'grid_2' && 'Grid 2 Columns'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => moveBlock(blockIdx, 'up')}
+                                                                    disabled={blockIdx === 0}
+                                                                    className="p-1 text-gray-500 hover:text-vinfast-blue hover:bg-gray-100 rounded disabled:opacity-30 transition-all"
+                                                                    title="Di chuyển lên"
+                                                                >
+                                                                    <ChevronUp className="w-4 h-4" />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => moveBlock(blockIdx, 'down')}
+                                                                    disabled={blockIdx === formData.advanced_features_blocks.length - 1}
+                                                                    className="p-1 text-gray-500 hover:text-vinfast-blue hover:bg-gray-100 rounded disabled:opacity-30 transition-all"
+                                                                    title="Di chuyển xuống"
+                                                                >
+                                                                    <ChevronDown className="w-4 h-4" />
+                                                                </button>
+                                                                <div className="w-px h-4 bg-gray-200 mx-1"></div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeBlock(blockIdx)}
+                                                                    className="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                                                                    title="Xóa khối"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Block Fields */}
+                                                        <div className="p-4 space-y-4">
+                                                            {block.type === 'grid_2' ? (
+                                                                // Type grid_2 Section
+                                                                <div className="space-y-4">
+                                                                    <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Thiết lập 2 cột (Left & Right columns)</label>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                        {(block.items || []).map((subItem: any, subIdx: number) => (
+                                                                            <div key={subIdx} className="bg-gray-50/50 p-5 rounded-xl border border-gray-200 space-y-4 relative">
+                                                                                <div className="border-b border-gray-200 pb-2 flex justify-between items-center">
+                                                                                    <span className="text-xs font-extrabold text-vinfast-blue uppercase tracking-wider">
+                                                                                        {subIdx === 0 ? 'Cột bên trái' : 'Cột bên phải'}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="space-y-3">
+                                                                                    <div className="space-y-1">
+                                                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tiêu đề cột</label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            value={subItem.title || ''}
+                                                                                            onChange={e => updateSubItemField(blockIdx, subIdx, 'title', e.target.value)}
+                                                                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue text-sm"
+                                                                                            placeholder="Tiêu đề cột..."
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="space-y-1">
+                                                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mô tả cột</label>
+                                                                                        <textarea
+                                                                                            value={subItem.description || ''}
+                                                                                            onChange={e => updateSubItemField(blockIdx, subIdx, 'description', e.target.value)}
+                                                                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue text-sm"
+                                                                                            placeholder="Mô tả cột..."
+                                                                                            rows={3}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="space-y-2">
+                                                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Bố cục hiển thị (Bên ngoài client)</label>
+                                                                                        <div className="flex gap-4">
+                                                                                            <label className="flex items-center gap-2 text-xs text-gray-700 font-semibold cursor-pointer">
+                                                                                                <input
+                                                                                                    type="radio"
+                                                                                                    name={`layout-style-${blockIdx}-${subIdx}`}
+                                                                                                    checked={subItem.layout_style === 'image_top' || !subItem.layout_style}
+                                                                                                    onChange={() => updateSubItemField(blockIdx, subIdx, 'layout_style', 'image_top')}
+                                                                                                    className="w-4 h-4 text-vinfast-blue border-gray-300 focus:ring-vinfast-blue"
+                                                                                                />
+                                                                                                Ảnh ở trên
+                                                                                            </label>
+                                                                                            <label className="flex items-center gap-2 text-xs text-gray-700 font-semibold cursor-pointer">
+                                                                                                <input
+                                                                                                    type="radio"
+                                                                                                    name={`layout-style-${blockIdx}-${subIdx}`}
+                                                                                                    checked={subItem.layout_style === 'text_top'}
+                                                                                                    onChange={() => updateSubItemField(blockIdx, subIdx, 'layout_style', 'text_top')}
+                                                                                                    className="w-4 h-4 text-vinfast-blue border-gray-300 focus:ring-vinfast-blue"
+                                                                                                />
+                                                                                                Chữ ở trên
+                                                                                            </label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="space-y-1.5 pt-1">
+                                                                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Hình ảnh / Biểu tượng</label>
+                                                                                        <div className="flex gap-3 items-center">
+                                                                                            <div className="w-16 h-16 border rounded-lg overflow-hidden relative shrink-0 bg-white flex items-center justify-center">
+                                                                                                {uploadingBlocks.includes(`${blockIdx}-${subIdx}`) ? (
+                                                                                                    <div className="w-4 h-4 border-2 border-vinfast-blue border-t-transparent rounded-full animate-spin"></div>
+                                                                                                ) : subItem.image_url ? (
+                                                                                                    <Image
+                                                                                                        src={subItem.image_url}
+                                                                                                        alt={`Subitem ${subIdx}`}
+                                                                                                        fill
+                                                                                                        className="object-cover"
+                                                                                                        unoptimized
+                                                                                                    />
+                                                                                                ) : (
+                                                                                                    <Upload size={16} className="text-gray-400" />
+                                                                                                )}
+                                                                                            </div>
+                                                                                            <div className="flex-1 space-y-1.5">
+                                                                                                <input
+                                                                                                    type="file"
+                                                                                                    accept="image/*"
+                                                                                                    onChange={e => {
+                                                                                                        const file = e.target.files?.[0];
+                                                                                                        if (file) handleBlockImageUpload(blockIdx, file, subIdx);
+                                                                                                    }}
+                                                                                                    className="block w-full text-xs text-gray-500
+                                                                                                        file:mr-2 file:py-0.5 file:px-1.5
+                                                                                                        file:rounded file:border-0
+                                                                                                        file:text-[10px] file:font-semibold
+                                                                                                        file:bg-vinfast-blue file:text-white
+                                                                                                        hover:file:bg-blue-800 cursor-pointer outline-none"
+                                                                                                />
+                                                                                                <input
+                                                                                                    type="text"
+                                                                                                    value={subItem.image_url || ''}
+                                                                                                    onChange={e => updateSubItemField(blockIdx, subIdx, 'image_url', e.target.value)}
+                                                                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none"
+                                                                                                    placeholder="URL hình ảnh..."
+                                                                                                />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ) : block.type !== 'grid_4' ? (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    {/* Left Column: Title & Description */}
+                                                                    <div className="space-y-3">
+                                                                        <div className="space-y-1">
+                                                                            <label className="text-xs font-semibold text-gray-600">Tiêu đề khối</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={block.title || ''}
+                                                                                onChange={e => updateBlockField(blockIdx, 'title', e.target.value)}
+                                                                                className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue text-sm"
+                                                                                placeholder="VD: Không gian nội thất đẳng cấp"
+                                                                            />
+                                                                        </div>
+                                                                        <div className="space-y-1">
+                                                                            <label className="text-xs font-semibold text-gray-600">Mô tả chi tiết</label>
+                                                                            <textarea
+                                                                                value={block.description || ''}
+                                                                                onChange={e => updateBlockField(blockIdx, 'description', e.target.value)}
+                                                                                className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vinfast-blue/50 focus:border-vinfast-blue text-sm"
+                                                                                placeholder="Mô tả cho tính năng này..."
+                                                                                rows={4}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Right Column: Image URL & Upload */}
+                                                                    <div className="space-y-2 flex flex-col justify-between">
+                                                                        <div className="space-y-1.5">
+                                                                            <label className="text-xs font-semibold text-gray-600 block">Hình ảnh minh họa</label>
+                                                                            <div className="flex gap-3 items-center">
+                                                                                <div className="w-24 h-24 border rounded-md overflow-hidden relative shrink-0 bg-gray-50 flex items-center justify-center">
+                                                                                    {uploadingBlocks.includes(`${blockIdx}`) ? (
+                                                                                        <div className="flex flex-col items-center gap-1">
+                                                                                            <div className="w-4 h-4 border-2 border-vinfast-blue border-t-transparent rounded-full animate-spin"></div>
+                                                                                            <span className="text-[9px] font-bold text-vinfast-blue">Đang tải...</span>
+                                                                                        </div>
+                                                                                    ) : block.image_url ? (
+                                                                                        <Image
+                                                                                            src={block.image_url}
+                                                                                            alt={`Block ${blockIdx}`}
+                                                                                            fill
+                                                                                            className="object-cover"
+                                                                                            unoptimized
+                                                                                        />
+                                                                                    ) : (
+                                                                                        <Upload size={18} className="text-gray-400" />
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="flex-1 space-y-2">
+                                                                                    <input
+                                                                                        type="file"
+                                                                                        accept="image/*"
+                                                                                        onChange={e => {
+                                                                                            const file = e.target.files?.[0];
+                                                                                            if (file) handleBlockImageUpload(blockIdx, file);
+                                                                                        }}
+                                                                                        className="block w-full text-xs text-gray-500
+                                                                                            file:mr-3 file:py-1 file:px-2.5
+                                                                                            file:rounded-md file:border-0
+                                                                                            file:text-xs file:font-semibold
+                                                                                            file:bg-vinfast-blue file:text-white
+                                                                                            hover:file:bg-blue-800 transition-colors cursor-pointer outline-none"
+                                                                                    />
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        value={block.image_url || ''}
+                                                                                        onChange={e => updateBlockField(blockIdx, 'image_url', e.target.value)}
+                                                                                        className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none"
+                                                                                        placeholder="Hoặc nhập URL trực tiếp..."
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="text-[10px] text-gray-400 truncate">
+                                                                            Đường dẫn ảnh: {block.image_url || 'Chưa có ảnh'}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                // Type grid_4 Section
+                                                                <div className="space-y-4">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Danh sách sub-items (Tối đa 4 cột)</label>
+                                                                        {(!block.items || block.items.length < 4) && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => addSubItem(blockIdx)}
+                                                                                className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-vinfast-blue text-xs font-bold rounded-lg transition-colors border border-blue-200"
+                                                                            >
+                                                                                <Plus className="w-3 h-3" />
+                                                                                Thêm cột ({block.items?.length || 0}/4)
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                        {(!block.items || block.items.length === 0) && (
+                                                                            <p className="md:col-span-2 text-xs text-gray-400 italic text-center py-4 bg-gray-50 rounded-lg border border-dashed">
+                                                                                Chưa có cột nào. Nhấn "Thêm cột" để bắt đầu.
+                                                                            </p>
+                                                                        )}
+                                                                        {block.items?.map((subItem: any, subIdx: number) => (
+                                                                            <div key={subIdx} className="bg-gray-50/50 p-4 rounded-xl border border-gray-200 space-y-3 relative group">
+                                                                                <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
+                                                                                    <span className="text-xs font-bold text-gray-500">Cột {subIdx + 1}</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => removeSubItem(blockIdx, subIdx)}
+                                                                                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                                                                        title="Xóa cột này"
+                                                                                    >
+                                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                                    </button>
+                                                                                </div>
+
+                                                                                <div className="space-y-2">
+                                                                                    <div className="space-y-1">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            value={subItem.title || ''}
+                                                                                            onChange={e => updateSubItemField(blockIdx, subIdx, 'title', e.target.value)}
+                                                                                            className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-vinfast-blue"
+                                                                                            placeholder="Tiêu đề cột..."
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="space-y-1">
+                                                                                        <textarea
+                                                                                            value={subItem.description || ''}
+                                                                                            onChange={e => updateSubItemField(blockIdx, subIdx, 'description', e.target.value)}
+                                                                                            className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-vinfast-blue"
+                                                                                            placeholder="Mô tả cột..."
+                                                                                            rows={2}
+                                                                                        />
+                                                                                    </div>
+                                                                                    
+                                                                                    <div className="space-y-1.5 pt-1">
+                                                                                        <div className="flex gap-2 items-center">
+                                                                                            <div className="w-10 h-10 border rounded overflow-hidden relative shrink-0 bg-white flex items-center justify-center">
+                                                                                                {uploadingBlocks.includes(`${blockIdx}-${subIdx}`) ? (
+                                                                                                    <div className="w-3 h-3 border border-vinfast-blue border-t-transparent rounded-full animate-spin"></div>
+                                                                                                ) : subItem.image_url ? (
+                                                                                                    <Image
+                                                                                                        src={subItem.image_url}
+                                                                                                        alt={`Subitem ${subIdx}`}
+                                                                                                        fill
+                                                                                                        className="object-cover"
+                                                                                                        unoptimized
+                                                                                                    />
+                                                                                                ) : (
+                                                                                                    <Upload size={12} className="text-gray-400" />
+                                                                                                )}
+                                                                                            </div>
+                                                                                            <div className="flex-1 space-y-1">
+                                                                                                <input
+                                                                                                    type="file"
+                                                                                                    accept="image/*"
+                                                                                                    onChange={e => {
+                                                                                                        const file = e.target.files?.[0];
+                                                                                                        if (file) handleBlockImageUpload(blockIdx, file, subIdx);
+                                                                                                    }}
+                                                                                                    className="block w-full text-[10px] text-gray-500
+                                                                                                        file:mr-2 file:py-0.5 file:px-1.5
+                                                                                                        file:rounded file:border-0
+                                                                                                        file:text-[10px] file:font-semibold
+                                                                                                        file:bg-vinfast-blue file:text-white
+                                                                                                        hover:file:bg-blue-800 cursor-pointer outline-none"
+                                                                                                />
+                                                                                                <input
+                                                                                                    type="text"
+                                                                                                    value={subItem.image_url || ''}
+                                                                                                    onChange={e => updateSubItemField(blockIdx, subIdx, 'image_url', e.target.value)}
+                                                                                                    className="w-full px-1.5 py-0.5 border border-gray-300 rounded text-[10px] focus:outline-none"
+                                                                                                    placeholder="Hoặc nhập URL / icon..."
+                                                                                                />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </form>

@@ -8,6 +8,10 @@ export interface SiteSettings {
     email?: string;
     address?: string;
     google_maps_link?: string;
+    facebook_link?: string;
+    zalo_link?: string;
+    tiktok_link?: string;
+    link_share_vi_tri?: string;
 }
 
 interface SiteSettingsContextType {

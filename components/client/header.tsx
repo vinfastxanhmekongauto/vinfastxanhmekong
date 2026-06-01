@@ -85,7 +85,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                                 <a href={settings?.link_xe_may_dien || '#'} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
                                     <MapPin size={16} />
-                                    <span>Xe máy điện Vinfast</span>
+                                    <span>Ôtô điện Vinfast</span>
                                 </a>
 
                                 <a href={settings?.link_share_vi_tri || settings?.google_maps_link || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
@@ -128,8 +128,8 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                                     key={cat.id}
                                                     onClick={(e) => { e.preventDefault(); setActiveTab(cat.id); }}
                                                     className={`pb-2 border-b-2 font-bold text-sm transition-colors ${activeTab === cat.id
-                                                            ? 'border-[#1464F4] text-[#1464F4]'
-                                                            : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                                                        ? 'border-[#1464F4] text-[#1464F4]'
+                                                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                                                         }`}
                                                 >
                                                     {cat.label}
@@ -315,7 +315,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                             <span className="text-sm text-gray-600 transition-colors">Xanh Mekong</span>
                         </a>
                         <a href={settings?.link_xe_may_dien || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-blue-600">
-                            <MapPin size={16} /> Xe máy điện Vinfast
+                            <MapPin size={16} /> Ôtô điện Vinfast
                         </a>
                         <a href={settings?.link_share_vi_tri || settings?.google_maps_link || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-blue-600">
                             <Map size={16} /> Vị trí

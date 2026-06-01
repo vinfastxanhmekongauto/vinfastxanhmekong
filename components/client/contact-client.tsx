@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle, MessageSquare } from 'lucide-react';
 import { submitLead } from '@/app/actions/lead';
 import { useSiteSettings } from '@/components/client/SiteSettingsProvider';
+import { SearchableCarSelect, getCarDisplayName } from '@/components/client/quick-action-modals';
 
 export default function ContactClient() {
     const { settings } = useSiteSettings();
@@ -22,6 +23,41 @@ export default function ContactClient() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+
+    const [products, setProducts] = useState<any[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
+
+    useEffect(() => {
+        async function fetchProducts() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('id, name, variants')
+                    .order('name');
+                if (error) throw error;
+                setProducts(data || []);
+            } catch (err) {
+                console.error('Error loading products for ContactClient:', err);
+            } finally {
+                setLoadingProducts(false);
+            }
+        }
+        fetchProducts();
+    }, []);
+
+    const carVariantOptions = useMemo(() => {
+        const options: string[] = [];
+        products.forEach(p => {
+            if (Array.isArray(p.variants) && p.variants.length > 0) {
+                p.variants.forEach((v: any) => {
+                    options.push(getCarDisplayName(p.name, v.name));
+                });
+            } else {
+                options.push(getCarDisplayName(p.name));
+            }
+        });
+        return options;
+    }, [products]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,7 +108,7 @@ export default function ContactClient() {
                         Liên Hệ VinFast Xanh Mekong
                     </h1>
                     <p className="text-lg md:text-xl text-blue-100 leading-relaxed font-light">
-                        Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về các dòng xe máy điện VinFast.
+                        Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về các dòng ôtô điện VinFast.
                     </p>
                 </div>
             </div>
@@ -127,19 +163,19 @@ export default function ContactClient() {
                                 </li>
                             </ul>
 
-                            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                             <div className="flex flex-col sm:flex-row gap-4 mb-8">
                                 <a
-                                    href="https://facebook.com/vinfastxanhmekong"
+                                    href={settings?.facebook_link || '#'}
                                     target="_blank"
-                                    rel="noreferrer"
+                                    rel="noopener noreferrer"
                                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md text-center"
                                 >
                                     Fanpage Facebook
                                 </a>
                                 <a
-                                    href={`https://zalo.me/${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`}
+                                    href={settings?.zalo_link || '#'}
                                     target="_blank"
-                                    rel="noreferrer"
+                                    rel="noopener noreferrer"
                                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md text-center"
                                 >
                                     <MessageSquare size={20} /> Chat Zalo
@@ -233,18 +269,15 @@ export default function ContactClient() {
 
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-2">Dòng xe quan tâm <span className="text-gray-400 font-normal ml-1">(Tùy chọn)</span></label>
-                                            <select
+                                            <SearchableCarSelect
                                                 value={formData.car_model}
-                                                onChange={e => setFormData({ ...formData, car_model: e.target.value })}
-                                                className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-all outline-none text-gray-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209L12%2015L18%209%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[position:right_1rem_center] bg-no-repeat pr-10"
-                                            >
-                                                <option value="">-- Chọn dòng xe muốn lái thử --</option>
-                                                <option value="Evo200 / Evo200 Lite">Evo200 / Evo200 Lite</option>
-                                                <option value="Feliz S">Feliz S</option>
-                                                <option value="Klara S (2022)">Klara S (2022)</option>
-                                                <option value="Vento S">Vento S</option>
-                                                <option value="Theon S">Theon S</option>
-                                            </select>
+                                                onChange={val => setFormData({ ...formData, car_model: val })}
+                                                options={carVariantOptions}
+                                                placeholder="-- Chọn dòng xe muốn lái thử --"
+                                                bgColorClass="bg-gray-50"
+                                                roundedClass="rounded-xl"
+                                                paddingClass="px-5 py-3 text-gray-800"
+                                            />
                                         </div>
 
                                         <div>

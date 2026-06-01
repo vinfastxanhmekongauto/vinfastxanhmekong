@@ -115,14 +115,14 @@ export default function ProductFilterGrid({ initialProducts }: { initialProducts
         return products.filter(product => {
             // Note: The main array `products` is already filtered by `searchQuery` via Supabase `.ilike`
             // So we DO NOT need to filter `searchMatch` locally anymore.
- 
+
             // Dynamic Category Filter
             let categoryMatch = true;
             if (segmentFilter !== 'all') {
                 const dbCategory = segmentFilter === 'electric' ? 'dong_co_dien' : 'dich_vu';
                 categoryMatch = product.category === dbCategory;
             }
- 
+
             // Price Filter
             let priceMatch = true;
             if (priceFilter !== 'all') {
@@ -154,7 +154,7 @@ export default function ProductFilterGrid({ initialProducts }: { initialProducts
                     rangeMatch = rangeVal >= 350;
                 }
             }
- 
+
             return categoryMatch && priceMatch && rangeMatch;
         });
     }, [products, segmentFilter, priceFilter, rangeFilter]);
@@ -352,7 +352,7 @@ export default function ProductFilterGrid({ initialProducts }: { initialProducts
                     <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm animate-fade-in px-4">
                         <Filter className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Không tìm thấy sản phẩm</h3>
-                        <p className="text-gray-500 text-lg mb-8 max-w-md mx-auto">Không tìm thấy mẫu xe phù hợp. Bạn có muốn xem các dòng xe máy điện VinFast bán chạy nhất không?</p>
+                        <p className="text-gray-500 text-lg mb-8 max-w-md mx-auto">Không tìm thấy mẫu xe phù hợp. Bạn có muốn xem các dòng ôtô điện VinFast bán chạy nhất không?</p>
                         <button
                             onClick={() => {
                                 router.push(pathname, { scroll: false });

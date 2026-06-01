@@ -14,7 +14,7 @@ export default async function ClientLayout({
     const { data: productsData } = await supabase
         .from('products')
         .select('id, name, slug, category, variants, thumbnail_url');
-    
+
     const productsRaw = (productsData as any[]) || [];
     const products = productsRaw
         .map(p => {
@@ -35,7 +35,7 @@ export default async function ClientLayout({
                             "@context": "https://schema.org",
                             "@type": "LocalBusiness",
                             "name": "VinFast Xanh Mekong",
-                            "description": "Đại lý xe máy điện VinFast chính hãng tại Cần Thơ. Chuyên cung cấp các dòng xe điện Evo 200, Feliz S, Klara S, Vento S, Theon S.",
+                            "description": "Đại lý ôtô điện VinFast chính hãng tại Cần Thơ. Chuyên cung cấp các dòng xe điện Evo 200, Feliz S, Klara S, Vento S, Theon S.",
                             "url": "https://vinfastxanhmekong.com",
                             "telephone": "0907697036",
                             "address": {
