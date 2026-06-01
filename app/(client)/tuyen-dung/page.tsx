@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         title: 'Tuyển Dụng | VinFast Xanh Mekong Cần Thơ',
         description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng các vị trí tư vấn bán hàng, kỹ thuật viên...',
         url: '/tuyen-dung',
-        images: [{ url: '/banner-tuyen-dung.webp' }],
+        images: [{ url: 'https://vinfastxanhmekong.vercel.app/banner-tuyen-dung.webp' }],
     }
 };
 
