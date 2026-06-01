@@ -85,7 +85,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                                 <a href={settings?.link_xe_may_dien || '#'} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
                                     <MapPin size={16} />
-                                    <span>Ôtô điện Vinfast</span>
+                                    <span>Xe máy điện Vinfast</span>
                                 </a>
 
                                 <a href={settings?.link_share_vi_tri || settings?.google_maps_link || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
