@@ -12,6 +12,9 @@ export interface SiteSettings {
     zalo_link?: string;
     tiktok_link?: string;
     link_share_vi_tri?: string;
+    privacy_policy_markdown?: string;
+    link_xe_may_dien?: string;
+    link_gf_xanh_mekong?: string;
 }
 
 interface SiteSettingsContextType {

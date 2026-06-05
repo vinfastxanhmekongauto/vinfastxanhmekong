@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Loader2, Info, Globe } from 'lucide-react';
+import { Save, Loader2, Info, Globe, Eye, Edit3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function SiteSettings() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [markdownTab, setMarkdownTab] = useState<'write' | 'preview'>('write');
 
     const [formData, setFormData] = useState({
         phone: '',
@@ -21,7 +24,8 @@ export default function SiteSettings() {
         link_share_vi_tri: '',
         zalo_link: '',
         facebook_link: '',
-        tiktok_link: ''
+        tiktok_link: '',
+        privacy_policy_markdown: ''
     });
 
     useEffect(() => {
@@ -52,7 +56,8 @@ export default function SiteSettings() {
                     link_share_vi_tri: data.link_share_vi_tri || '',
                     zalo_link: data.zalo_link || '',
                     facebook_link: data.facebook_link || '',
-                    tiktok_link: data.tiktok_link || ''
+                    tiktok_link: data.tiktok_link || '',
+                    privacy_policy_markdown: data.privacy_policy_markdown || ''
                 });
             }
         } catch (error) {
@@ -331,6 +336,76 @@ export default function SiteSettings() {
                                 className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
                             />
                         </div>
+                    </div>
+                </div>
+
+                {/* Privacy Policy Markdown Section */}
+                <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+                    <div>
+                        <label className="block text-base font-medium text-gray-900">
+                            Nội dung Chính sách bảo mật (Markdown)
+                        </label>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Soạn thảo chính sách bảo mật của website hiển thị trên trang công khai.
+                        </p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-2 bg-white space-y-3">
+                        <div className="flex border-b border-gray-200">
+                            <button
+                                type="button"
+                                onClick={() => setMarkdownTab('write')}
+                                className={`py-2.5 px-4 border-b-2 font-medium text-sm flex items-center gap-1.5 transition-colors cursor-pointer ${
+                                    markdownTab === 'write'
+                                        ? 'border-vinfast-blue text-vinfast-blue'
+                                        : 'border-transparent text-gray-550 hover:text-gray-800'
+                                }`}
+                            >
+                                <Edit3 className="w-4 h-4" />
+                                Soạn thảo
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMarkdownTab('preview')}
+                                className={`py-2.5 px-4 border-b-2 font-medium text-sm flex items-center gap-1.5 transition-colors cursor-pointer ${
+                                    markdownTab === 'preview'
+                                        ? 'border-vinfast-blue text-vinfast-blue'
+                                        : 'border-transparent text-gray-550 hover:text-gray-800'
+                                }`}
+                            >
+                                <Eye className="w-4 h-4" />
+                                Xem trước
+                            </button>
+                        </div>
+
+                        {markdownTab === 'write' ? (
+                            <div className="mt-1">
+                                <textarea
+                                    name="privacy_policy_markdown"
+                                    id="privacy_policy_markdown"
+                                    rows={12}
+                                    placeholder="Nhập nội dung chính sách bảo mật bằng Markdown..."
+                                    value={formData.privacy_policy_markdown}
+                                    onChange={handleChange}
+                                    className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-3 px-4 border font-mono leading-relaxed"
+                                />
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Sử dụng cú pháp Markdown (như # Tiêu đề, * Nghiêng, **Đậm**, - Danh sách...) để định dạng.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="border border-gray-200 rounded-md p-6 min-h-[280px] bg-gray-50 max-h-[500px] overflow-y-auto">
+                                {formData.privacy_policy_markdown ? (
+                                    <div className="prose prose-blue max-w-none text-gray-800 text-sm leading-relaxed prose-headings:font-bold prose-headings:text-gray-900 prose-strong:text-gray-900">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {formData.privacy_policy_markdown}
+                                        </ReactMarkdown>
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-400 italic text-sm text-center py-12">Chưa có nội dung để hiển thị xem trước.</p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

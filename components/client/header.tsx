@@ -17,8 +17,11 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
     const [settings, setSettings] = useState<any>(null);
+    const [serviceSettings, setServiceSettings] = useState({ booking: true, care: true, gifts: true });
     const [activeTab, setActiveTab] = useState('dong_co_dien');
     const pathname = usePathname();
+
+    const hasActiveServices = serviceSettings.booking || serviceSettings.care || serviceSettings.gifts;
 
     const toggleSubmenu = (menu: string) => {
         setMobileExpanded(mobileExpanded === menu ? null : menu);
@@ -34,6 +37,25 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
             } catch (error) {
                 console.error("Failed to fetch settings for header:", error);
             }
+
+            try {
+                const { data: servicesData } = await supabase
+                    .from('service_settings')
+                    .select('service_type, is_active');
+                if (servicesData) {
+                    const settingsMap = { booking: true, care: true, gifts: true };
+                    servicesData.forEach((item: any) => {
+                        if (item.service_type === 'booking') settingsMap.booking = item.is_active !== false;
+                        if (item.service_type === 'care') settingsMap.care = item.is_active !== false;
+                        if (item.service_type === 'gifts') settingsMap.gifts = item.is_active !== false;
+                    });
+                    setServiceSettings(settingsMap);
+                }
+            } catch (error) {
+                console.error("Failed to fetch service settings for header:", error);
+            }
+
+
         };
         fetchSettings();
     }, []);
@@ -178,26 +200,38 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                             </div>
 
                             {/* DỊCH VỤ Dropdown */}
-                            <div className="group relative">
-                                <Link href="/services" className={`${getLinkClass('/services')} flex items-center gap-1 pb-3`}>
-                                    DỊCH VỤ <ChevronDown size={16} />
-                                </Link>
-                                <div className="absolute top-full right-0 w-56 pt-3 invisible opacity-0 translate-y-2 transition-all duration-300 ease-in-out z-50 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
-                                    <div className="bg-white shadow-xl border-t-4 border-gray-300 rounded-b-lg overflow-hidden">
-                                        <ul className="py-2">
-                                            <li>
-                                                <Link href="/services" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Đặt hẹn</Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/services" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Chăm sóc khách hàng</Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/services" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Quà tặng VinFast</Link>
-                                            </li>
-                                        </ul>
+                            {hasActiveServices ? (
+                                <div className="group relative">
+                                    <Link href="/dich-vu" className={`${getLinkClass('/dich-vu')} flex items-center gap-1 pb-3`}>
+                                        DỊCH VỤ <ChevronDown size={16} />
+                                    </Link>
+                                    <div className="absolute top-full right-0 w-56 pt-3 invisible opacity-0 translate-y-2 transition-all duration-300 ease-in-out z-50 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
+                                        <div className="bg-white shadow-xl border-t-4 border-gray-300 rounded-b-lg overflow-hidden">
+                                            <ul className="py-2">
+                                                {serviceSettings.booking && (
+                                                    <li>
+                                                        <Link href="/dat-lich-dich-vu" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Đặt lịch dịch vụ</Link>
+                                                    </li>
+                                                )}
+                                                {serviceSettings.care && (
+                                                    <li>
+                                                        <Link href="/cham-soc-khach-hang" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Chăm sóc khách hàng</Link>
+                                                    </li>
+                                                )}
+                                                {serviceSettings.gifts && (
+                                                    <li>
+                                                        <Link href="/qua-tang-dich-vu" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Quà tặng VinFast</Link>
+                                                    </li>
+                                                )}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <Link href="/dich-vu" className={`${getLinkClass('/dich-vu')} pb-3`}>
+                                    DỊCH VỤ
+                                </Link>
+                            )}
 
                             {/* TIN TỨC & KHUYẾN MÃI Dropdown */}
                             <div className="group relative">
@@ -268,21 +302,33 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                         </div>
                     </div>
 
-                    <div className="border-b border-gray-100">
-                        <div className="flex items-center justify-between w-full">
-                            <Link href="/services" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/services')} flex-1 py-4 text-left`}>DỊCH VỤ</Link>
-                            <button onClick={() => toggleSubmenu('services')} className="p-4 text-gray-600 focus:outline-none">
-                                <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'services' ? 'rotate-180' : ''}`} />
-                            </button>
-                        </div>
-                        <div className={`overflow-hidden transition-all duration-300 ${mobileExpanded === 'services' ? 'max-h-64 pb-4' : 'max-h-0'}`}>
-                            <div className="pl-4 flex flex-col gap-4">
-                                <Link href="/services" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Đặt hẹn</Link>
-                                <Link href="/services" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Chăm sóc khách hàng</Link>
-                                <Link href="/services" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Quà tặng VinFast</Link>
+                    {hasActiveServices ? (
+                        <div className="border-b border-gray-100">
+                            <div className="flex items-center justify-between w-full">
+                                <Link href="/dich-vu" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/dich-vu')} flex-1 py-4 text-left`}>DỊCH VỤ</Link>
+                                <button onClick={() => toggleSubmenu('services')} className="p-4 text-gray-600 focus:outline-none">
+                                    <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'services' ? 'rotate-180' : ''}`} />
+                                </button>
+                            </div>
+                            <div className={`overflow-hidden transition-all duration-300 ${mobileExpanded === 'services' ? 'max-h-64 pb-4' : 'max-h-0'}`}>
+                                <div className="pl-4 flex flex-col gap-4">
+                                    {serviceSettings.booking && (
+                                        <Link href="/dat-lich-dich-vu" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Đặt hẹn</Link>
+                                    )}
+                                    {serviceSettings.care && (
+                                        <Link href="/cham-soc-khach-hang" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Chăm sóc khách hàng</Link>
+                                    )}
+                                    {serviceSettings.gifts && (
+                                        <Link href="/qua-tang-dich-vu" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Quà tặng VinFast</Link>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="border-b border-gray-100">
+                            <Link href="/dich-vu" onClick={() => setIsMenuOpen(false)} className={`block py-4 ${getLinkClass('/dich-vu')}`}>DỊCH VỤ</Link>
+                        </div>
+                    )}
 
                     <div className="border-b border-gray-100">
                         <div className="flex items-center justify-between w-full">

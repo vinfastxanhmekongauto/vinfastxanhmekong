@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { saveJob } from '@/app/actions/jobs';
 import JobForm, { JobFormData } from '@/components/admin/JobForm';
 
 export default function CreateJobPage() {
@@ -12,16 +12,14 @@ export default function CreateJobPage() {
     const handleSubmit = async (formData: JobFormData) => {
         setIsSubmitting(true);
         try {
-            const { error } = await supabase
-                .from('jobs')
-                .insert([formData]);
+            const result = await saveJob(formData);
             
-            if (error) {
+            if (!result.success) {
                 // If it is a unique constraint error (e.g. slug already exists)
-                if (error.code === '23505') {
+                if (result.code === '23505') {
                     throw new Error('Đường dẫn (slug) này đã tồn tại. Vui lòng chỉnh sửa lại đường dẫn.');
                 }
-                throw error;
+                throw new Error(result.error || 'Có lỗi xảy ra khi tạo tin tuyển dụng.');
             }
             
             // Redirect to admin jobs list page

@@ -38,11 +38,9 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
     const [headerContent, setHeaderContent] = useState(initialData?.header_content || '');
     const [footerContent, setFooterContent] = useState(initialData?.footer_content || '');
 
-    // Dynamic positions array (initially has at least one blank position if editing is blank)
+    // Dynamic positions array (starts blank if creating new)
     const [positions, setPositions] = useState<PositionFormData[]>(
-        initialData?.positions || [
-            { role: '', quantity: '', qualification: '', location: '', description: '', requirements: '' }
-        ]
+        initialData?.positions || []
     );
 
     // States for upload and errors
@@ -170,11 +168,7 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
             return;
         }
 
-        // Validate positions
-        if (positions.length === 0) {
-            setFormError('Chiến dịch tuyển dụng phải chứa ít nhất một vị trí công việc.');
-            return;
-        }
+
 
         for (let i = 0; i < positions.length; i++) {
             const pos = positions[i];
@@ -416,16 +410,14 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                                             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-vinfast-blue">
                                                 Vị trí #{index + 1}
                                             </span>
-                                            {positions.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemovePosition(index)}
-                                                    className="p-1.5 text-red-500 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors cursor-pointer"
-                                                    title="Xóa vị trí này"
-                                                >
-                                                    <Trash2 className="w-4.5 h-4.5" />
-                                                </button>
-                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemovePosition(index)}
+                                                className="p-1.5 text-red-500 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors cursor-pointer"
+                                                title="Xóa vị trí này"
+                                            >
+                                                <Trash2 className="w-4.5 h-4.5" />
+                                            </button>
                                         </div>
 
                                         {/* Fields Grid */}
@@ -436,7 +428,6 @@ export default function JobForm({ initialData, onSubmit, isSubmitting, titleLabe
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    required
                                                     value={pos.role}
                                                     onChange={(e) => handlePositionChange(index, 'role', e.target.value)}
                                                     placeholder="VD: Kỹ Thuật Viên Sửa Chữa Ô Tô"

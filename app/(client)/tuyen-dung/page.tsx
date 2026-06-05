@@ -54,6 +54,25 @@ export default async function CareerPage() {
 
     const jobs = (jobsRaw as Job[]) || [];
 
+    // Parse positions list to check if there are any active positions available
+    const activePositions = jobs.flatMap(job => {
+        let list: Position[] = [];
+        if (job.positions) {
+            if (Array.isArray(job.positions)) {
+                list = job.positions;
+            } else if (typeof job.positions === 'string') {
+                try {
+                    list = JSON.parse(job.positions);
+                } catch (e) {
+                    console.error('Failed to parse positions:', e);
+                }
+            }
+        }
+        return list;
+    });
+
+    const hasPositions = activePositions.length > 0;
+
     return (
         <div className="bg-gray-50 min-h-screen">
             {/* Brand Hero Header */}
@@ -82,16 +101,16 @@ export default async function CareerPage() {
             {/* Main Content Area */}
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8 md:py-12">
                 {jobs.length === 0 ? (
-                    /* Empty State */
+                    /* Beautifully styled Empty State when no campaigns exist */
                     <div className="text-center py-20 bg-white rounded-2xl border border-gray-200 max-w-2xl mx-auto px-6 shadow-sm">
                         <div className="w-16 h-16 bg-blue-50 text-vinfast-blue rounded-full flex items-center justify-center mx-auto mb-6">
                             <Briefcase className="w-8 h-8" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
-                            Hiện tại chúng tôi đang không có vị trí nào cần tuyển.
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug">
+                            Hiện tại VinFast Xanh Mekong chưa có đợt tuyển dụng mở mới cho vị trí nào.
                         </h3>
                         <p className="text-gray-500 text-sm max-w-md mx-auto">
-                            Vui lòng quay lại sau nhé!
+                            Quý khách vui lòng theo dõi và quay lại sau!
                         </p>
                     </div>
                 ) : (
@@ -161,11 +180,11 @@ export default async function CareerPage() {
                                         )}
 
                                         {/* 2. Positions Listing */}
-                                        {positionsList && positionsList.length > 0 && (
-                                            <div className="space-y-6 pt-4">
-                                                <h3 className="text-base font-black text-gray-900 border-l-4 border-vinfast-blue pl-3 uppercase tracking-wider font-display">
-                                                    Vị Trí Tuyển Dụng Chi Tiết
-                                                </h3>
+                                        <div className="space-y-6 pt-4">
+                                            <h3 className="text-base font-black text-gray-900 border-l-4 border-vinfast-blue pl-3 uppercase tracking-wider font-display">
+                                                Vị Trí Tuyển Dụng Chi Tiết
+                                            </h3>
+                                            {positionsList && positionsList.length > 0 ? (
                                                 <div className="flex flex-col space-y-8">
                                                     {positionsList.map((pos: Position, idx: number) => (
                                                         <div
@@ -233,8 +252,14 @@ export default async function CareerPage() {
                                                         </div>
                                                     ))}
                                                 </div>
-                                            </div>
-                                        )}
+                                            ) : (
+                                                <div className="py-12 text-center bg-gray-50 rounded-xl border border-gray-200 shadow-sm px-6">
+                                                    <p className="text-gray-600 text-lg font-medium">
+                                                        Hiện tại VinFast Xanh Mekong chưa có đợt tuyển dụng mở mới cho vị trí nào. Quý khách vui lòng theo dõi và quay lại sau!
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
 
                                         {/* 3. Footer Campaign Content */}
                                         {job.footer_content && (

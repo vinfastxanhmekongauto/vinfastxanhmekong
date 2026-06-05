@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { Pencil, Trash2, Plus, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Search, Briefcase } from 'lucide-react';
+import { toggleJobActiveStatus, duplicateJob } from '@/app/actions/jobs';
+import { Pencil, Trash2, Plus, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Search, Briefcase, Copy } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -40,6 +41,27 @@ export default function AdminJobsPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [togglingId, setTogglingId] = useState<string | null>(null);
+    const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
+
+    const handleDuplicate = async (id: string) => {
+        if (isPending || duplicatingId) return;
+        setDuplicatingId(id);
+        startTransition(async () => {
+            try {
+                const result = await duplicateJob(id);
+                if (!result.success) throw new Error(result.error);
+                
+                notify('success', 'Nhân bản tin tuyển dụng thành công');
+                fetchItems();
+            } catch (err) {
+                console.error(err);
+                notify('error', 'Lỗi khi nhân bản tin tuyển dụng');
+            } finally {
+                setDuplicatingId(null);
+            }
+        });
+    };
 
     useEffect(() => {
         const t = setTimeout(() => { 
@@ -92,20 +114,17 @@ export default function AdminJobsPage() {
         setTogglingId(id);
         const newStatus = !currentStatus;
         
-        // Optimistic UI update
-        setItems(prev => prev.map(item => item.id === id ? { ...item, is_active: newStatus } : item));
+        // Optimistic UI update: if turning active, deactivate all other jobs optimistically
+        setItems(prev => prev.map(item => item.id === id ? { ...item, is_active: newStatus } : (newStatus ? { ...item, is_active: false } : item)));
         
         try {
-            const { error } = await supabase
-                .from('jobs')
-                .update({ is_active: newStatus })
-                .eq('id', id);
-                
-            if (error) throw error;
+            const result = await toggleJobActiveStatus(id, newStatus);
+            if (!result.success) throw new Error(result.error);
+            
             notify('success', `Đã ${newStatus ? 'bật' : 'tắt'} trạng thái tuyển dụng`);
+            fetchItems();
         } catch (err) {
-            // Revert UI update
-            setItems(prev => prev.map(item => item.id === id ? { ...item, is_active: currentStatus } : item));
+            fetchItems();
             console.error(err);
             notify('error', 'Lỗi khi cập nhật trạng thái tuyển dụng');
         } finally {
@@ -252,6 +271,18 @@ export default function AdminJobsPage() {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleDuplicate(item.id)}
+                                                        disabled={duplicatingId === item.id || isPending}
+                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-55 disabled:cursor-not-allowed"
+                                                        title="Nhân bản tin tuyển dụng"
+                                                    >
+                                                        {duplicatingId === item.id ? (
+                                                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <Copy className="w-4 h-4" />
+                                                        )}
+                                                    </button>
                                                     <Link
                                                         href={`/admin/jobs/${item.id}`}
                                                         className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"

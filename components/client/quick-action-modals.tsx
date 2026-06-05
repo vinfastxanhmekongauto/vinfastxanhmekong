@@ -193,12 +193,14 @@ export function LeadFormModal({
   title, 
   onClose,
   selectedCar,
-  initialNotes
+  initialNotes,
+  leadType
 }: { 
   title: string; 
   onClose: () => void;
   selectedCar?: string;
   initialNotes?: string;
+  leadType?: string;
 }) {
   const [products, setProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -286,7 +288,8 @@ export function LeadFormModal({
     }
 
     try {
-      const result = await submitLead(formData);
+      const detectedLeadType = leadType || (title.includes('Lái Thử') ? 'test_drive' : 'quote');
+      const result = await submitLead({ ...formData, lead_type: detectedLeadType });
 
       if (!result.success) {
         setStatus('error');

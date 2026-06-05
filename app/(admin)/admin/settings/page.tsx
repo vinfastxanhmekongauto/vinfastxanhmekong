@@ -57,7 +57,8 @@ export default function SettingsMasterPage() {
 
             {/* Tab Panels */}
             <div className="mt-6">
-                {activeTab === 'account' ? <AccountSettings /> : <SiteSettings />}
+                {activeTab === 'account' && <AccountSettings />}
+                {activeTab === 'website' && <SiteSettings />}
             </div>
         </div>
     );

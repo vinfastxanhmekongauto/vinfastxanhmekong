@@ -81,7 +81,7 @@ export default function ContactClient() {
         }
 
         try {
-            const result = await submitLead(formData);
+            const result = await submitLead({ ...formData, lead_type: 'contact' });
 
             if (!result.success) {
                 throw new Error(result.error);

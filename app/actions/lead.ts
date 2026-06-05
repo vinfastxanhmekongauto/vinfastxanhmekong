@@ -11,8 +11,16 @@ export async function submitLead(formData: {
     car_model: string;
     notes: string;
     email?: string;
+    lead_type?: string;
+    appointment_date?: string;
+    appointment_time?: string;
 }) {
     try {
+        const leadType = formData.lead_type || 'contact';
+        const dbNotes = leadType === 'service_booking' 
+            ? formData.notes 
+            : (formData.car_model ? `Quan tâm: ${formData.car_model} - Lời nhắn: ${formData.notes}` : formData.notes);
+
         // 1. Insert into Supabase
         const { error: dbError } = await supabase
             .from('leads')
@@ -20,9 +28,12 @@ export async function submitLead(formData: {
                 full_name: formData.full_name,
                 phone: formData.phone,
                 email: formData.email || null,
-                car_model: formData.car_model, // Extra fields handled similarly
-                notes: formData.car_model ? `Quan tâm: ${formData.car_model} - Lời nhắn: ${formData.notes}` : formData.notes,
-                status: 'Mới'
+                car_model: formData.car_model || null,
+                notes: dbNotes,
+                status: 'Mới',
+                lead_type: leadType,
+                appointment_date: formData.appointment_date || null,
+                appointment_time: formData.appointment_time || null
             }]);
 
         if (dbError) {
@@ -39,13 +50,41 @@ export async function submitLead(formData: {
             }
             const recipientEmail = process.env.ADMIN_EMAIL || 'vinfastxanhmekong@gmail.com';
 
+            // Determine email subject & heading based on lead_type
+            let emailSubject = '📩 [VinFast Xanh Mekong] Có yêu cầu liên hệ mới!';
+            let emailHeading = 'Thông báo khách hàng mới';
+
+            switch (leadType) {
+                case 'quote':
+                    emailSubject = '🎉 [VinFast Xanh Mekong] Có khách hàng mới yêu cầu báo giá!';
+                    emailHeading = 'Thông báo yêu cầu báo giá mới';
+                    break;
+                case 'test_drive':
+                    emailSubject = '🚗 [VinFast Xanh Mekong] Có khách hàng đăng ký lái thử!';
+                    emailHeading = 'Thông báo đăng ký lái thử mới';
+                    break;
+                case 'service_booking':
+                    emailSubject = '🔧 [VinFast Xanh Mekong] Có khách đăng ký Đặt Lịch Dịch Vụ!';
+                    emailHeading = 'Thông báo đặt lịch dịch vụ mới';
+                    break;
+                default:
+                    emailSubject = '📩 [VinFast Xanh Mekong] Có yêu cầu liên hệ mới!';
+                    emailHeading = 'Thông báo yêu cầu liên hệ mới';
+                    break;
+            }
+
+            // Clean format notes with <br /> for HTML emails
+            const cleanNotesHtml = formData.notes 
+                ? formData.notes.replace(/\n/g, '<br />')
+                : 'Trống';
+
             // Send Email
             const data = await resend.emails.send({
                 from: 'VinFast Mekong <onboarding@resend.dev>',
                 to: recipientEmail,
-                subject: '🎉 [VinFast Xanh Mekong] Có khách hàng mới yêu cầu báo giá!',
+                subject: emailSubject,
                 html: `
-                    <h2>Thông báo khách hàng mới</h2>
+                    <h2>${emailHeading}</h2>
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <tbody>
                             <tr>
@@ -67,8 +106,10 @@ export async function submitLead(formData: {
                                 <td style="border: 1px solid #ddd; padding: 8px;">${formData.car_model || 'Trống'}</td>
                             </tr>
                             <tr>
-                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Lời nhắn</th>
-                                <td style="border: 1px solid #ddd; padding: 8px;">${formData.notes || 'Trống'}</td>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Lời nhắn / Chi tiết</th>
+                                <td style="border: 1px solid #ddd; padding: 8px;">
+                                    <div style="white-space: pre-wrap; line-height: 1.6;">${cleanNotesHtml}</div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -78,12 +119,10 @@ export async function submitLead(formData: {
             });
             console.log("Email đã gửi thành công:", data);
         } catch (emailError) {
-            // Bắt lỗi gui email để không ảnh hưởng luồng chính
             console.error("Lỗi gửi mail:", emailError);
         }
 
         console.log('--- KẾT THÚC SERVER ACTION ---');
-        // Always return success if DB insert was successful
         return { success: true };
 
     } catch (error) {

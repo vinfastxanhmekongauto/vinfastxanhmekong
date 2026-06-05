@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { saveJob } from '@/app/actions/jobs';
 import JobForm, { JobFormData } from '@/components/admin/JobForm';
 import { Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -49,16 +50,13 @@ export default function EditJobPage() {
     const handleUpdate = async (formData: JobFormData) => {
         setIsSubmitting(true);
         try {
-            const { error } = await supabase
-                .from('jobs')
-                .update(formData)
-                .eq('id', id);
+            const result = await saveJob(formData, id);
             
-            if (error) {
-                if (error.code === '23505') {
+            if (!result.success) {
+                if (result.code === '23505') {
                     throw new Error('Đường dẫn (slug) này đã tồn tại. Vui lòng chỉnh sửa lại đường dẫn.');
                 }
-                throw error;
+                throw new Error(result.error || 'Có lỗi xảy ra khi cập nhật tin tuyển dụng.');
             }
             
             // Redirect to admin jobs list page
