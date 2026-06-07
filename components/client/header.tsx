@@ -21,6 +21,9 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
     const [activeTab, setActiveTab] = useState('dong_co_dien');
     const pathname = usePathname();
 
+    const isBlogActive = pathname.startsWith('/tin-tuc') || pathname.startsWith('/khuyen-mai') || pathname.startsWith('/blog');
+    const blogLinkClass = `font-bold hover:text-blue-600 uppercase text-sm transition-colors ${isBlogActive ? 'text-blue-600' : 'text-gray-800'}`;
+
     const hasActiveServices = serviceSettings.booking || serviceSettings.care || serviceSettings.gifts;
 
     const toggleSubmenu = (menu: string) => {
@@ -235,20 +238,17 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                             {/* TIN TỨC & KHUYẾN MÃI Dropdown */}
                             <div className="group relative">
-                                <Link href="/blog" className={`${getLinkClass('/blog')} flex items-center gap-1 pb-3`}>
+                                <div className={`${blogLinkClass} flex items-center gap-1 pb-3 cursor-pointer select-none`}>
                                     TIN TỨC & KHUYẾN MÃI <ChevronDown size={16} />
-                                </Link>
+                                </div>
                                 <div className="absolute top-full right-0 w-64 pt-3 invisible opacity-0 translate-y-2 transition-all duration-300 ease-in-out z-50 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
                                     <div className="bg-white shadow-xl border-t-4 border-gray-300 rounded-b-lg overflow-hidden">
                                         <ul className="py-2">
                                             <li>
-                                                <Link href="/blog" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Khuyến mãi kinh doanh</Link>
+                                                <Link href="/tin-tuc" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Tin tức</Link>
                                             </li>
                                             <li>
-                                                <Link href="/blog" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Khuyến mãi dịch vụ</Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/blog" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Giấy phép môi trường</Link>
+                                                <Link href="/khuyen-mai" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Khuyến mãi</Link>
                                             </li>
                                         </ul>
                                     </div>
@@ -332,16 +332,20 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                     <div className="border-b border-gray-100">
                         <div className="flex items-center justify-between w-full">
-                            <Link href="/blog" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/blog')} flex-1 py-4 text-left`}>TIN TỨC & KHUYẾN MÃI</Link>
+                            <button 
+                                onClick={() => toggleSubmenu('blog')} 
+                                className={`${blogLinkClass} flex-1 py-4 text-left focus:outline-none`}
+                            >
+                                TIN TỨC & KHUYẾN MÃI
+                            </button>
                             <button onClick={() => toggleSubmenu('blog')} className="p-4 text-gray-600 focus:outline-none">
                                 <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'blog' ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
                         <div className={`overflow-hidden transition-all duration-300 ${mobileExpanded === 'blog' ? 'max-h-64 pb-4' : 'max-h-0'}`}>
                             <div className="pl-4 flex flex-col gap-4">
-                                <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Khuyến mãi kinh doanh</Link>
-                                <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Khuyến mãi dịch vụ</Link>
-                                <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Giấy phép môi trường</Link>
+                                <Link href="/tin-tuc" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Tin tức</Link>
+                                <Link href="/khuyen-mai" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Khuyến mãi</Link>
                             </div>
                         </div>
                     </div>

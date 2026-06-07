@@ -2,8 +2,9 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { Calendar, Tag, Gift, Share2, Phone } from 'lucide-react';
+import { Calendar, Tag, Gift, Phone } from 'lucide-react';
 import PromotionLeadForm from '@/components/client/promotion-lead-form';
+import ShareButton from '@/components/ui/share-button';
 
 export const revalidate = 60; // Cache 60s
 
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: PromotionDetailPageProps): Pr
         openGraph: {
             title: promotion.title,
             description: cleanDesc,
-            url: `https://vinfastxanhmekong.com/promotions/${promotion.slug}`,
+            url: `https://vinfastxanhmekong.com/khuyen-mai/${promotion.slug}`,
             siteName: 'VinFast Xanh Mekong',
             images: [
                 {
@@ -131,7 +132,7 @@ export default async function PromotionDetailPage({ params }: PromotionDetailPag
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
 
                     {/* LEFT: Main Promotion Content */}
-                    <div className="lg:col-span-2 space-y-8 bg-white p-6 md:p-12 rounded-3xl shadow-sm border border-gray-100 flex-grow animate-fade-in-up">
+                    <div className="lg:col-span-2 space-y-8 bg-white p-6 md:p-12 rounded-3xl shadow-sm border border-gray-100 flex-grow animate-fade-in-up flow-root">
                         <div className="inline-flex items-center gap-2 text-vinfast-blue font-semibold bg-blue-50 px-3 py-1.5 rounded-lg text-sm border border-blue-100">
                             <Tag size={16} /> Tin Khuyến Mãi
                         </div>
@@ -145,20 +146,16 @@ export default async function PromotionDetailPage({ params }: PromotionDetailPag
                             <span>Thời gian áp dụng: <span className="text-red-600 font-bold">{startDate} - {endDate}</span></span>
                         </div>
 
-                        <div className="prose prose-lg max-w-none text-gray-700 prose-p:leading-relaxed prose-headings:text-gray-900 prose-a:text-vinfast-blue mt-10">
-                            {promotion.description ? (
-                                <div dangerouslySetInnerHTML={{ __html: promotion.description.replace(/\n/g, '<br/>') }} />
-                            ) : (
-                                <p>Đang cập nhật nội dung chi tiết cho chương trình khuyến mãi này. Vui lòng liên hệ Hotline để biết thêm chi tiết.</p>
-                            )}
-                        </div>
+                        {promotion.description ? (
+                            <div className="prose prose-lg max-w-none prose-img:rounded-xl prose-img:w-full mt-10 flow-root" dangerouslySetInnerHTML={{ __html: promotion.description }} />
+                        ) : (
+                            <p className="text-gray-500 mt-10">Đang cập nhật nội dung chi tiết cho chương trình khuyến mãi này. Vui lòng liên hệ Hotline để biết thêm chi tiết.</p>
+                        )}
 
                         {/* Desktop sharing row */}
                         <div className="hidden md:flex items-center gap-4 pt-8 border-t border-gray-100 mt-10">
                             <span className="font-semibold text-gray-700">Chia sẻ ưu đãi:</span>
-                            <button className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
-                                <Share2 size={18} />
-                            </button>
+                            <ShareButton />
                         </div>
                     </div>
 
@@ -173,9 +170,7 @@ export default async function PromotionDetailPage({ params }: PromotionDetailPag
 
             {/* 3. Mobile Sticky Action Bar */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex items-center gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-40">
-                <button className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 border border-gray-300 active:bg-gray-200">
-                    <Share2 size={20} /> Chia sẻ
-                </button>
+                <ShareButton variant="full" />
                 <a href="tel:0907697036" className="flex-[2] bg-vinfast-blue text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:bg-blue-800">
                     <Phone size={20} className="animate-pulse" /> Hotline Ngay
                 </a>

@@ -146,12 +146,12 @@ export default async function GiftsCatalogPage() {
                                     {groupedGifts[pts].map((gift) => (
                                         <div key={gift.id} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
                                             {/* Left side: Image */}
-                                            <div className="relative w-full md:w-48 h-48 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0 self-center">
+                                            <div className="relative w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0 self-center">
                                                 <Image
                                                     src={gift.image_url}
                                                     alt={gift.name}
                                                     fill
-                                                    className="object-cover"
+                                                    className="object-contain p-4 w-full h-full"
                                                     unoptimized
                                                 />
                                             </div>

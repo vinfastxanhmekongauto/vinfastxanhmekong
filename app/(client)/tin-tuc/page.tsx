@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Tin Tức & Sự Kiện | VinFast Xanh Mekong Cần Thơ',
         description: 'Cập nhật tin mới nhất về thị trường xe điện, hướng dẫn sử dụng xe và các hoạt động cộng đồng của VinFast Mekong.',
-        url: '/blog',
+        url: '/tin-tuc',
         images: [{ url: '/logo-vinfast.jpg' }],
     }
 };
@@ -66,8 +66,8 @@ export default async function BlogPage() {
                     <div className="inline-flex items-center justify-center gap-2 bg-blue-50 text-vinfast-blue px-4 py-2 rounded-full mb-6 font-semibold tracking-wide uppercase border border-blue-100">
                         <Tag size={16} /> Tin Tức & Sự Kiện
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">
-                        Blog VinFast Xanh Mekong
+                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight font-display uppercase">
+                        Tin tức VinFast Xanh Mekong
                     </h1>
                     <p className="text-gray-600 text-lg leading-relaxed">
                         Cập nhật những thông tin mới nhất về ôtô điện VinFast, các sự kiện lái thử tại Showroom và kinh nghiệm sử dụng xe hiệu quả.

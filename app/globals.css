@@ -97,6 +97,48 @@ h1, h2, h3, h4, .font-display {
   text-justify: inter-word;
 }
 
+/* Force Tiptap alignment styles to override Tailwind prose defaults */
+.prose [style*="text-align: left"],
+.ProseMirror [style*="text-align: left"] { text-align: left !important; }
+.prose [style*="text-align: center"],
+.ProseMirror [style*="text-align: center"] { text-align: center !important; }
+.prose [style*="text-align: right"],
+.ProseMirror [style*="text-align: right"] { text-align: right !important; }
+.prose [style*="text-align: justify"],
+.ProseMirror [style*="text-align: justify"] { text-align: justify !important; }
+
+/* Force Bold and Italic to inherit custom colors from Tiptap TextStyle spans */
+.prose strong,
+.prose b,
+.prose em,
+.prose i,
+.ProseMirror strong,
+.ProseMirror b,
+.ProseMirror em,
+.ProseMirror i {
+  color: inherit !important;
+}
+
+.prose {
+  display: flow-root; /* This forces the container to contain all floated children */
+}
+
+/* Force float-left and float-right alignments inside Tailwind prose */
+.prose img.float-left {
+  float: left !important;
+  margin-right: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  max-width: 50% !important;
+}
+.prose img.float-right {
+  float: right !important;
+  margin-left: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  max-width: 50% !important;
+}
+
+
+
 .prose p:empty::before,
 .prose p br::before {
   content: '\00a0';

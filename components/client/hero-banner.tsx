@@ -73,7 +73,7 @@ export default function HeroBanner({ promotions }: HeroBannerProps) {
 
                         return (
                             <div key={slide.id} className="flex-[0_0_100%] min-w-0 w-full h-auto relative">
-                                <Link href={`/promotions/${slide.slug}`} className="cursor-pointer block w-full h-full">
+                                <Link href={`/khuyen-mai/${slide.slug}`} className="cursor-pointer block w-full h-full">
                                     {/* Desktop Image */}
                                     <Image
                                         src={desktopUrl}

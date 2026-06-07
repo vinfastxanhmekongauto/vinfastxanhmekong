@@ -86,13 +86,13 @@ export default function BlogFilterGrid({ initialPosts }: BlogFilterGridProps) {
                                         <span className="flex items-center gap-1 text-gray-500"><Calendar size={16} className="mb-0.5" /> {new Date(featuredPost.created_at).toLocaleDateString('vi-VN')}</span>
                                     </div>
                                     <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6 group-hover:text-vinfast-blue transition-colors leading-tight">
-                                        <Link href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
+                                        <Link href={`/tin-tuc/${featuredPost.slug}`}>{featuredPost.title}</Link>
                                     </h2>
                                     <p className="text-gray-600 text-lg leading-relaxed mb-8 line-clamp-3">
                                         {featuredPost.excerpt}
                                     </p>
                                     <Link
-                                        href={`/blog/${featuredPost.slug}`}
+                                        href={`/tin-tuc/${featuredPost.slug}`}
                                         className="inline-flex items-center gap-2 bg-vinfast-blue self-start text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-lg hover:shadow-xl"
                                     >
                                         Đọc Tiếp <ArrowRight size={20} />
@@ -126,14 +126,14 @@ export default function BlogFilterGrid({ initialPosts }: BlogFilterGridProps) {
                                             {new Date(post.created_at).toLocaleDateString('vi-VN')}
                                         </div>
                                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-vinfast-blue transition-colors line-clamp-2 leading-tight">
-                                            <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                                            <Link href={`/tin-tuc/${post.slug}`}>{post.title}</Link>
                                         </h3>
                                         <p className="text-gray-600 mb-6 line-clamp-3 text-sm leading-relaxed flex-grow">
                                             {post.excerpt}
                                         </p>
                                         <div className="pt-4 border-t border-gray-100 mt-auto">
                                             <Link
-                                                href={`/blog/${post.slug}`}
+                                                href={`/tin-tuc/${post.slug}`}
                                                 className="inline-flex items-center gap-2 text-vinfast-blue font-bold hover:text-blue-800 transition-colors"
                                             >
                                                 Đọc Tiếp <ArrowRight size={18} />
