@@ -25,6 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
         title: 'Chăm sóc khách hàng | VinFast Xanh Mekong',
         description: 'Chính sách bảo hành, bảo dưỡng và chương trình khách hàng thân thiết dành cho chủ xe VinFast.',
+        alternates: {
+            canonical: '/cham-soc-khach-hang',
+        },
         openGraph: {
             title: 'Chăm sóc khách hàng | VinFast Xanh Mekong',
             description: 'Chính sách bảo hành, bảo dưỡng và chương trình khách hàng thân thiết dành cho chủ xe VinFast.',

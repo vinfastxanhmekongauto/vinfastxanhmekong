@@ -4,6 +4,7 @@ import StickyContact from '@/components/client/sticky-cta';
 import { SiteSettingsProvider } from '@/components/client/SiteSettingsProvider';
 import { QuoteModalProvider } from '@/components/client/QuoteModalProvider';
 import { supabase } from '@/lib/supabase';
+import { SITE_URL } from '@/lib/constants';
 
 export default async function ClientLayout({
     children,
@@ -35,8 +36,8 @@ export default async function ClientLayout({
                             "@context": "https://schema.org",
                             "@type": "LocalBusiness",
                             "name": "VinFast Xanh Mekong",
-                            "description": "Đại lý ôtô điện VinFast chính hãng tại Cần Thơ. Chuyên cung cấp các dòng xe điện Evo 200, Feliz S, Klara S, Vento S, Theon S.",
-                            "url": "https://vinfastxanhmekong.com",
+                            "description": "Đại lý VinFast tại Cần Thơ bán ô tô điện và xe máy điện",
+                            "url": SITE_URL,
                             "telephone": "0907697036",
                             "address": {
                                 "@type": "PostalAddress",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Plus_Jakarta_Sans, Montserrat } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
+import { SITE_URL } from "@/lib/constants";
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ['400', '500', '600', '700', '900'],
@@ -25,7 +26,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://vinfastxanhmekong.vn'),
+  metadataBase: new URL(SITE_URL),
   title: "VinFast Xanh Mekong",
   description: "Đại lý ôtô điện VinFast chính hãng hàng đầu tại khu vực.",
   icons: {

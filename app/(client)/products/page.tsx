@@ -1,8 +1,23 @@
+import { Metadata } from 'next';
 import { supabase } from "@/lib/supabase";
 import ProductFilterGrid from "@/components/client/product-filter-grid";
 import { ProductDisplay } from "@/components/client/product-card";
 import ProductSection from "@/components/client/product-section";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+    title: 'Danh Sách Xe Ôtô Điện VinFast Chính Hãng | VinFast Mekong',
+    description: 'Bảng giá và thông số các dòng ôtô điện VinFast VF 3, VF 5, VF 6, VF 7, VF 8, VF 9 chính hãng mới nhất tại showroom Cần Thơ.',
+    alternates: {
+        canonical: '/products',
+    },
+    openGraph: {
+        title: 'Danh Sách Xe Ôtô Điện VinFast Chính Hãng | VinFast Mekong',
+        description: 'Bảng giá và thông số các dòng ôtô điện VinFast VF 3, VF 5, VF 6, VF 7, VF 8, VF 9 chính hãng mới nhất tại showroom Cần Thơ.',
+        url: '/products',
+        images: [{ url: '/logo-vinfast.jpg' }],
+    }
+};
 
 // Khắc phục Cache cho Next.js 14 server components
 export const revalidate = 60;

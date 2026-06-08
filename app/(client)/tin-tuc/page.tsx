@@ -6,6 +6,9 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Tin Tức & Sự Kiện | VinFast Xanh Mekong Cần Thơ',
     description: 'Cập nhật tin mới nhất về thị trường xe điện, hướng dẫn sử dụng xe và các hoạt động cộng đồng của VinFast Mekong.',
+    alternates: {
+        canonical: '/tin-tuc',
+    },
     openGraph: {
         title: 'Tin Tức & Sự Kiện | VinFast Xanh Mekong Cần Thơ',
         description: 'Cập nhật tin mới nhất về thị trường xe điện, hướng dẫn sử dụng xe và các hoạt động cộng đồng của VinFast Mekong.',

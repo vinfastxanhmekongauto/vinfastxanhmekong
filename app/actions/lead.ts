@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
+import { FALLBACK_EMAIL } from '@/lib/constants';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -46,9 +47,9 @@ export async function submitLead(formData: {
             console.log("Đang bắt đầu gửi email...");
 
             if (!process.env.ADMIN_EMAIL) {
-                console.error("ERROR: Environment variable ADMIN_EMAIL is missing! Falling back to default: vinfastxanhmekong@gmail.com");
+                console.error(`ERROR: Environment variable ADMIN_EMAIL is missing! Falling back to default: ${FALLBACK_EMAIL}`);
             }
-            const recipientEmail = process.env.ADMIN_EMAIL || 'vinfastxanhmekong@gmail.com';
+            const recipientEmail = process.env.ADMIN_EMAIL || FALLBACK_EMAIL;
 
             // Determine email subject & heading based on lead_type
             let emailSubject = '📩 [VinFast Xanh Mekong] Có yêu cầu liên hệ mới!';

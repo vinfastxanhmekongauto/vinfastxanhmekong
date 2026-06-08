@@ -5,17 +5,21 @@ import { supabase } from '@/lib/supabase';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Briefcase, Calendar, MapPin, ArrowRight, Users, GraduationCap, Download } from 'lucide-react';
+import { SITE_URL } from '@/lib/constants';
 
 export const revalidate = 0; // Ensure fresh data on every request
 
 export const metadata: Metadata = {
     title: 'Tuyển Dụng | VinFast Xanh Mekong Cần Thơ',
     description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng các vị trí tư vấn bán hàng, kỹ thuật viên...',
+    alternates: {
+        canonical: '/tuyen-dung',
+    },
     openGraph: {
         title: 'Tuyển Dụng | VinFast Xanh Mekong Cần Thơ',
         description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng các vị trí tư vấn bán hàng, kỹ thuật viên...',
         url: '/tuyen-dung',
-        images: [{ url: 'https://vinfastxanhmekong.vercel.app/banner-tuyen-dung.webp' }],
+        images: [{ url: '/banner-tuyen-dung.webp' }],
     }
 };
 
@@ -73,8 +77,55 @@ export default async function CareerPage() {
 
     const hasPositions = activePositions.length > 0;
 
+    const jobPostingsLd = jobs.flatMap(job => {
+        let positionsList: Position[] = [];
+        if (job.positions) {
+            if (Array.isArray(job.positions)) {
+                positionsList = job.positions;
+            } else if (typeof job.positions === 'string') {
+                try {
+                    positionsList = JSON.parse(job.positions);
+                } catch (e) {
+                    console.error('Failed to parse positions string:', e);
+                }
+            }
+        }
+        return positionsList.map(pos => {
+            const cleanDesc = `Vai trò: ${pos.role || ''}\n\nMô tả công việc:\n${pos.description || ''}\n\nYêu cầu công việc:\n${pos.requirements || ''}`;
+            return {
+                "@context": "https://schema.org",
+                "@type": "JobPosting",
+                "title": `${pos.role} - ${job.title}`,
+                "description": cleanDesc,
+                "datePosted": job.created_at,
+                "employmentType": "FULL_TIME",
+                "hiringOrganization": {
+                    "@type": "Organization",
+                    "name": "VinFast Xanh Mekong",
+                    "sameAs": SITE_URL
+                },
+                "jobLocation": {
+                    "@type": "Place",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": pos.location || "Cần Thơ",
+                        "addressCountry": "VN"
+                    }
+                }
+            };
+        });
+    });
+
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <>
+            {jobPostingsLd.map((jsonLd, idx) => (
+                <script
+                    key={idx}
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            ))}
+            <div className="bg-gray-50 min-h-screen">
             {/* Brand Hero Header */}
             {/* <div className="bg-gradient-to-br from-[#00358E] to-[#00205B] text-white py-20 md:py-28 lg:py-32 relative overflow-hidden shadow-md">
                 
@@ -277,5 +328,6 @@ export default async function CareerPage() {
                 )}
             </div>
         </div>
+        </>
     );
 }

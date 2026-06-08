@@ -188,7 +188,7 @@ export default function SiteSettings() {
                                 type="email"
                                 name="email"
                                 id="email"
-                                placeholder="VD: vinfastxanhmekong@gmail.com"
+                                placeholder="VD: vinfastmekong@gmail.com"
                                 value={formData.email}
                                 onChange={handleChange}
                                 className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
@@ -245,7 +245,7 @@ export default function SiteSettings() {
                                 type="text"
                                 name="link_xe_may_dien"
                                 id="link_xe_may_dien"
-                                placeholder="VD: https://vinfastxanhmekong.vn"
+                                placeholder="VD: https://vinfastmekong.vn"
                                 value={formData.link_xe_may_dien}
                                 onChange={handleChange}
                                 className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
@@ -262,7 +262,7 @@ export default function SiteSettings() {
                                 type="text"
                                 name="link_gf_xanh_mekong"
                                 id="link_gf_xanh_mekong"
-                                placeholder="VD: https://gf.vinfastxanhmekong.vn"
+                                placeholder="VD: https://gf.vinfastmekong.vn"
                                 value={formData.link_gf_xanh_mekong}
                                 onChange={handleChange}
                                 className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"

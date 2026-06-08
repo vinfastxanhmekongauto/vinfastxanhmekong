@@ -7,6 +7,9 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Chương Trình Khuyến Mãi & Ưu Đãi | VinFast Xanh Mekong',
     description: 'Tổng hợp các chương trình ưu đãi, tặng voucher và chính sách thuê pin mới nhất cho các dòng ôtô điện VinFast tại Cần Thơ.',
+    alternates: {
+        canonical: '/khuyen-mai',
+    },
     openGraph: {
         title: 'Chương Trình Khuyến Mãi & Ưu Đãi | VinFast Xanh Mekong',
         description: 'Tổng hợp các chương trình ưu đãi, tặng voucher và chính sách thuê pin mới nhất cho các dòng ôtô điện VinFast tại Cần Thơ.',

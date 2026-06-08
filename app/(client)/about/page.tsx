@@ -5,6 +5,9 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Giới thiệu VinFast Xanh Mekong | Showroom Ôtô Điện Cần Thơ',
     description: 'Tìm hiểu về VinFast Xanh Mekong - Đại lý ủy quyền ôtô điện VinFast uy tín hàng đầu tại khu vực Cần Thơ và miền Tây.',
+    alternates: {
+        canonical: '/about',
+    },
     openGraph: {
         title: 'Giới thiệu VinFast Xanh Mekong | Showroom Ôtô Điện Cần Thơ',
         description: 'Tìm hiểu về VinFast Xanh Mekong - Đại lý ủy quyền ôtô điện VinFast uy tín hàng đầu tại khu vực Cần Thơ và miền Tây.',

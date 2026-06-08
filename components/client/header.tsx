@@ -110,7 +110,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                                 <a href={settings?.link_xe_may_dien || '#'} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
                                     <MapPin size={16} />
-                                    <span>Xe máy điện Vinfast</span>
+                                    <span>Xe máy điện VinFast</span>
                                 </a>
 
                                 <a href={settings?.link_share_vi_tri || settings?.google_maps_link || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
@@ -332,8 +332,8 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                     <div className="border-b border-gray-100">
                         <div className="flex items-center justify-between w-full">
-                            <button 
-                                onClick={() => toggleSubmenu('blog')} 
+                            <button
+                                onClick={() => toggleSubmenu('blog')}
                                 className={`${blogLinkClass} flex-1 py-4 text-left focus:outline-none`}
                             >
                                 TIN TỨC & KHUYẾN MÃI

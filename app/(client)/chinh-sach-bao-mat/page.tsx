@@ -9,11 +9,14 @@ export const revalidate = 0; // Always serve fresh content from CMS
 export const metadata: Metadata = {
     title: 'Chính Sách Bảo Mật | VinFast Xanh Mekong',
     description: 'Chính sách bảo mật thông tin khách hàng tại VinFast Xanh Mekong Cần Thơ.',
+    alternates: {
+        canonical: '/chinh-sach-bao-mat',
+    },
     openGraph: {
         title: 'Chính Sách Bảo Mật | VinFast Xanh Mekong',
         description: 'Chính sách bảo mật thông tin khách hàng tại VinFast Xanh Mekong Cần Thơ.',
         url: '/chinh-sach-bao-mat',
-        images: [{ url: 'https://vinfastxanhmekong.vercel.app/banner-tuyen-dung.webp' }],
+        images: [{ url: '/banner-tuyen-dung.webp' }],
     }
 };
 

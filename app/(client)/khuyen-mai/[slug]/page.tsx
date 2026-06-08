@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Calendar, Tag, Gift, Phone } from 'lucide-react';
 import PromotionLeadForm from '@/components/client/promotion-lead-form';
 import ShareButton from '@/components/ui/share-button';
+import { SITE_URL } from '@/lib/constants';
 
 export const revalidate = 60; // Cache 60s
 
@@ -27,9 +28,9 @@ export async function generateMetadata({ params }: PromotionDetailPageProps): Pr
 
     if (!promotion) return { title: 'Khuyến mãi không tồn tại' };
 
-    let imageUrl = promotion.banner_url || `https://vinfastxanhmekong.com/images/promotions/${promotion.slug}.webp`;
+    let imageUrl = promotion.banner_url || `${SITE_URL}/images/promotions/${promotion.slug}.webp`;
     if (imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
-        imageUrl = `https://vinfastxanhmekong.com${imageUrl}`;
+        imageUrl = `${SITE_URL}${imageUrl}`;
     }
 
     // Clean description for metadata
@@ -40,10 +41,13 @@ export async function generateMetadata({ params }: PromotionDetailPageProps): Pr
     return {
         title: `${promotion.title} | VinFast Xanh Mekong`,
         description: cleanDesc,
+        alternates: {
+            canonical: `/khuyen-mai/${promotion.slug}`,
+        },
         openGraph: {
             title: promotion.title,
             description: cleanDesc,
-            url: `https://vinfastxanhmekong.com/khuyen-mai/${promotion.slug}`,
+            url: `${SITE_URL}/khuyen-mai/${promotion.slug}`,
             siteName: 'VinFast Xanh Mekong',
             images: [
                 {
@@ -90,11 +94,47 @@ export default async function PromotionDetailPage({ params }: PromotionDetailPag
     const desktopImageUrl = getFullUrl(promotion.banner_url, promotion.slug);
     const mobileImageUrl = getFullUrl(promotion.mobile_url || promotion.banner_url, promotion.slug);
 
+    let absoluteDesktopUrl = desktopImageUrl;
+    if (absoluteDesktopUrl.startsWith('/') && !absoluteDesktopUrl.startsWith('http')) {
+        absoluteDesktopUrl = `${SITE_URL}${absoluteDesktopUrl}`;
+    }
+
+    let absoluteMobileUrl = mobileImageUrl;
+    if (absoluteMobileUrl.startsWith('/') && !absoluteMobileUrl.startsWith('http')) {
+        absoluteMobileUrl = `${SITE_URL}${absoluteMobileUrl}`;
+    }
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": promotion.title,
+        "image": [absoluteDesktopUrl, absoluteMobileUrl],
+        "datePublished": promotion.start_date || promotion.created_at,
+        "dateModified": promotion.updated_at || promotion.created_at || promotion.start_date,
+        "author": {
+            "@type": "Organization",
+            "name": "VinFast Xanh Mekong"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "VinFast Xanh Mekong",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${SITE_URL}/logo.png`
+            }
+        }
+    };
+
     const startDate = new Date(promotion.start_date).toLocaleDateString('vi-VN');
     const endDate = new Date(promotion.end_date).toLocaleDateString('vi-VN');
 
     return (
-        <div className="bg-vinfast-gray min-h-screen pb-32 md:pb-20">
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <div className="bg-vinfast-gray min-h-screen pb-32 md:pb-20">
             {/* 1. Hero Banner Section - No Crop, Responsive */}
             <div className="bg-white border-b border-gray-200">
                 <div className="container mx-auto px-0 md:px-8 py-0 md:py-8 lg:py-12">
@@ -176,5 +216,6 @@ export default async function PromotionDetailPage({ params }: PromotionDetailPag
                 </a>
             </div>
         </div>
+        </>
     );
 }

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Calendar, ArrowLeft, Tag } from 'lucide-react';
+import { SITE_URL } from '@/lib/constants';
 
 export const revalidate = 60; // Cache 60s
 
@@ -28,9 +29,9 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
         };
     }
 
-    let imageUrl = post.thumbnail_url || `https://vinfastxanhmekong.com/images/blogs/${slug}.webp`;
+    let imageUrl = post.thumbnail_url || `${SITE_URL}/images/blogs/${slug}.webp`;
     if (imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
-        imageUrl = `https://vinfastxanhmekong.com${imageUrl}`;
+        imageUrl = `${SITE_URL}${imageUrl}`;
     }
 
     const cleanDesc = post.excerpt || (post.content ? post.content.substring(0, 160).replace(/<[^>]*>/g, '').replace(/\n/g, ' ') : 'Tin tức mới nhất từ VinFast Xanh Mekong.');
@@ -38,10 +39,13 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
     return {
         title: `${post.title} | VinFast Xanh Mekong`,
         description: cleanDesc,
+        alternates: {
+            canonical: `/tin-tuc/${post.slug}`,
+        },
         openGraph: {
             title: post.title,
             description: cleanDesc,
-            url: `https://vinfastxanhmekong.com/tin-tuc/${post.slug}`,
+            url: `${SITE_URL}/tin-tuc/${post.slug}`,
             siteName: 'VinFast Xanh Mekong',
             images: [
                 {
@@ -80,6 +84,11 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         imageUrl = `/images/blogs/${imageUrl.split('/').pop()}`; // Fallback logic
     }
 
+    let absoluteImageUrl = imageUrl;
+    if (absoluteImageUrl.startsWith('/') && !absoluteImageUrl.startsWith('http')) {
+        absoluteImageUrl = `${SITE_URL}${absoluteImageUrl}`;
+    }
+
     const createdDate = new Date(post.created_at).toLocaleDateString('vi-VN');
 
     let finalExcerpt = post.excerpt;
@@ -89,8 +98,34 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         finalExcerpt = plainText.length > 250 ? plainText.substring(0, 250) + '...' : plainText;
     }
 
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": post.title,
+        "image": [absoluteImageUrl],
+        "datePublished": post.created_at,
+        "dateModified": post.updated_at || post.created_at,
+        "author": {
+            "@type": "Organization",
+            "name": "VinFast Xanh Mekong"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "VinFast Xanh Mekong",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${SITE_URL}/logo.png`
+            }
+        }
+    };
+
     return (
-        <div className="bg-white min-h-screen pb-20">
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <div className="bg-white min-h-screen pb-20">
             <div className="max-w-4xl mx-auto px-4 md:px-6 pt-8 md:pt-12">
                 {/* Back button */}
                 <Link href="/tin-tuc" className="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-vinfast-blue transition-colors mb-8">
@@ -145,5 +180,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 </div>
             </div>
         </div>
+        </>
     );
 }

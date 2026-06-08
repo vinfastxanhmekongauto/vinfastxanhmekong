@@ -7,6 +7,15 @@ import ProductShowcase from "@/components/client/product-showcase";
 import { ProductDisplay } from "@/components/client/product-card";
 import HeroBanner, { type PromotionSlide } from "@/components/client/hero-banner";
 import AboutDealership from "@/components/client/about-dealership";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "VinFast Mekong Cần Thơ | Ô tô điện & Xe máy điện VinFast",
+  description: "Đại lý chính hãng VinFast tại Cần Thơ. Nhận báo giá, đăng ký lái thử và hỗ trợ mua trả góp ô tô điện, xe máy điện VinFast với ưu đãi tốt nhất.",
+  alternates: {
+    canonical: '/',
+  },
+};
 
 // Khắc phục Cache cho Next.js 14 server components nếu cần
 export const revalidate = 60;
@@ -43,6 +52,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col w-full">
+      <h1 className="sr-only">VinFast Mekong Cần Thơ - Ô tô điện & Xe máy điện VinFast chính hãng</h1>
       {/* Hero Banner Carousel */}
       <HeroBanner promotions={activePromotions} />
 

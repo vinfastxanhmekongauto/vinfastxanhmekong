@@ -23,6 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
         title: 'Đặt lịch dịch vụ | VinFast Xanh Mekong',
         description: 'Đặt lịch bảo dưỡng, sửa chữa xe VinFast nhanh chóng và tiện lợi tại xưởng dịch vụ VinFast Xanh Mekong.',
+        alternates: {
+            canonical: '/dat-lich-dich-vu',
+        },
         openGraph: {
             title: 'Đặt lịch dịch vụ | VinFast Xanh Mekong',
             description: 'Đặt lịch bảo dưỡng, sửa chữa xe VinFast nhanh chóng và tiện lợi tại xưởng dịch vụ VinFast Xanh Mekong.',

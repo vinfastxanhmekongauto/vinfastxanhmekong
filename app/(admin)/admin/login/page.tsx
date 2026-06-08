@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-all"
-                                    placeholder="admin@vinfastxanhmekong.com"
+                                    placeholder="admin@vinfastmekong.com"
                                     disabled={loading || isBlocked} // If blocked practically, disable further inputs for UX (optional)
                                 />
                             </div>

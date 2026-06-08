@@ -33,6 +33,9 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
         title: 'Quà tặng | VinFast Xanh Mekong',
         description: 'Đổi điểm thưởng tích lũy khi sử dụng dịch vụ tại VinFast Xanh Mekong để nhận ngay các phần quà giá trị.',
+        alternates: {
+            canonical: '/qua-tang-dich-vu',
+        },
         openGraph: {
             title: 'Quà tặng | VinFast Xanh Mekong',
             description: 'Đổi điểm thưởng tích lũy khi sử dụng dịch vụ tại VinFast Xanh Mekong để nhận ngay các phần quà giá trị.',

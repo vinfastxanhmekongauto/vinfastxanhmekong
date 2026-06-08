@@ -2,67 +2,75 @@ import { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vinfastxanhmekong.vn';
+    const baseUrl = 'https://www.vinfastmekong.vn';
+    
+    // 1. Static core routes
+    const coreRoutes = ['', '/o-to-dien', '/xe-may-dien', '/khuyen-mai', '/tin-tuc', '/dich-vu', '/lien-he'];
+    const staticRoutes: MetadataRoute.Sitemap = coreRoutes.map((route) => ({
+        url: `${baseUrl}${route}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: route === '' ? 1.0 : 0.8,
+    }));
 
-    // Base routes
-    const routes: MetadataRoute.Sitemap = [
-        {
-            url: baseUrl,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 1,
-        },
-        {
-            url: `${baseUrl}/products`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/khuyen-mai`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/tin-tuc`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/about`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.7,
-        },
-        {
-            url: `${baseUrl}/contact`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.8,
-        },
-    ];
+    let productRoutes: MetadataRoute.Sitemap = [];
+    let blogRoutes: MetadataRoute.Sitemap = [];
+    let promoRoutes: MetadataRoute.Sitemap = [];
 
-    // Dynamic product routes
+    // 2. Fetch products
     try {
         const { data: products } = await supabase
             .from('products')
-            .select('slug');
+            .select('slug, updated_at, created_at');
 
         if (products) {
-            products.forEach((product) => {
-                routes.push({
-                    url: `${baseUrl}/products/${product.slug}`,
-                    lastModified: new Date(),
-                    changeFrequency: 'weekly',
-                    priority: 0.8,
-                });
-            });
+            productRoutes = products.map((item) => ({
+                url: `${baseUrl}/products/${item.slug}`,
+                lastModified: new Date(item.updated_at || item.created_at || new Date()),
+                changeFrequency: 'weekly',
+                priority: 0.8,
+            }));
         }
-    } catch (e) {
-        console.error('Lỗi khi tạo sitemap cho products:', e);
+    } catch (err) {
+        console.error('Error fetching products for sitemap:', err);
     }
 
-    return routes;
+    // 3. Fetch blogs
+    try {
+        const { data: blogs } = await supabase
+            .from('blogs')
+            .select('slug, updated_at, created_at');
+
+        if (blogs) {
+            blogRoutes = blogs.map((item) => ({
+                url: `${baseUrl}/tin-tuc/${item.slug}`,
+                lastModified: new Date(item.updated_at || item.created_at || new Date()),
+                changeFrequency: 'monthly',
+                priority: 0.6,
+            }));
+        }
+    } catch (err) {
+        console.error('Error fetching blogs for sitemap:', err);
+    }
+
+    // 4. Fetch promotions
+    try {
+        const { data: promotions } = await supabase
+            .from('promotions')
+            .select('slug, updated_at, created_at')
+            .eq('is_active', true);
+
+        if (promotions) {
+            promoRoutes = promotions.map((item) => ({
+                url: `${baseUrl}/khuyen-mai/${item.slug}`,
+                lastModified: new Date(item.updated_at || item.created_at || new Date()),
+                changeFrequency: 'weekly',
+                priority: 0.7,
+            }));
+        }
+    } catch (err) {
+        console.error('Error fetching promotions for sitemap:', err);
+    }
+
+    return [...staticRoutes, ...productRoutes, ...blogRoutes, ...promoRoutes];
 }
