@@ -60,8 +60,8 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                                 src={src}
                                 alt={`${productName} ${index + 1}`}
                                 fill
+                                sizes="(max-width: 1024px) 100vw, 60vw"
                                 className="object-contain"
-                                unoptimized
                                 priority={index === 0}
                             />
                         </div>
@@ -120,8 +120,8 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                                     src={src}
                                     alt={`Thumb ${index + 1}`}
                                     fill
+                                    sizes="100px"
                                     className="object-cover"
-                                    unoptimized
                                 />
                             </button>
                         ))}

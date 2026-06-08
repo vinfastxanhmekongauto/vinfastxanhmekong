@@ -79,8 +79,8 @@ export default async function Home() {
                 src="/images/service/service-1.webp"
                 alt="Bảo dưỡng định kỳ"
                 fill
+                sizes="(max-width: 768px) 100vw, 33vw"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white w-full">
@@ -100,8 +100,8 @@ export default async function Home() {
                 src="/images/service/service-2.webp"
                 alt="Dịch vụ sửa chữa"
                 fill
+                sizes="(max-width: 768px) 100vw, 33vw"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white w-full">
@@ -121,8 +121,8 @@ export default async function Home() {
                 src="/images/service/service-3.webp"
                 alt="Chính sách bảo hành"
                 fill
+                sizes="(max-width: 768px) 100vw, 33vw"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white w-full">
@@ -194,8 +194,8 @@ export default async function Home() {
                       src={imageUrl}
                       alt={promotion.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      unoptimized
                     />
                   </Link>
 

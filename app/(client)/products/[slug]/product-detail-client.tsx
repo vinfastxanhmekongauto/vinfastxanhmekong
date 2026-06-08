@@ -70,7 +70,14 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ HERO BANNER ━━━ */}
             <section className="relative w-full min-h-[50vh] md:min-h-[720px] flex flex-col justify-end items-center overflow-hidden">
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${product?.hero_banner_url || mainImageUrl})` }} />
+                <Image
+                    src={product?.hero_banner_url || mainImageUrl}
+                    alt={product?.name || 'VinFast Hero'}
+                    fill
+                    priority={true}
+                    sizes="100vw"
+                    className="object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 <div className="relative z-10 w-full text-center pb-16 md:pb-24 px-4">
                     <h1 className="text-5xl md:text-8xl font-black text-white mb-2 tracking-tighter leading-tight">{product?.name}</h1>
@@ -311,7 +318,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                 <div className="flex">
                                     {product?.features_carousel?.items?.map((item: any, i: number) => (
                                         <div key={i} className="flex-[0_0_100%] min-w-0 relative aspect-video">
-                                            {item?.url && <Image src={item.url} alt={product.features_carousel.title || 'Feature'} fill className="object-cover" unoptimized />}
+                                            {item?.url && <Image src={item.url} alt={product.features_carousel.title || 'Feature'} fill sizes="(max-width: 1024px) 100vw, 80vw" className="object-cover" />}
                                             <div className="absolute bottom-0 left-0 right-0 h-[28%] bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end justify-center pb-6 md:pb-8 px-6 text-center">
                                                 <p className="text-white text-base md:text-2xl font-bold drop-shadow-lg">{item.text}</p>
                                             </div>
@@ -349,11 +356,17 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                         </p>
                                     )}
                                     {item?.url && (
-                                        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl">
+                                        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl relative aspect-video">
                                             {item.url.match(/\.(mp4|webm|mov)$/) ? (
                                                 <video src={item.url} className="w-full h-auto" autoPlay muted loop playsInline />
                                             ) : (
-                                                <img src={item.url} alt={section.title || 'Feature'} className="w-full h-auto" loading="lazy" />
+                                                <Image
+                                                    src={item.url}
+                                                    alt={section.title || 'Feature'}
+                                                    fill
+                                                    sizes="(max-width: 1024px) 100vw, 80vw"
+                                                    className="object-cover"
+                                                />
                                             )}
                                         </div>
                                     )}
@@ -389,7 +402,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                 <div className="flex">
                                     {product?.extra_features_carousel?.items?.map((item: any, i: number) => (
                                         <div key={i} className="flex-[0_0_100%] min-w-0 relative aspect-video">
-                                            {item?.url && <Image src={item.url} alt={product.extra_features_carousel.title || 'Feature'} fill className="object-cover" unoptimized />}
+                                            {item?.url && <Image src={item.url} alt={product.extra_features_carousel.title || 'Feature'} fill sizes="(max-width: 1024px) 100vw, 80vw" className="object-cover" />}
                                             <div className="absolute bottom-0 left-0 right-0 h-[28%] bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end justify-center pb-6 md:pb-8 px-6 text-center">
                                                 <p className="text-white text-base md:text-2xl font-bold drop-shadow-lg">{item.text}</p>
                                             </div>
@@ -427,11 +440,17 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                         </p>
                                     )}
                                     {item?.url && (
-                                        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl">
+                                        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl relative aspect-video">
                                             {item.url.match(/\.(mp4|webm|mov)$/) ? (
                                                 <video src={item.url} className="w-full h-auto" autoPlay muted loop playsInline />
                                             ) : (
-                                                <img src={item.url} alt={section.title || 'Feature'} className="w-full h-auto" loading="lazy" />
+                                                <Image
+                                                    src={item.url}
+                                                    alt={section.title || 'Feature'}
+                                                    fill
+                                                    sizes="(max-width: 1024px) 100vw, 80vw"
+                                                    className="object-cover"
+                                                />
                                             )}
                                         </div>
                                     )}
@@ -470,8 +489,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                             src={block.image_url}
                                                             alt={block.title || 'Advanced feature'}
                                                             fill
+                                                            sizes="100vw"
                                                             className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                                            unoptimized
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
@@ -502,8 +521,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                             src={block.image_url}
                                                             alt={block.title || 'Advanced feature'}
                                                             fill
+                                                            sizes="(max-width: 768px) 100vw, 50vw"
                                                             className="object-cover"
-                                                            unoptimized
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
@@ -533,8 +552,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                             src={block.image_url}
                                                             alt={block.title || 'Advanced feature'}
                                                             fill
+                                                            sizes="(max-width: 768px) 100vw, 50vw"
                                                             className="object-cover"
-                                                            unoptimized
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
@@ -579,8 +598,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                                     src={item.image_url}
                                                                     alt={item.title || 'Grid 2 feature'}
                                                                     fill
+                                                                    sizes="(max-width: 768px) 100vw, 50vw"
                                                                     className="object-cover"
-                                                                    unoptimized
                                                                 />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
@@ -621,8 +640,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                                         src={subItem.image_url}
                                                                         alt={subItem.title || 'Sub feature'}
                                                                         fill
+                                                                        sizes="(max-width: 768px) 100vw, 25vw"
                                                                         className="object-cover"
-                                                                        unoptimized
                                                                     />
                                                                 ) : (
                                                                     <div className="text-slate-300 font-medium text-xs">No Icon</div>
@@ -680,8 +699,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                             src={p.thumbnail_url || `/images/products/${p.slug}.webp`}
                                             alt={p.name}
                                             fill
+                                            sizes="(max-width: 768px) 100vw, 25vw"
                                             className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.1)]"
-                                            unoptimized
                                         />
                                     </div>
 

@@ -81,8 +81,7 @@ export default function HeroBanner({ promotions }: HeroBannerProps) {
                                         width={1920}
                                         height={600}
                                         className="hidden md:block w-full h-auto object-cover"
-                                        priority
-                                        unoptimized
+                                        priority={true}
                                     />
 
                                     {/* Mobile Image */}
@@ -92,8 +91,7 @@ export default function HeroBanner({ promotions }: HeroBannerProps) {
                                         width={750}
                                         height={1000}
                                         className="block md:hidden w-full h-auto object-cover"
-                                        priority
-                                        unoptimized
+                                        priority={true}
                                     />
                                 </Link>
                             </div>
