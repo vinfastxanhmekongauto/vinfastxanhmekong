@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Plus_Jakarta_Sans, Montserrat } from "next/font/google";
-import Script from 'next/script';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import { SITE_URL } from "@/lib/constants";
 
@@ -70,19 +70,8 @@ export default function RootLayout({
         className={`${beVietnamPro.variable} ${plusJakartaSans.variable} ${montserrat.variable} font-sans antialiased bg-vinfast-gray text-gray-900`}
       >
         {children}
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
       </body>
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=G-GDR0TD5D1X`}
-        strategy="lazyOnload"
-      />
-      <Script id="google-analytics" strategy="lazyOnload">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-GDR0TD5D1X');
-        `}
-      </Script>
     </html>
   );
 }
