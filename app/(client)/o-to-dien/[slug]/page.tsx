@@ -131,12 +131,54 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             }
         }
     };
+    const faqJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": `Giá lăn bánh xe ${product.name} tại Cần Thơ bao nhiêu?`,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `Giá lăn bánh ${product.name} tại Cần Thơ bao gồm giá niêm yết cộng thêm phí ra biển số, phí bảo trì đường bộ và bảo hiểm trách nhiệm dân sự. Đặc biệt, xe ô tô điện đang được miễn 100% lệ phí trước bạ.`
+                }
+            },
+            {
+                "@type": "Question",
+                "name": `Mua xe ${product.name} trả góp cần giấy tờ gì?`,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `Đại lý VinFast Xanh Mekong hỗ trợ vay trả góp ${product.name} lên đến 80% giá trị xe với lãi suất ưu đãi. Thủ tục vô cùng đơn giản gồm: CCCD gắn chip, Giấy xác nhận tình trạng hôn nhân và Chứng minh thu nhập.`
+                }
+            },
+            {
+                "@type": "Question",
+                "name": `${product.name} có chính sách thuê pin không?`,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `Có. Đối với dòng xe ${product.name}, VinFast cung cấp tùy chọn: mua xe kèm pin hoặc mua xe thuê pin. Pin sẽ được VinFast bảo hành và thay mới hoàn toàn miễn phí khi dung lượng sạc tối đa giảm xuống dưới 70%.`
+                }
+            },
+            {
+                "@type": "Question",
+                "name": `Sạc pin xe ${product.name} ở đâu? Có sạc tại nhà được không?`,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `VinFast sở hữu hệ thống trạm sạc công cộng phủ sóng khắp 63 tỉnh thành phố. Ngoài ra, bạn hoàn toàn có thể chủ động sạc ${product.name} tại nhà bằng bộ sạc di động chính hãng đi kèm vô cùng tiện lợi và an toàn.`
+                }
+            }
+        ]
+    };
 
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
             />
             <ProductDetailPageClient product={product} similarProducts={similarProducts} />
         </>

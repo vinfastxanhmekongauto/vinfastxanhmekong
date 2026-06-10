@@ -5,21 +5,21 @@ export default function ChargingNetwork() {
         <section className="w-full bg-gray-900 text-white overflow-hidden relative">
             {/* Transition 2: Dark Tech Specs to Navy Charging Map */}
             <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-10"></div>
-            <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 py-24">
+            <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 py-10 md:py-12 lg:py-16">
 
                 {/* Cột trái: Nội dung văn bản */}
-                <div className="p-8 md:p-16 lg:p-24 flex flex-col justify-center">
-                    <h2 className="text-3xl md:text-5xl font-bold leading-tight mb-8">
+                <div className="p-6 md:p-8 lg:p-10 flex flex-col justify-center">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 md:mb-4">
                         3,5 km - Khoảng cách <br />
                         <span className="text-blue-500">nhỏ cho mục tiêu lớn.</span>
                     </h2>
 
-                    <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                    <p className="text-gray-400 text-lg leading-relaxed mb-3 md:mb-4">
                         Định hình tiên phong thúc đẩy ngành công nghiệp xe điện, hướng tới một tương lai Xanh và Thông Minh,
                         VinFast đã đầu tư hàng trăm triệu USD phát triển hạ tầng, từng bước "phủ rộng" trạm sạc xe điện:
                     </p>
 
-                    <ul className="space-y-4 mb-10">
+                    <ul className="space-y-4 mb-4 md:mb-6">
                         {[
                             "Hệ thống trạm sạc xe điện VinFast trải dài 63 Tỉnh và Thành phố.",
                             "106 tuyến quốc lộ quan trọng đều có trạm sạc.",

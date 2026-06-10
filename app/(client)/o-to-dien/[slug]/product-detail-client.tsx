@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
@@ -8,9 +8,10 @@ import { ChevronLeft, ChevronRight, Check, Timer, Gauge, Zap, Battery, BatteryCh
 import Image from 'next/image';
 import ProductGallery from '@/components/client/product-gallery';
 import ProductHeroActions from '@/components/client/product-hero-actions';
-import { ProductDisplay } from '@/components/client/product-card';
+import ProductCard, { ProductDisplay } from '@/components/client/product-card';
 import ScrollToTop from '@/components/client/scroll-to-top';
 import { ModalWrapper, LeadFormModal, CostEstimateModal, InstallmentModal } from '@/components/client/quick-action-modals';
+import FAQAccordion from '@/components/client/faq-accordion';
 import dynamic from 'next/dynamic';
 
 const ChargingNetwork = dynamic(() => import('@/components/shared/charging-network'), {
@@ -51,6 +52,25 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
     const scrollExtraPrev = useCallback(() => extraEmblaApi && extraEmblaApi.scrollPrev(), [extraEmblaApi]);
     const scrollExtraNext = useCallback(() => extraEmblaApi && extraEmblaApi.scrollNext(), [extraEmblaApi]);
 
+    const carouselRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const carousel = carouselRef.current;
+        if (!carousel) return;
+
+        const interval = setInterval(() => {
+            if (carousel.scrollWidth <= carousel.clientWidth) return;
+
+            if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10) {
+                carousel.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                carousel.scrollBy({ left: 350, behavior: 'smooth' });
+            }
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     if (!product) return null;
 
     const hasFeatures = product?.features_carousel?.items?.length > 0;
@@ -74,7 +94,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
     ].filter(s => s.value);
 
     return (
-        <div className="bg-[#f7f8fa] min-h-screen pb-20">
+        <div className="bg-[#f7f8fa] min-h-screen">
             <ScrollToTop />
 
             {/* ━━━ HERO BANNER ━━━ */}
@@ -98,7 +118,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ OVERVIEW ━━━ */}
             <section className="container mx-auto px-4 md:px-8 -mt-12 relative z-20">
-                <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 md:p-12 border border-gray-100 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                <div className="bg-white rounded-[2.5rem] shadow-2xl p-5 md:p-12 border border-gray-100 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-10 items-start">
                     {/* Left Column: Synchronized Gallery */}
                     <div className="lg:col-span-7">
                         <ProductGallery images={galleryImages} productName={product?.name} />
@@ -107,7 +127,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                     {/* Right Column: Info & Policies */}
                     <div className="lg:col-span-5 flex flex-col gap-8">
                         <div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-[#152B4D] mb-4 tracking-tight leading-tight">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#152B4D] mb-4 tracking-tight leading-tight">
                                 {product?.name}
                             </h2>
                             <p className="text-gray-600 text-lg leading-relaxed text-justify">
@@ -158,23 +178,23 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ VARIANTS & PRICING ━━━ */}
             {product?.variants && product.variants.length > 1 && (
-                <section className="pt-24 pb-12 md:pt-32 md:pb-3">
+                <section className="pt-12 pb-8 md:pt-16 md:pb-10">
                     <div className="container mx-auto px-4 md:px-8">
-                        <div className="text-center mb-20">
-                            <h2 className="text-2xl md:text-3xl font-extrabold uppercase tracking-wider mb-4 bg-gradient-to-r from-[#00358E] to-blue-400 bg-clip-text text-transparent">
+                        <div className="text-center mb-8 md:mb-10">
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-wider mb-4 bg-gradient-to-r from-[#00358E] to-blue-400 bg-clip-text text-transparent">
                                 Chọn {product.name} - {product.tagline || product.excerpt || 'TRẢI NGHIỆM ĐẲNG CẤP'}
                             </h2>
-                            <p className="text-sm text-[#475569] tracking-[0.15em] uppercase mb-6">
+                            <p className="text-sm text-[#475569] tracking-[0.15em] uppercase mb-4 md:mb-6">
                                 Tìm kiếm phiên bản phản ánh chuẩn xác phong cách sống của bạn.
                             </p>
                             <div className="w-24 h-1.5 bg-[#00358E] mx-auto rounded-full shadow-sm" />
                         </div>
 
-                        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-7xl mx-auto items-stretch">
+                        <div className="flex flex-wrap justify-center gap-4 md:gap-6 max-w-7xl mx-auto items-stretch">
                             {product?.variants?.map((v: any, i: number) => (
                                 <div
                                     key={i}
-                                    className={`relative group rounded-[2.5rem] p-10 flex flex-col h-full transition-all duration-700 hover:-translate-y-3 border flex-1 min-w-[300px] max-w-[400px] ${v.is_popular
+                                    className={`relative group rounded-[2.5rem] p-6 md:p-10 flex flex-col h-full transition-all duration-700 hover:-translate-y-3 border flex-1 min-w-[300px] max-w-[400px] ${v.is_popular
                                         ? 'bg-[#00358E] text-white shadow-[0_35px_60px_-15px_rgba(0,53,142,0.45)] border-transparent'
                                         : 'bg-white text-[#152B4D] border-gray-200 shadow-lg'
                                         }`}
@@ -187,7 +207,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
                                     {/* ─── Block A: Model Name + Note ─── */}
                                     <div className="flex-shrink-0">
-                                        <h3 className={`text-2xl md:text-3xl font-black uppercase tracking-tight leading-tight ${v.is_popular ? 'text-white' : 'text-[#152B4D]'}`}>
+                                        <h3 className={`text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight leading-tight ${v.is_popular ? 'text-white' : 'text-[#152B4D]'}`}>
                                             {v.name}
                                         </h3>
                                         {(v.note || v.description) && (
@@ -198,7 +218,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                     </div>
 
                                     {/* ─── Block B: Horizontal Separator ─── */}
-                                    <div className={`my-8 border-t ${v.is_popular ? 'border-white/15' : 'border-[#e2e8f0]'}`} />
+                                    <div className={`my-5 md:my-6 border-t ${v.is_popular ? 'border-white/15' : 'border-[#e2e8f0]'}`} />
 
                                     {/* ─── Block C: Pricing ─── */}
                                     <div className="mt-auto">
@@ -217,11 +237,11 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
             )}
 
             {/* ━━━ ACTIONS ━━━ */}
-            <section className=" pt-8 pb-20 md:pt-8 md:pb-28">
-                <div className="container mx-auto px-4 md:px-8">
+            <section className="pt-4 pb-10 md:pt-6 md:pb-12">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
                     {/* Section Intro */}
-                    <div className="text-center mb-16">
-                        <h2 className="text-xl md:text-2xl font-extrabold uppercase tracking-wider mb-3 bg-gradient-to-r from-[#00358E] to-blue-400 bg-clip-text text-transparent">
+                    <div className="text-center mb-6 md:mb-8">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold uppercase tracking-wider mb-3 bg-gradient-to-r from-[#00358E] to-blue-400 bg-clip-text text-transparent">
                             Đặc Quyền Sở Hữu - Trải Nghiệm Đẳng Cấp
                         </h2>
                         <p className="text-xs font-black uppercase tracking-[0.3em] text-[#475569]">
@@ -229,11 +249,11 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 items-stretch">
                         {/* Card 1: Lái Thử */}
                         <button
                             onClick={() => setActiveModal('testDrive')}
-                            className="group bg-white rounded-[2rem] p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                            className="group bg-white rounded-[2rem] p-6 md:p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-vinfast-blue transition-colors duration-300">
                                 <Car size={24} className="text-vinfast-blue group-hover:text-white transition-colors duration-300" />
@@ -250,7 +270,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                         {/* Card 2: Dự Toán */}
                         <button
                             onClick={() => setActiveModal('estimate')}
-                            className="group bg-white rounded-[2rem] p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                            className="group bg-white rounded-[2rem] p-6 md:p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-vinfast-blue transition-colors duration-300">
                                 <Calculator size={24} className="text-vinfast-blue group-hover:text-white transition-colors duration-300" />
@@ -267,7 +287,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                         {/* Card 3: Trả Góp */}
                         <button
                             onClick={() => setActiveModal('installment')}
-                            className="group bg-white rounded-[2rem] p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                            className="group bg-white rounded-[2rem] p-6 md:p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-vinfast-blue transition-colors duration-300">
                                 <BadgePercent size={24} className="text-vinfast-blue group-hover:text-white transition-colors duration-300" />
@@ -284,7 +304,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                         {/* Card 4: Báo Giá */}
                         <button
                             onClick={() => setActiveModal('quote')}
-                            className="group bg-white rounded-[2rem] p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                            className="group bg-white rounded-[2rem] p-6 md:p-8 flex flex-col items-center text-center h-full border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-vinfast-blue transition-colors duration-300">
                                 <FileText size={24} className="text-vinfast-blue group-hover:text-white transition-colors duration-300" />
@@ -305,20 +325,20 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ FEATURES CAROUSEL ━━━ */}
             {hasFeatures && (
-                <section className="py-20 md:py-28">
-                    <div className="container mx-auto px-4 md:px-8">
+                <section className="py-8 md:py-12">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
                         {/* Dynamic Section Title */}
                         {product?.features_carousel?.title && (
-                            <div className="text-center mb-10">
-                                <h2 className="text-3xl font-bold uppercase text-vinfast-blue">
+                            <div className="text-center mb-4 md:mb-6">
+                                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase text-vinfast-blue">
                                     {product.features_carousel.title}
                                 </h2>
                                 {(product.features_carousel.description || product.features_carousel.discription) && (
-                                    <p className="text-gray-600 text-base md:text-lg max-w-3xl mx-auto mt-4 leading-relaxed">
+                                    <p className="text-gray-600 text-sm md:text-base max-w-3xl mx-auto mt-2 md:mt-4 leading-relaxed">
                                         {product.features_carousel.description || product.features_carousel.discription}
                                     </p>
                                 )}
-                                <hr className="w-24 h-1 mx-auto bg-vinfast-blue border-0 mt-6" />
+                                <hr className="w-24 h-1 mx-auto bg-vinfast-blue border-0 mt-4 md:mt-6" />
                             </div>
                         )}
 
@@ -345,21 +365,21 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ MAGAZINE STYLE FEATURES ━━━ */}
             {product?.feature_sections?.map((section: any, sIdx: number) => (
-                <section key={sIdx} className="py-20 md:py-28">
-                    <div className="mx-auto container px-4 md:px-8">
+                <section key={sIdx} className="py-8 md:py-12">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
                         {/* Section-level heading */}
                         {section?.title && (
-                            <div className="mb-16">
-                                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-wider leading-tight text-[#152B4D] mb-8">
+                            <div className="mb-6 md:mb-8">
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wider leading-tight text-[#152B4D] mb-4 md:mb-6">
                                     {section.title}
                                 </h2>
                                 <div className="w-16 h-1.5 bg-[#00358E] rounded-full" />
                             </div>
                         )}
                         {/* Items */}
-                        <div className="flex flex-col gap-24">
+                        <div className="flex flex-col gap-8 md:gap-12 lg:gap-14">
                             {section?.items?.map((item: any, iIdx: number) => (
-                                <div key={iIdx} className="flex flex-col gap-10 w-full">
+                                <div key={iIdx} className="flex flex-col gap-3 md:gap-5 w-full">
                                     {item?.text && (
                                         <p className="text-gray-700 text-lg leading-relaxed text-justify">
                                             {item.text}
@@ -389,20 +409,20 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ EXTRA FEATURES CAROUSEL ━━━ */}
             {extraHasFeatures && (
-                <section className="py-20 md:py-28">
-                    <div className="container mx-auto px-4 md:px-8">
+                <section className="py-8 md:py-12">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
                         {/* Dynamic Section Title */}
                         {product?.extra_features_carousel?.title && (
-                            <div className="text-center mb-10">
-                                <h2 className="text-3xl font-bold uppercase text-vinfast-blue">
+                            <div className="text-center mb-4 md:mb-6">
+                                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase text-vinfast-blue">
                                     {product.extra_features_carousel.title}
                                 </h2>
                                 {(product.extra_features_carousel.description || product.extra_features_carousel.discription) && (
-                                    <p className="text-gray-600 text-base md:text-lg max-w-3xl mx-auto mt-4 leading-relaxed">
+                                    <p className="text-gray-600 text-sm md:text-base max-w-3xl mx-auto mt-2 md:mt-4 leading-relaxed">
                                         {product.extra_features_carousel.description || product.extra_features_carousel.discription}
                                     </p>
                                 )}
-                                <hr className="w-24 h-1 mx-auto bg-vinfast-blue border-0 mt-6" />
+                                <hr className="w-24 h-1 mx-auto bg-vinfast-blue border-0 mt-4 md:mt-6" />
                             </div>
                         )}
 
@@ -429,21 +449,21 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ EXTRA FEATURES (MAGAZINE) ━━━ */}
             {product?.extra_feature_sections?.map((section: any, sIdx: number) => (
-                <section key={sIdx} className="py-20 md:py-28">
-                    <div className="container mx-auto px-4 md:px-8">
+                <section key={sIdx} className="py-8 md:py-12">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
                         {/* Section-level heading */}
                         {section?.title && (
-                            <div className="mb-16">
-                                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[#152B4D] mb-4">
+                            <div className="mb-6 md:mb-8">
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-[#152B4D] mb-3 md:mb-4">
                                     {section.title}
                                 </h2>
                                 <div className="w-16 h-1.5 bg-[#00358E] rounded-full" />
                             </div>
                         )}
                         {/* Items */}
-                        <div className="flex flex-col gap-24">
+                        <div className="flex flex-col gap-8 md:gap-12 lg:gap-14">
                             {section?.items?.map((item: any, iIdx: number) => (
-                                <div key={iIdx} className="flex flex-col gap-10 w-full">
+                                <div key={iIdx} className="flex flex-col gap-3 md:gap-5 w-full">
                                     {item?.text && (
                                         <p className="text-gray-700 text-lg leading-relaxed text-justify">
                                             {item.text}
@@ -473,10 +493,10 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
             {/* ━━━ ADVANCED DYNAMIC BLOCKS ━━━ */}
             {product?.advanced_features_blocks && product.advanced_features_blocks.length > 0 && (
-                <section className="py-20 md:py-28 bg-white border-t border-b border-gray-100">
-                    <div className="container mx-auto px-4 md:px-8 max-w-7xl">
-                        <div className="text-center mb-16 md:mb-24">
-                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-[#152B4D] mb-4">
+                <section className="py-8 md:py-12 bg-white border-t border-b border-gray-100">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
+                        <div className="text-center mb-6 md:mb-8">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-[#152B4D] mb-4">
                                 {product?.advanced_features_title || 'TÍNH NĂNG NÂNG CAO'}
                             </h2>
                             {product.advanced_features_desc && (
@@ -487,7 +507,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                             <div className="w-24 h-1.5 bg-[#00358E] mx-auto rounded-full mt-6" />
                         </div>
 
-                        <div className="space-y-16 md:space-y-24">
+                        <div className="space-y-8 md:space-y-10 lg:space-y-12">
                             {product.advanced_features_blocks.map((block: any, idx: number) => {
                                 switch (block.type) {
                                     case 'hero_full':
@@ -509,8 +529,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                     )}
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-12" />
                                                 </div>
-                                                <div className="bg-white p-6 md:p-10 border border-t-0 border-gray-100 rounded-b-[2rem]">
-                                                    <h3 className="text-2xl md:text-3xl font-bold text-[#152B4D] mb-4 tracking-tight">
+                                                <div className="bg-white p-5 md:p-6 border border-t-0 border-gray-100 rounded-b-[2rem]">
+                                                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#152B4D] mb-2 md:mb-4 tracking-tight">
                                                         {block.title}
                                                     </h3>
                                                     {block.description && (
@@ -524,7 +544,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
                                     case 'split_left':
                                         return (
-                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 items-center">
                                                 <div className="relative aspect-video md:aspect-[4/3] w-full rounded-[2rem] overflow-hidden shadow-xl bg-slate-100">
                                                     {block.image_url ? (
                                                         <Image
@@ -540,8 +560,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="space-y-4 px-2">
-                                                    <h3 className="text-2xl md:text-3xl font-bold text-[#152B4D] tracking-tight">
+                                                <div className="space-y-2 md:space-y-4 px-2">
+                                                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#152B4D] tracking-tight">
                                                         {block.title}
                                                     </h3>
                                                     {block.description && (
@@ -555,7 +575,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
                                     case 'split_right':
                                         return (
-                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 items-center">
                                                 <div className="md:order-last relative aspect-video md:aspect-[4/3] w-full rounded-[2rem] overflow-hidden shadow-xl bg-slate-100">
                                                     {block.image_url ? (
                                                         <Image
@@ -571,8 +591,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="space-y-4 px-2">
-                                                    <h3 className="text-2xl md:text-3xl font-bold text-[#152B4D] tracking-tight">
+                                                <div className="space-y-2 md:space-y-4 px-2">
+                                                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#152B4D] tracking-tight">
                                                         {block.title}
                                                     </h3>
                                                     {block.description && (
@@ -586,11 +606,11 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
                                     case 'grid_2':
                                         return (
-                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
                                                 {(block.items || []).slice(0, 2).map((item: any, subIdx: number) => {
                                                     const textBlock = (
-                                                        <div key="text" className="space-y-3 px-2 flex-grow">
-                                                            <h4 className="text-xl md:text-2xl font-bold text-[#152B4D] tracking-tight">
+                                                        <div key="text" className="space-y-1.5 md:space-y-3 px-2 flex-grow">
+                                                            <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-[#152B4D] tracking-tight">
                                                                 {item.title}
                                                             </h4>
                                                             {item.description && (
@@ -620,7 +640,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                     );
 
                                                     return (
-                                                        <div key={subIdx} className="flex flex-col gap-4 h-full">
+                                                        <div key={subIdx} className="flex flex-col gap-2 md:gap-4 h-full">
                                                             {item.layout_style === 'text_top' ? (
                                                                 <>
                                                                     {textBlock}
@@ -641,10 +661,10 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                     case 'grid_4':
                                         return (
                                             <div key={idx} className="space-y-8">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                                                     {block.items?.map((subItem: any, subIdx: number) => (
-                                                        <div key={subIdx} className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 flex flex-col h-full hover:shadow-lg transition-all duration-300">
-                                                            <div className="relative w-full aspect-[16/10] mb-6 rounded-2xl overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
+                                                        <div key={subIdx} className="bg-slate-50 border border-slate-100 rounded-[2rem] p-5 md:p-6 flex flex-col h-full hover:shadow-lg transition-all duration-300">
+                                                            <div className="relative w-full aspect-[16/10] mb-4 md:mb-6 rounded-2xl overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
                                                                 {subItem.image_url ? (
                                                                     <Image
                                                                         src={subItem.image_url}
@@ -657,7 +677,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                                                     <div className="text-slate-300 font-medium text-xs">No Icon</div>
                                                                 )}
                                                             </div>
-                                                            <h4 className="text-lg font-bold text-[#152B4D] mb-2 tracking-tight">
+                                                            <h4 className="text-base sm:text-lg font-bold text-[#152B4D] mb-1.5 md:mb-2 tracking-tight">
                                                                 {subItem.title}
                                                             </h4>
                                                             <p className="text-gray-500 text-sm leading-relaxed flex-grow text-justify whitespace-pre-line">
@@ -677,18 +697,19 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                     </div>
                 </section>
             )}
+            <FAQAccordion productName={product.name} />
 
             {product?.tech_specs_markdown && <TechSpecsTable markdown={product.tech_specs_markdown} productName={product.name} onQuoteClick={() => setActiveModal('quote')} brochureUrl={product.brochure_url} />}
 
             <ChargingNetwork />
 
             {/* ━━━ POPULAR MODELS (DISCOVERY) ━━━ */}
-            <section className="bg-white pt-24 md:py-32 border-t border-gray-100 overflow-hidden">
+            <section className="bg-white pt-8 pb-10 md:py-12 border-t border-gray-100 overflow-hidden">
                 <div className="container mx-auto px-4 md:px-8">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-6">
                         <div>
-                            <h2 className="text-3xl md:text-5xl font-black text-[#152B4D] mb-4 tracking-tighter uppercase italic">
-                                CÁC DÒNG XE PHỔ BIẾN
+                            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold uppercase text-[#152B4D] mb-3 md:mb-4 tracking-tighter italic">
+                                CÁC DÒNG XE LIÊN QUAN
                             </h2>
                             <p className="text-blue-600 font-bold uppercase tracking-[0.2em] text-sm md:text-base">
                                 Khám phá hệ sinh thái xe điện VinFast
@@ -697,54 +718,28 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                         <div className="hidden md:block w-32 h-2 bg-vinfast-blue/10 rounded-full mb-2" />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+                    <div ref={carouselRef} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4 pb-6 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
                         {similarProducts?.filter(p => p.slug !== product?.slug).slice(0, 4).map((p, i) => (
-                            <Link key={p.id} href={`/o-to-dien/${p.slug}`} className="group relative block h-full">
-                                <div className="bg-[#f8f9fb] rounded-[2.5rem] p-10 h-full flex flex-col items-center text-center transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(0,53,142,0.15)] hover:-translate-y-6 border border-transparent hover:border-blue-100 overflow-hidden relative">
-                                    {/* Glossy Metallic Effect Background */}
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent rounded-full -mr-16 -mt-16 blur-2xl" />
-
-                                    <div className="relative w-full aspect-[16/10] mb-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
-                                        <Image
-                                            src={p.thumbnail_url || `/images/products/${p.slug}.webp`}
-                                            alt={p.name}
-                                            fill
-                                            sizes="(max-width: 768px) 100vw, 25vw"
-                                            className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.1)]"
-                                        />
-                                    </div>
-
-                                    <h3 className="text-2xl font-black text-[#152B4D] group-hover:text-vinfast-blue transition-colors mb-3 tracking-tight">
-                                        {p.name}
-                                    </h3>
-
-                                    <p className="text-vinfast-blue font-black text-lg mb-10">
-                                        Giá từ: {p.price_from ? new Intl.NumberFormat('vi-VN').format(p.price_from) + ' VNĐ' : 'Liên hệ'}
-                                    </p>
-
-                                    <div className="mt-auto opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-6 group-hover:translate-y-0">
-                                        <div className="px-10 py-4 bg-[#1464F4] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/40">
-                                            Xem chi tiết
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <div key={p.id} className="flex-none w-[85vw] sm:w-[350px] lg:w-auto snap-start">
+                                <ProductCard product={p} />
+                            </div>
                         ))}
                     </div>
                 </div>
             </section>
 
+
             <ModalWrapper isOpen={activeModal !== null} onClose={handleCloseModal}>
                 {activeModal === 'testDrive' && (
-                    <LeadFormModal 
-                        title={`Lái Thử ${preFilledCar || product?.name}`} 
-                        onClose={handleCloseModal} 
-                        selectedCar={preFilledCar || product?.name} 
+                    <LeadFormModal
+                        title={`Lái Thử ${preFilledCar || product?.name}`}
+                        onClose={handleCloseModal}
+                        selectedCar={preFilledCar || product?.name}
                         initialNotes={preFilledNotes}
                     />
                 )}
                 {activeModal === 'estimate' && (
-                    <CostEstimateModal 
+                    <CostEstimateModal
                         onQuoteTrigger={(carName, notes) => {
                             setPreFilledCar(carName);
                             setPreFilledNotes(notes);
@@ -753,7 +748,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                     />
                 )}
                 {activeModal === 'installment' && (
-                    <InstallmentModal 
+                    <InstallmentModal
                         onQuoteTrigger={(carName, notes) => {
                             setPreFilledCar(carName);
                             setPreFilledNotes(notes);
@@ -762,10 +757,10 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                     />
                 )}
                 {activeModal === 'quote' && (
-                    <LeadFormModal 
-                        title={`Báo Giá ${preFilledCar || product?.name}`} 
-                        onClose={handleCloseModal} 
-                        selectedCar={preFilledCar || product?.name} 
+                    <LeadFormModal
+                        title={`Báo Giá ${preFilledCar || product?.name}`}
+                        onClose={handleCloseModal}
+                        selectedCar={preFilledCar || product?.name}
                         initialNotes={preFilledNotes}
                     />
                 )}

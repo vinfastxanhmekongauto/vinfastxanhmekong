@@ -15,7 +15,7 @@ export default function TechSpecsTable({ markdown, productName, onQuoteClick, br
     if (!markdown) return null;
 
     return (
-        <section className="bg-[#333333] py-20 md:py-32 relative overflow-hidden">
+        <section className="bg-[#333333] py-8 md:py-12 lg:py-16 relative overflow-hidden">
             {/* Transition 1: White Hero/Interior to Dark Tech Specs */}
             <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-black/30 to-transparent pointer-events-none z-10"></div>
 
@@ -27,12 +27,12 @@ export default function TechSpecsTable({ markdown, productName, onQuoteClick, br
             </div>
 
             <div className="container mx-auto px-4 md:px-8 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-20 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12 items-start">
                     {/* Left Header Section */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-24">
-                            <div className="w-16 h-1.5 bg-[#00358E] mb-8 rounded-full"></div>
-                            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase italic mb-6">
+                            <div className="w-16 h-1.5 bg-[#00358E] mb-3 md:mb-4 rounded-full"></div>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none uppercase italic mb-4">
                                 Tổng quan <br /> sự khác biệt
                             </h2>
                             <p className="text-gray-400 text-xs font-black uppercase tracking-[0.4em]">{productName}</p>
