@@ -119,15 +119,15 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                 </a>
 
                                 <div className="flex items-center gap-2">
-                                    <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi Fanpage Vinfast Xanh Mekong">
+                                    <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi Fanpage Vinfast Xanh Mekong" aria-label="Facebook Fanpage VinFast Xanh Mekong">
                                         <Facebook size={14} className="text-[#1877F2]" />
                                     </a>
-                                    <a href={settings?.tiktok_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi TikTok Vinfast Xanh Mekong">
+                                    <a href={settings?.tiktok_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi TikTok Vinfast Xanh Mekong" aria-label="TikTok VinFast Xanh Mekong">
                                         <svg fill="currentColor" viewBox="0 0 448 512" width="14" height="14" className="text-black">
                                             <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z" />
                                         </svg>
                                     </a>
-                                    <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Liên hệ Zalo Vinfast Xanh Mekong">
+                                    <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Liên hệ Zalo Vinfast Xanh Mekong" aria-label="Zalo VinFast Xanh Mekong">
                                         <img src="/zalo-icon.png" alt="Zalo" className="w-5 h-5 object-contain" />
                                     </a>
                                 </div>
@@ -264,6 +264,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                     <button
                         className="lg:hidden p-2 text-black"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        aria-label={isMenuOpen ? "Đóng menu navigation" : "Mở menu navigation"}
                     >
                         {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
                     </button>
@@ -280,7 +281,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                     <div className="border-b border-gray-100">
                         <div className="flex items-center justify-between w-full">
                             <Link href="/products" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/products')} flex-1 py-4 text-left`}>SẢN PHẨM</Link>
-                            <button onClick={() => toggleSubmenu('products')} className="p-4 text-gray-600 focus:outline-none">
+                            <button onClick={() => toggleSubmenu('products')} className="p-4 text-gray-600 focus:outline-none" aria-label="Mở rộng danh mục sản phẩm">
                                 <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'products' ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
@@ -288,7 +289,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                             <div className="pl-4 flex flex-col gap-4">
                                 {CATEGORIES.map(cat => (
                                     <div key={cat.id}>
-                                        <div className="text-xs font-bold text-gray-400 mb-2 uppercase">{cat.label}</div>
+                                        <div className="text-xs font-bold text-gray-500 mb-2 uppercase">{cat.label}</div>
                                         <div className="flex flex-col gap-3 pl-2">
                                             {products.filter(c => c.category === cat.id).map(car => (
                                                 <Link key={car.id} href={`/products/${car.slug}`} onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">
@@ -306,7 +307,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                         <div className="border-b border-gray-100">
                             <div className="flex items-center justify-between w-full">
                                 <Link href="/dich-vu" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/dich-vu')} flex-1 py-4 text-left`}>DỊCH VỤ</Link>
-                                <button onClick={() => toggleSubmenu('services')} className="p-4 text-gray-600 focus:outline-none">
+                                <button onClick={() => toggleSubmenu('services')} className="p-4 text-gray-600 focus:outline-none" aria-label="Mở rộng danh mục dịch vụ">
                                     <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'services' ? 'rotate-180' : ''}`} />
                                 </button>
                             </div>
@@ -338,7 +339,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                             >
                                 TIN TỨC & KHUYẾN MÃI
                             </button>
-                            <button onClick={() => toggleSubmenu('blog')} className="p-4 text-gray-600 focus:outline-none">
+                            <button onClick={() => toggleSubmenu('blog')} className="p-4 text-gray-600 focus:outline-none" aria-label="Mở rộng tin tức và khuyến mãi">
                                 <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'blog' ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
@@ -371,13 +372,13 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                             <Map size={16} /> Vị trí
                         </a>
                         <div className="flex items-center gap-4 pt-2">
-                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Theo dõi Fanpage Vinfast Xanh Mekong"><Facebook size={16} className="text-[#1877F2]" /></a>
-                            <a href={settings?.tiktok_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Theo dõi TikTok Vinfast Xanh Mekong">
+                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Theo dõi Fanpage Vinfast Xanh Mekong" aria-label="Facebook Fanpage VinFast Xanh Mekong"><Facebook size={16} className="text-[#1877F2]" /></a>
+                            <a href={settings?.tiktok_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Theo dõi TikTok Vinfast Xanh Mekong" aria-label="TikTok VinFast Xanh Mekong">
                                 <svg fill="currentColor" viewBox="0 0 448 512" width="16" height="16" className="text-black">
                                     <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z" />
                                 </svg>
                             </a>
-                            <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Liên hệ Zalo Vinfast Xanh Mekong">
+                            <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Liên hệ Zalo Vinfast Xanh Mekong" aria-label="Zalo VinFast Xanh Mekong">
                                 <img src="/zalo-icon.png" alt="Zalo" className="w-5 h-5 object-contain" />
                             </a>
                         </div>

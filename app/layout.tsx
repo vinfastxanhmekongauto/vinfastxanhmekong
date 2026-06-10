@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Plus_Jakarta_Sans, Montserrat } from "next/font/google";
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 import "./globals.css";
 import { SITE_URL } from "@/lib/constants";
 
@@ -71,7 +71,18 @@ export default function RootLayout({
       >
         {children}
       </body>
-      <GoogleAnalytics gaId="G-GDR0TD5D1X" />
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=G-GDR0TD5D1X`}
+        strategy="lazyOnload"
+      />
+      <Script id="google-analytics" strategy="lazyOnload">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-GDR0TD5D1X');
+        `}
+      </Script>
     </html>
   );
 }

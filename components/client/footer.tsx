@@ -43,7 +43,7 @@ export default function Footer() {
 
                     {/* Column 2: Quick Links */}
                     <div className="space-y-4">
-                        <h4 className="text-lg font-bold mb-6">Liên Kết Nhanh</h4>
+                        <h3 className="text-lg font-bold mb-6">Liên Kết Nhanh</h3>
                         <ul className="space-y-3 text-sm text-gray-400">
                             <li><Link href="/products" className="hover:text-vinfast-blue transition-colors">Tất cả ôtô điện</Link></li>
                             <li><Link href="/khuyen-mai" className="hover:text-vinfast-blue transition-colors">Chương trình khuyến mãi</Link></li>
@@ -54,7 +54,7 @@ export default function Footer() {
 
                     {/* Column 3: Contact Info */}
                     <div className="space-y-4 lg:col-span-2">
-                        <h4 className="text-lg font-bold text-white mb-6">Hệ Thống Showroom VinFast Xanh Mekong – Cần Thơ</h4>
+                        <h3 className="text-lg font-bold text-white mb-6">Hệ Thống Showroom VinFast Xanh Mekong – Cần Thơ</h3>
                         <ul className="space-y-4 text-sm text-gray-200">
                             <li className="flex items-start gap-4">
                                 <MapPin className="text-gray-300 shrink-0 mt-0.5" size={20} />
@@ -74,7 +74,7 @@ export default function Footer() {
                             </li>
                         </ul>
                         <div className="pt-4 flex items-center gap-4">
-                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition">
+                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition" aria-label="Facebook Fanpage VinFast Xanh Mekong">
                                 <Facebook size={20} fill="white" />
                             </a>
                             <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="h-10 px-4 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm hover:bg-blue-600 transition">
@@ -89,6 +89,7 @@ export default function Footer() {
                     <div className="w-full h-[250px] md:h-[350px] bg-gray-800 rounded-xl overflow-hidden mb-12 border border-gray-700">
                         <iframe
                             src={settings.google_maps_link}
+                            title="Bản đồ vị trí đại lý VinFast Xanh Mekong"
                             width="100%"
                             height="100%"
                             style={{ border: 0 }}
@@ -104,6 +105,7 @@ export default function Footer() {
                     <div className="w-full h-[250px] md:h-[350px] bg-gray-800 rounded-xl overflow-hidden mb-12 border border-gray-700">
                         <iframe
                             src={fallbackGoogleMaps}
+                            title="Bản đồ vị trí đại lý VinFast Xanh Mekong (Bản dự phòng)"
                             width="100%"
                             height="100%"
                             style={{ border: 0 }}

@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import { Car, FileText, Phone } from 'lucide-react';
-import { ModalWrapper, LeadFormModal } from './quick-action-modals';
+import dynamic from 'next/dynamic';
+
+const ModalWrapper = dynamic(() => import('./quick-action-modals').then(mod => mod.ModalWrapper), { ssr: false });
+const LeadFormModal = dynamic(() => import('./quick-action-modals').then(mod => mod.LeadFormModal), { ssr: false });
 
 interface ProductHeroActionsProps {
     productName: string;
@@ -45,22 +48,25 @@ export default function ProductHeroActions({ productName, layout = 'center' }: P
                 </a>
             )}
 
-            <ModalWrapper isOpen={activeModal !== null} onClose={() => setActiveModal(null)}>
-                {activeModal === 'testDrive' && (
-                    <LeadFormModal
-                        title={`Đăng Ký Lái Thử ${productName}`}
-                        onClose={() => setActiveModal(null)}
-                        selectedCar={productName}
-                    />
-                )}
-                {activeModal === 'quote' && (
-                    <LeadFormModal
-                        title={`Nhận Báo Giá ${productName}`}
-                        onClose={() => setActiveModal(null)}
-                        selectedCar={productName}
-                    />
-                )}
-            </ModalWrapper>
+            {activeModal && (
+                <ModalWrapper isOpen={activeModal !== null} onClose={() => setActiveModal(null)}>
+                    {activeModal === 'testDrive' && (
+                        <LeadFormModal
+                            title={`Đăng Ký Lái Thử ${productName}`}
+                            onClose={() => setActiveModal(null)}
+                            selectedCar={productName}
+                        />
+                    )}
+                    {activeModal === 'quote' && (
+                        <LeadFormModal
+                            title={`Nhận Báo Giá ${productName}`}
+                            onClose={() => setActiveModal(null)}
+                            selectedCar={productName}
+                        />
+                    )}
+                </ModalWrapper>
+            )}
         </div>
     );
 }
+

@@ -1,7 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState } from 'react';
-import { ModalWrapper, LeadFormModal } from './quick-action-modals';
+import dynamic from 'next/dynamic';
+
+const ModalWrapper = dynamic(() => import('./quick-action-modals').then(mod => mod.ModalWrapper), { ssr: false });
+const LeadFormModal = dynamic(() => import('./quick-action-modals').then(mod => mod.LeadFormModal), { ssr: false });
 
 interface QuoteModalContextType {
     isOpen: boolean;
@@ -29,13 +32,15 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     return (
         <QuoteModalContext.Provider value={{ isOpen, selectedCar, openQuoteModal, closeQuoteModal }}>
             {children}
-            <ModalWrapper isOpen={isOpen} onClose={closeQuoteModal}>
-                <LeadFormModal 
-                    title="Nhận Báo Giá Chi Tiết" 
-                    onClose={closeQuoteModal} 
-                    selectedCar={selectedCar} 
-                />
-            </ModalWrapper>
+            {isOpen && (
+                <ModalWrapper isOpen={isOpen} onClose={closeQuoteModal}>
+                    <LeadFormModal 
+                        title="Nhận Báo Giá Chi Tiết" 
+                        onClose={closeQuoteModal} 
+                        selectedCar={selectedCar} 
+                    />
+                </ModalWrapper>
+            )}
         </QuoteModalContext.Provider>
     );
 }
@@ -47,3 +52,4 @@ export function useQuoteModal() {
     }
     return context;
 }
+

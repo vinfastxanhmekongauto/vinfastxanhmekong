@@ -88,7 +88,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         {product.variants.map((variant, idx) => (
                             <div key={idx} className="flex flex-row justify-between items-center text-sm gap-2">
                                 <span className="text-gray-600 font-medium truncate flex-1">
-                                    {variant.name} {variant.note ? <span className="text-gray-400 text-xs">({variant.note})</span> : ''}
+                                    {variant.name} {variant.note ? <span className="text-gray-500 text-xs">({variant.note})</span> : ''}
                                 </span>
                                 <span className="font-bold text-vinfast-blue whitespace-nowrap">
                                     {new Intl.NumberFormat('vi-VN').format(variant.price)} VNĐ

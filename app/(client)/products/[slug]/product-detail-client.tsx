@@ -11,8 +11,17 @@ import ProductHeroActions from '@/components/client/product-hero-actions';
 import { ProductDisplay } from '@/components/client/product-card';
 import ScrollToTop from '@/components/client/scroll-to-top';
 import { ModalWrapper, LeadFormModal, CostEstimateModal, InstallmentModal } from '@/components/client/quick-action-modals';
-import ChargingNetwork from '@/components/shared/charging-network';
-import TechSpecsTable from '@/components/client/tech-specs-table';
+import dynamic from 'next/dynamic';
+
+const ChargingNetwork = dynamic(() => import('@/components/shared/charging-network'), {
+    loading: () => <div className="h-48 bg-gray-100 animate-pulse rounded-[2.5rem] container mx-auto px-4 md:px-8 mt-12" />,
+    ssr: true,
+});
+
+const TechSpecsTable = dynamic(() => import('@/components/client/tech-specs-table'), {
+    loading: () => <div className="h-96 bg-gray-150 animate-pulse rounded-[2.5rem] container mx-auto px-4 md:px-8 mt-12" />,
+    ssr: true,
+});
 
 interface ProductDetailPageClientProps {
     product: any;
@@ -75,7 +84,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                     alt={product?.name || 'VinFast Hero'}
                     fill
                     priority={true}
-                    sizes="100vw"
+                    fetchPriority="high"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -138,7 +148,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                 </div>
                                 <p className="text-3xl md:text-4xl font-extrabold text-vinfast-blue tracking-tight mt-1">
                                     {product.variants[0].price ? product.variants[0].price.toLocaleString('vi-VN') : 'Liên hệ'}
-                                    {product.variants[0].price && <span className="text-xl md:text-2xl text-slate-400 font-medium ml-2">VNĐ</span>}
+                                    {product.variants[0].price && <span className="text-xl md:text-2xl text-slate-500 font-medium ml-2">VNĐ</span>}
                                 </p>
                             </div>
                         )}
@@ -192,7 +202,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
                                     {/* ─── Block C: Pricing ─── */}
                                     <div className="mt-auto">
-                                        <span className={`text-[9px] font-black uppercase tracking-widest block mb-3 ${v.is_popular ? 'text-cyan-100/50' : 'text-gray-400'}`}>
+                                        <span className={`text-[9px] font-black uppercase tracking-widest block mb-3 ${v.is_popular ? 'text-cyan-100/50' : 'text-gray-500'}`}>
                                             Giá bán từ
                                         </span>
                                         <div className={`text-3xl md:text-4xl font-black tracking-tighter leading-none ${v.is_popular ? 'text-white' : 'text-vinfast-blue'}`}>
@@ -326,8 +336,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                     ))}
                                 </div>
                             </div>
-                            <button onClick={scrollPrev} className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronLeft className="text-white" /></button>
-                            <button onClick={scrollNext} className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronRight className="text-white" /></button>
+                            <button onClick={scrollPrev} aria-label="Ảnh tính năng trước" className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronLeft className="text-white" /></button>
+                            <button onClick={scrollNext} aria-label="Ảnh tính năng tiếp theo" className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronRight className="text-white" /></button>
                         </div>
                     </div>
                 </section>
@@ -410,8 +420,8 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
                                     ))}
                                 </div>
                             </div>
-                            <button onClick={scrollExtraPrev} className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronLeft className="text-white" /></button>
-                            <button onClick={scrollExtraNext} className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronRight className="text-white" /></button>
+                            <button onClick={scrollExtraPrev} aria-label="Ảnh tính năng bổ sung trước" className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronLeft className="text-white" /></button>
+                            <button onClick={scrollExtraNext} aria-label="Ảnh tính năng bổ sung tiếp theo" className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"><ChevronRight className="text-white" /></button>
                         </div>
                     </div>
                 </section>

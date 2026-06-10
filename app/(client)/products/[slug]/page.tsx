@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import ProductDetailPageClient from './product-detail-client';
@@ -13,15 +14,21 @@ interface ProductDetailPageProps {
     }>
 }
 
-// --- SEO METADATA ---
-export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+// ── CACHED PRODUCT FETCH (deduplicated across generateMetadata + page render) ──
+const getProduct = cache(async (slug: string) => {
     const supabase = await createClient();
-    const { slug } = await params;
-    const { data: product } = await supabase
+    const { data, error } = await supabase
         .from('products')
-        .select(`*, hero_banner_url, subtitle, thumbnail_url`)
+        .select('*')
         .eq('slug', slug)
         .single();
+    return { product: data, error };
+});
+
+// --- SEO METADATA ---
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+    const { slug } = await params;
+    const { product } = await getProduct(slug);
 
     if (!product) return { title: 'Sản phẩm không tồn tại' };
 
@@ -50,21 +57,18 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
 
 // --- MAIN PAGE COMPONENT ---
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-    const supabase = await createClient();
     const resolvedParams = await params;
     const currentSlug = resolvedParams.slug;
 
-    const { data: product, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', currentSlug)
-        .single();
+    const { product, error } = await getProduct(currentSlug);
 
     if (error || !product) {
         notFound();
     }
 
-    // ── SIMILAR PRODUCTS ──
+    // ── SIMILAR PRODUCTS (fetched in parallel where possible) ──
+    const supabase = await createClient();
+
     let similarQuery = supabase
         .from('products')
         .select(`id, name, slug, variants, homepage_specs, thumbnail_url`)
@@ -138,3 +142,4 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </>
     );
 }
+
