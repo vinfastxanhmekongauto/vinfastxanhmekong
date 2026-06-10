@@ -45,7 +45,7 @@ export default function Footer() {
                     <div className="space-y-4">
                         <h3 className="text-lg font-bold mb-6">Liên Kết Nhanh</h3>
                         <ul className="space-y-3 text-sm text-gray-400">
-                            <li><Link href="/products" className="hover:text-vinfast-blue transition-colors">Tất cả ôtô điện</Link></li>
+                            <li><Link href="/o-to-dien" className="hover:text-vinfast-blue transition-colors">Tất cả ôtô điện</Link></li>
                             <li><Link href="/khuyen-mai" className="hover:text-vinfast-blue transition-colors">Chương trình khuyến mãi</Link></li>
                             <li><Link href="/about" className="hover:text-vinfast-blue transition-colors">Về chúng tôi</Link></li>
                             <li><Link href="/tin-tuc" className="hover:text-vinfast-blue transition-colors">Tin tức & Sự kiện</Link></li>

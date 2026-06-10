@@ -5,7 +5,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://www.vinfastmekong.vn';
     
     // 1. Static core routes
-    const coreRoutes = ['', '/o-to-dien', '/xe-may-dien', '/khuyen-mai', '/tin-tuc', '/dich-vu', '/lien-he'];
+    const coreRoutes = ['', '/o-to-dien', '/khuyen-mai', '/tin-tuc', '/dich-vu', '/lien-he'];
     const staticRoutes: MetadataRoute.Sitemap = coreRoutes.map((route) => ({
         url: `${baseUrl}${route}`,
         lastModified: new Date(),
@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
         if (products) {
             productRoutes = products.map((item) => ({
-                url: `${baseUrl}/products/${item.slug}`,
+                url: `${baseUrl}/o-to-dien/${item.slug}`,
                 lastModified: new Date(item.updated_at || item.created_at || new Date()),
                 changeFrequency: 'weekly',
                 priority: 0.8,

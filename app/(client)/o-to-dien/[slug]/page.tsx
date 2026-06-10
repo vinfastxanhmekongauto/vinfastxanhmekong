@@ -41,12 +41,12 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
         title: `${product.name} | VinFast Xanh Mekong`,
         description: product.excerpt || `Trải nghiệm tương lai di chuyển thông minh cùng VinFast ${product.name}.`,
         alternates: {
-            canonical: `/products/${product.slug}`,
+            canonical: `/o-to-dien/${product.slug}`,
         },
         openGraph: {
             title: `${product.name} | VinFast Xanh Mekong`,
             description: product.excerpt || `Khám phá xe điện VinFast ${product.name} tại Cần Thơ.`,
-            url: `${SITE_URL}/products/${product.slug}`,
+            url: `${SITE_URL}/o-to-dien/${product.slug}`,
             siteName: 'VinFast Xanh Mekong',
             images: [{ url: imageUrl, width: 1200, height: 630, alt: product.name }],
             locale: 'vi_VN',
@@ -115,7 +115,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         },
         "offers": {
             "@type": "Offer",
-            "url": `${SITE_URL}/products/${product.slug}`,
+            "url": `${SITE_URL}/o-to-dien/${product.slug}`,
             "priceCurrency": "VND",
             "price": price,
             "availability": "https://schema.org/InStock",

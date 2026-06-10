@@ -9,12 +9,12 @@ export const metadata: Metadata = {
     title: 'Danh Sách Xe Ôtô Điện VinFast Chính Hãng | VinFast Mekong',
     description: 'Bảng giá và thông số các dòng ôtô điện VinFast VF 3, VF 5, VF 6, VF 7, VF 8, VF 9 chính hãng mới nhất tại showroom Cần Thơ.',
     alternates: {
-        canonical: '/products',
+        canonical: '/o-to-dien',
     },
     openGraph: {
         title: 'Danh Sách Xe Ôtô Điện VinFast Chính Hãng | VinFast Mekong',
         description: 'Bảng giá và thông số các dòng ôtô điện VinFast VF 3, VF 5, VF 6, VF 7, VF 8, VF 9 chính hãng mới nhất tại showroom Cần Thơ.',
-        url: '/products',
+        url: '/o-to-dien',
         images: [{ url: '/logo-vinfast.jpg' }],
     }
 };

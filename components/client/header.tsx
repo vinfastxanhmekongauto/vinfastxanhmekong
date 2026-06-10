@@ -64,8 +64,8 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
     }, []);
 
     const isActive = (path: string) => {
-        if (path === '/products') {
-            return pathname.startsWith('/products');
+        if (path === '/o-to-dien') {
+            return pathname.startsWith('/o-to-dien');
         }
         return pathname === path;
     };
@@ -140,7 +140,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                             {/* SẢN PHẨM Mega Menu */}
                             <div className="group relative">
-                                <Link href="/products" className={`${getLinkClass('/products')} flex items-center gap-1 pb-3`}>
+                                <Link href="/o-to-dien" className={`${getLinkClass('/o-to-dien')} flex items-center gap-1 pb-3`}>
                                     SẢN PHẨM <ChevronDown size={16} />
                                 </Link>
                                 {/* Invisible bridge (pt-3) & Mega Menu Content */}
@@ -178,7 +178,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                                 }
                                                 return (
                                                     <div key={car.id} className="group/car block hover:bg-gray-50 p-2 rounded transition-colors border border-transparent hover:border-gray-100">
-                                                        <Link href={`/products/${car.slug}`} className="block relative h-32 w-full mb-4 bg-gray-50 rounded overflow-hidden">
+                                                        <Link href={`/o-to-dien/${car.slug}`} className="block relative h-32 w-full mb-4 bg-gray-50 rounded overflow-hidden">
                                                             <Image
                                                                 src={imageUrl}
                                                                 alt={car.name}
@@ -187,11 +187,11 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                                                 unoptimized
                                                             />
                                                         </Link>
-                                                        <Link href={`/products/${car.slug}`} className="block">
+                                                        <Link href={`/o-to-dien/${car.slug}`} className="block">
                                                             <h4 className="text-lg font-bold text-gray-800 mb-1 hover:text-[#1464F4] transition-colors">{car.name}</h4>
                                                         </Link>
                                                         <p className="text-sm text-gray-500 mb-4">{priceText}</p>
-                                                        <Link href={`/products/${car.slug}`} className="text-[#1464F4] text-sm hover:underline transition-colors inline-block mt-1">
+                                                        <Link href={`/o-to-dien/${car.slug}`} className="text-[#1464F4] text-sm hover:underline transition-colors inline-block mt-1">
                                                             Xem các mẫu {car.name} &gt;
                                                         </Link>
                                                     </div>
@@ -280,7 +280,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                     <div className="border-b border-gray-100">
                         <div className="flex items-center justify-between w-full">
-                            <Link href="/products" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/products')} flex-1 py-4 text-left`}>SẢN PHẨM</Link>
+                            <Link href="/o-to-dien" onClick={() => setIsMenuOpen(false)} className={`${getLinkClass('/o-to-dien')} flex-1 py-4 text-left`}>SẢN PHẨM</Link>
                             <button onClick={() => toggleSubmenu('products')} className="p-4 text-gray-600 focus:outline-none" aria-label="Mở rộng danh mục sản phẩm">
                                 <ChevronDown size={18} className={`transform transition-transform ${mobileExpanded === 'products' ? 'rotate-180' : ''}`} />
                             </button>
@@ -292,7 +292,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                         <div className="text-xs font-bold text-gray-500 mb-2 uppercase">{cat.label}</div>
                                         <div className="flex flex-col gap-3 pl-2">
                                             {products.filter(c => c.category === cat.id).map(car => (
-                                                <Link key={car.id} href={`/products/${car.slug}`} onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">
+                                                <Link key={car.id} href={`/o-to-dien/${car.slug}`} onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">
                                                     {car.name}
                                                 </Link>
                                             ))}

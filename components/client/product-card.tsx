@@ -55,7 +55,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     return (
         <div className="bg-white h-full rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col border border-gray-100 group">
             {/* Clickable Image Link */}
-            <Link href={`/products/${product.slug}`} className="block relative h-56 md:h-64 w-full bg-vinfast-gray flex items-center justify-center p-6 cursor-pointer select-none">
+            <Link href={`/o-to-dien/${product.slug}`} className="block relative h-56 md:h-64 w-full bg-vinfast-gray flex items-center justify-center p-6 cursor-pointer select-none">
 
                 <div className="relative w-full h-full">
                     <Image
@@ -70,7 +70,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
             {/* Content Details */}
             <div className="p-6 flex flex-col flex-grow">
-                <Link href={`/products/${product.slug}`} className="block cursor-pointer flex-grow mb-4">
+                <Link href={`/o-to-dien/${product.slug}`} className="block cursor-pointer flex-grow mb-4">
 
                     <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 group-hover:text-vinfast-blue transition-colors">
                         {product.name}
@@ -112,7 +112,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 {/* CTA Button Group */}
                 <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
                     <Link
-                        href={`/products/${product.slug}`}
+                        href={`/o-to-dien/${product.slug}`}
                         className="border-2 border-vinfast-blue text-vinfast-blue font-bold px-3 py-2.5 rounded-xl text-xs md:text-sm text-center hover:bg-vinfast-blue/5 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
                     >
                         Chi tiết

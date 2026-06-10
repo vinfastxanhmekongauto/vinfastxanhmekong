@@ -699,7 +699,7 @@ export default function ProductDetailPageClient({ product, similarProducts }: Pr
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                         {similarProducts?.filter(p => p.slug !== product?.slug).slice(0, 4).map((p, i) => (
-                            <Link key={p.id} href={`/products/${p.slug}`} className="group relative block h-full">
+                            <Link key={p.id} href={`/o-to-dien/${p.slug}`} className="group relative block h-full">
                                 <div className="bg-[#f8f9fb] rounded-[2.5rem] p-10 h-full flex flex-col items-center text-center transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(0,53,142,0.15)] hover:-translate-y-6 border border-transparent hover:border-blue-100 overflow-hidden relative">
                                     {/* Glossy Metallic Effect Background */}
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent rounded-full -mr-16 -mt-16 blur-2xl" />
