@@ -27,7 +27,7 @@ export default function EditJobPage() {
             try {
                 const { data, error } = await supabase
                     .from('jobs')
-                    .select('title, slug, cover_image, header_content, footer_content, positions, is_active')
+                    .select('required_documents, positions, is_active')
                     .eq('id', id)
                     .single();
                 

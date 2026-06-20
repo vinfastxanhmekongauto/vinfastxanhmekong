@@ -105,16 +105,26 @@ export default function ContactClient() {
             <div className="bg-vinfast-blue text-white py-16 md:py-24 mb-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=2000')] opacity-20 bg-cover bg-center mix-blend-overlay"></div>
                 <div className="container relative z-10 mx-auto px-4 md:px-8 text-center max-w-4xl">
-                    <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight drop-shadow-md">
-                        Liên Hệ VinFast Xanh Mekong
+                    <h1 className="mb-8 md:mb-10 tracking-tight drop-shadow-md leading-tight">
+                        <span className="block text-3xl md:text-4xl lg:text-5xl font-extrabold pb-2 mb-0 text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
+                            VinFast Xanh Mekong
+                        </span>
+                        <span className="block text-xl md:text-3xl font-medium text-white/90 leading-snug">
+                            Đại lý ủy quyền chính thức của VinFast Việt Nam
+                        </span>
                     </h1>
-                    <p className="text-lg md:text-xl text-blue-100 leading-relaxed font-light">
-                        Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về các dòng ôtô điện VinFast.
-                    </p>
+                    <div className="max-w-3xl mx-auto space-y-6 text-blue-100/90 text-sm md:text-lg leading-relaxed">
+                        <p>
+                            VinFast Xanh Mekong là đại lý ủy quyền chính thức từ VinFast Việt Nam, với phương châm hoạt động tận tâm, chu đáo và hết mình vì khách hàng. Đại lý luôn không ngừng nỗ lực để mang đến những sản phẩm xe điện thông minh và trải nghiệm dịch vụ tốt nhất dành cho bạn.
+                        </p>
+                        <p>
+                            Chúng tôi tin rằng một chiếc xe tốt cần được đồng hành bởi một đại lý xứng tầm. Vì vậy, Xanh Mekong, một đại lý Tận tâm & chuyên nghiệp, không ngừng đầu tư vào con người, dịch vụ và trải nghiệm khách hàng, để mỗi lần ghé thăm đều là một trải nghiệm đáng nhớ.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 md:px-8 -mt-10 relative z-20">
+            <div className="container mx-auto px-4 md:px-8 mt-10 relative z-20">
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
                     <div className="grid grid-cols-1 lg:grid-cols-2">
 
@@ -149,7 +159,7 @@ export default function ContactClient() {
                                     </div>
                                     <div className="pt-1">
                                         <h4 className="font-bold text-gray-900 mb-1">Email Kỹ Thuật & Bán Hàng</h4>
-                                        <a href={`mailto:${settings?.email || fallbackEmail}`} className="text-vinfast-blue hover:underline">{settings?.email || fallbackEmail}</a>
+                                        <a href={`mailto:${settings?.email || fallbackEmail}`} className="text-vinfast-blue hover:underline break-all">{settings?.email || fallbackEmail}</a>
                                     </div>
                                 </li>
 
@@ -164,7 +174,7 @@ export default function ContactClient() {
                                 </li>
                             </ul>
 
-                             <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                            <div className="flex flex-col sm:flex-row gap-4 mb-8">
                                 <a
                                     href={settings?.facebook_link || '#'}
                                     target="_blank"

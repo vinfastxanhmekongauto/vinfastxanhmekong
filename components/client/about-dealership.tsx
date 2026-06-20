@@ -38,7 +38,7 @@ export default function AboutDealership() {
 
                     <p className="text-gray-300 text-lg leading-relaxed">
                         Phân phối các dòng xe điện VinFast chính hãng nổi bật như:{' '}
-                        <span className="text-blue-400 font-semibold">VF 3, VF 5 Plus, VF 6, VF 7, VF 8, VF 9</span>{' '}
+                        <span className="text-blue-400 font-semibold">VF 3, VF 5 Plus, VF 6, VF 7, VF 8, VF 9, MPV7, EC Van, minio green, herio green, limo green</span>{' '}
                         với nhiều ưu đãi hấp dẫn, hỗ trợ vay trả góp lãi suất tốt nhất thị trường.
                     </p>
                 </div>

@@ -62,7 +62,7 @@ export default async function ClientLayout({
                 Main content wrapper with pb-16 to ensure bottom content 
                 isn't hidden by the sticky CTA on mobile devices.
               */}
-                    <main className="flex-1 pb-16 md:pb-0">
+                    <main className="flex-1 md:pb-0">
                         {children}
                     </main>
                     <Footer />

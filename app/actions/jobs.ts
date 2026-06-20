@@ -118,8 +118,6 @@ export async function duplicateJob(id: string) {
 
         // Clone and modify the payload to prevent conflicts
         const { id: _, created_at: __, ...clonedData } = job;
-        clonedData.title = `${clonedData.title} - Bản sao`;
-        clonedData.slug = `${clonedData.slug}-copy-${Date.now()}`;
         clonedData.is_active = false; // Turn off to prevent automatic visibility conflict
 
         const { error: insertError } = await supabaseAdmin

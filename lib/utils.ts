@@ -33,3 +33,20 @@ export function truncateHtmlToText(html: string | null | undefined, maxLength: n
     
     return truncated + '...';
 }
+
+/**
+ * Generates a clean URL slug from a given string (handles Vietnamese characters, diacritics, spaces, etc.)
+ */
+export function slugify(text: string): string {
+    return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+        .replace(/[đĐ]/g, 'd')           // Replace Vietnamese letter đ/Đ
+        .replace(/\s+/g, '-')            // Replace spaces with -
+        .replace(/[^\w-]+/g, '')         // Remove non-word chars
+        .replace(/--+/g, '-')            // Replace multiple - with single -
+        .replace(/^-+/, '')              // Trim - from start
+        .replace(/-+$/, '');             // Trim - from end
+}
+

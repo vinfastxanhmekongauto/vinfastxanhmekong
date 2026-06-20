@@ -30,10 +30,10 @@ export default function ServicesClient() {
                                 <h5 className="font-bold text-gray-900 mb-1">Dòng xe VF 8, VF 9</h5>
                                 <p className="text-sm">Bảo hành chính hãng <strong>10 năm hoặc 200.000 km</strong> (tùy điều kiện nào đến trước).</p>
                             </div>
-                            <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-[#00358E]">
-                                <h5 className="font-bold text-gray-900 mb-1">Dòng xe VF e34, VF 5, VF 6, VF 7</h5>
-                                <p className="text-sm">Bảo hành chính hãng <strong>7 năm hoặc 140.000 km</strong> (tùy điều kiện nào đến trước).</p>
-                            </div>
+                             <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-[#00358E]">
+                                 <h5 className="font-bold text-gray-900 mb-1">Dòng xe VF e34, VF 5, VF 6, VF 7, MPV7, EC Van, minio green, herio green, limo green</h5>
+                                 <p className="text-sm">Bảo hành chính hãng <strong>7 năm hoặc 140.000 km</strong> (tùy điều kiện nào đến trước).</p>
+                             </div>
                         </div>
                         <ul className="space-y-2 mt-4">
                             <li className="flex items-start gap-2">
@@ -248,23 +248,23 @@ export default function ServicesClient() {
                     {/* Vertical Tab UI Layout */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                         {/* Left Column: Tab list buttons (1/3 width) */}
-                        <div className="flex flex-col gap-3 lg:col-span-1">
+                        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:flex lg:flex-col lg:col-span-1">
                             {warrantyTabs.map((tab, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setActiveWarrantyTab(idx)}
-                                    className={`text-left p-4 rounded-lg transition-all duration-300 border-l-4 flex flex-col gap-1 shadow-sm ${
+                                    className={`text-left p-3 md:p-4 rounded-lg transition-all duration-300 border-l-4 flex flex-col gap-1 shadow-sm w-full ${
                                         activeWarrantyTab === idx
                                             ? 'bg-white border-[#E82429] text-[#E82429]'
                                             : 'bg-white hover:bg-gray-100 border-transparent text-gray-700 hover:text-gray-900'
                                     }`}
                                 >
-                                    <span className="font-bold font-display text-sm md:text-base">
+                                    <span className="font-bold font-display text-sm">
                                         {tab.title}
                                     </span>
                                     <span className={`text-xs ${
                                         activeWarrantyTab === idx ? 'text-gray-500' : 'text-gray-400'
-                                    } line-clamp-1`}>
+                                    } line-clamp-2`}>
                                         {tab.description}
                                     </span>
                                 </button>

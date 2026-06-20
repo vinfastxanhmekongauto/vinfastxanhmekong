@@ -14,7 +14,7 @@ export default function Footer() {
     const fallbackGoogleMaps = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.84145437704!2d105.76802281479443!3d10.029938992830847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0883d2192b0f1%3A0x4c90a391d232ccce!2zMjc0IMSQLiAzMCBUaMOhbmcgNCwgWHXDom4gS2jDoW5oLCBOaW5oIEtp4buBdSwgQ-G6p24gVGjGoSwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1680000000000!5m2!1svi!2s";
 
     return (
-        <footer className="bg-gray-900 text-white pt-16 pb-8 border-t-4 border-vinfast-blue">
+        <footer className="bg-gray-900 text-white pt-16 pb-24 md:pb-8 border-t-4 border-vinfast-blue">
             <div className="container mx-auto px-4 md:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Column 1: About & Info */}
@@ -37,7 +37,7 @@ export default function Footer() {
                             </div>
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed">
-                            Đại lý ôtô điện VinFast chính hãng tại Cần Thơ. Chúng tôi cam kết mang đến những phương tiện di chuyển xanh, thông minh và thân thiện với môi trường, hướng tới một tương lai bền vững.
+                            VinFast Xanh Mekong là đại lý ủy quyền chính thức từ VinFast Việt Nam. Chúng tôi luôn không ngừng nỗ lực để mang đến những sản phẩm xe điện thông minh và trải nghiệm dịch vụ tốt nhất dành cho bạn.
                         </p>
                     </div>
 
@@ -66,7 +66,7 @@ export default function Footer() {
                             </li>
                             <li className="flex items-center gap-4">
                                 <Mail className="text-gray-300 shrink-0" size={20} />
-                                <span>Email: <a href={`mailto:${settings?.email || fallbackEmail}`} className="font-medium text-white hover:text-vinfast-blue transition-colors">{settings?.email || fallbackEmail}</a></span>
+                                <span>Email: <a href={`mailto:${settings?.email || fallbackEmail}`} className="font-medium text-white hover:text-vinfast-blue transition-colors break-all">{settings?.email || fallbackEmail}</a></span>
                             </li>
                             <li className="flex items-center gap-4">
                                 <Clock className="text-gray-300 shrink-0" size={20} />

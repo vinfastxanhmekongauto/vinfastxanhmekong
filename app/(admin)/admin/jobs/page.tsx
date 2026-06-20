@@ -19,10 +19,6 @@ type Position = {
 
 type Job = {
     id: string;
-    title: string;
-    slug: string;
-    header_content?: string;
-    footer_content?: string;
     positions?: Position[];
     is_active: boolean;
     created_at: string;
@@ -84,24 +80,28 @@ export default function AdminJobsPage() {
     const fetchItems = async () => {
         setLoading(true);
         try {
-            const start = (currentPage - 1) * ITEMS_PER_PAGE;
-            const end = start + ITEMS_PER_PAGE - 1;
-            
             let query = supabase
                 .from('jobs')
-                .select('*', { count: 'exact' })
-                .order('created_at', { ascending: false })
-                .range(start, end);
+                .select('id, is_active, created_at, positions')
+                .order('created_at', { ascending: false });
                 
-            if (debouncedSearch) {
-                query = query.or(`title.ilike.%${debouncedSearch}%,slug.ilike.%${debouncedSearch}%`);
-            }
-            
-            const { data, count, error } = await query;
+            const { data, error } = await query;
             if (error) throw error;
             
-            setItems((data as unknown as Job[]) || []);
-            setTotalItems(count || 0);
+            let filteredJobs = (data as unknown as Job[]) || [];
+            if (debouncedSearch) {
+                const lowerSearch = debouncedSearch.toLowerCase();
+                filteredJobs = filteredJobs.filter(job => {
+                    const roles = job.positions?.map(p => p.role.toLowerCase()) || [];
+                    return roles.some(role => role.includes(lowerSearch)) || job.id.toLowerCase().includes(lowerSearch);
+                });
+            }
+            
+            const total = filteredJobs.length;
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            setItems(filteredJobs.slice(start, end));
+            setTotalItems(total);
         } catch (err) {
             console.error(err);
             notify('error', 'Lỗi khi tải danh sách tin tuyển dụng');
@@ -212,8 +212,8 @@ export default function AdminJobsPage() {
                         <table className="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
                             <thead>
                                 <tr className="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                                    <th className="px-6 py-4 font-semibold border-b">Tiêu đề tin tuyển dụng</th>
-                                    <th className="px-6 py-4 font-semibold border-b">Đường dẫn (Slug)</th>
+                                    <th className="px-6 py-4 font-semibold border-b">Vị trí tuyển dụng</th>
+                                    <th className="px-6 py-4 font-semibold border-b">Mã chiến dịch (ID)</th>
                                     <th className="px-6 py-4 font-semibold border-b w-32">Trạng thái</th>
                                     <th className="px-6 py-4 font-semibold border-b w-48">Ngày tạo</th>
                                     <th className="px-6 py-4 font-semibold border-b text-right w-32">Thao tác</th>
@@ -238,10 +238,14 @@ export default function AdminJobsPage() {
                                     items.map((item) => (
                                         <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="font-bold text-gray-900 line-clamp-1">{item.title}</div>
+                                                <div className="font-bold text-gray-900 line-clamp-1">
+                                                    {item.positions && item.positions.length > 0
+                                                        ? item.positions.map(p => p.role).join(', ')
+                                                        : 'Chiến dịch #' + item.id.substring(0, 8)}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 font-mono text-xs text-gray-500">
-                                                /{item.slug}
+                                                ID: {item.id.substring(0, 8)}...
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
@@ -350,7 +354,7 @@ export default function AdminJobsPage() {
                                         Xác nhận xóa tuyển dụng?
                                     </h3>
                                     <p className="text-sm text-gray-500 leading-relaxed">
-                                        Bạn có chắc chắn muốn xóa tin tuyển dụng <span className="font-bold text-gray-800">&ldquo;{deletingJob.title}&rdquo;</span>? Hành động này sẽ loại bỏ hoàn toàn tin khỏi hệ thống và không thể khôi phục lại.
+                                        Bạn có chắc chắn muốn xóa chiến dịch tuyển dụng <span className="font-bold text-gray-800">&ldquo;{deletingJob.positions && deletingJob.positions.length > 0 ? deletingJob.positions.map(p => p.role).join(', ') : 'Chiến dịch #' + deletingJob.id.substring(0, 8)}&rdquo;</span>? Hành động này sẽ loại bỏ hoàn toàn tin khỏi hệ thống và không thể khôi phục lại.
                                     </p>
                                 </div>
                             </div>
