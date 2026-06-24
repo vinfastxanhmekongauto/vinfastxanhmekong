@@ -9,16 +9,23 @@ import { slugify } from '@/lib/utils';
 export const revalidate = 0; // Ensure fresh data on every request
 
 export const metadata: Metadata = {
-    title: 'Tuyển Dụng | VinFast Xanh Mekong Cần Thơ',
-    description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng các vị trí tư vấn bán hàng, kỹ thuật viên...',
+    title: 'Cơ Hội Việc Làm & Tuyển Dụng Lớn Tại VinFast Xanh Mekong',
+    description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng nhiều vị trí ô tô, kỹ thuật và văn phòng lương cao. Nộp hồ sơ ngay!',
     alternates: {
-        canonical: '/tuyen-dung',
+        canonical: `${SITE_URL}/tuyen-dung`,
     },
     openGraph: {
-        title: 'Tuyển Dụng | VinFast Xanh Mekong Cần Thơ',
-        description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng các vị trí tư vấn bán hàng, kỹ thuật viên...',
-        url: '/tuyen-dung',
-        images: [{ url: '/banner-tuyen-dung.webp' }],
+        title: 'Cơ Hội Việc Làm & Tuyển Dụng Lớn Tại VinFast Xanh Mekong',
+        description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng nhiều vị trí ô tô, kỹ thuật và văn phòng lương cao. Nộp hồ sơ ngay!',
+        url: `${SITE_URL}/tuyen-dung`,
+        images: [{ url: `${SITE_URL}/banner-tuyen-dung.webp` }],
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Cơ Hội Việc Làm & Tuyển Dụng Lớn Tại VinFast Xanh Mekong',
+        description: 'Ứng tuyển ngay các cơ hội việc làm hấp dẫn tại VinFast Xanh Mekong Cần Thơ. Đang tuyển dụng nhiều vị trí ô tô, kỹ thuật và văn phòng lương cao. Nộp hồ sơ ngay!',
+        images: [`${SITE_URL}/banner-tuyen-dung.webp`],
     }
 };
 

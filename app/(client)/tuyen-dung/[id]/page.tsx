@@ -43,6 +43,10 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const resolvedParams = await params;
+    
+    const fallbackTitle = 'Chi Tiết Tuyển Dụng | VinFast Xanh Mekong Cần Thơ';
+    const fallbackDesc = 'Khám phá các vị trí tuyển dụng hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Xem chi tiết các cơ hội việc làm và nộp hồ sơ ứng tuyển ngay.';
+    const fallbackImage = `${SITE_URL}/banner-tuyen-dung.webp`;
 
     try {
         const { data: jobsRaw } = await supabase
@@ -64,11 +68,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 }
                 const pos = positions.filter(p => p.isActive !== false).find(p => slugify(p.role) === resolvedParams.id);
                 if (pos) {
+                    const description = `Ứng tuyển ngay vị trí ${pos.role} tại VinFast Xanh Mekong Cần Thơ. Mức lương: ${pos.salary || 'Thỏa thuận'}, Số lượng: ${pos.quantity || 'Đang cập nhật'}, Kinh nghiệm: ${pos.experience || 'Không yêu cầu'}. Hạn nộp: ${pos.deadline || 'Đang cập nhật'}. Xem chi tiết và nộp hồ sơ!`;
+
+                    const imageUrl = pos.thumbnail_url
+                        ? (pos.thumbnail_url.startsWith('http') ? pos.thumbnail_url : `${SITE_URL}${pos.thumbnail_url}`)
+                        : fallbackImage;
+
+                    const pageTitle = `Tuyển dụng ${pos.role} | VinFast Xanh Mekong`;
+
                     return {
-                        title: `${pos.role} | Tuyển Dụng VinFast Xanh Mekong`,
-                        description: `Ứng tuyển vị trí ${pos.role} tại VinFast Xanh Mekong Cần Thơ. Yêu cầu: ${pos.experience || 'Không yêu cầu'}, Lương: ${pos.salary || 'Thỏa thuận'}.`,
+                        title: pageTitle,
+                        description,
                         alternates: {
-                            canonical: `/tuyen-dung/${resolvedParams.id}`,
+                            canonical: `${SITE_URL}/tuyen-dung/${resolvedParams.id}`,
+                        },
+                        openGraph: {
+                            title: pageTitle,
+                            description,
+                            url: `${SITE_URL}/tuyen-dung/${resolvedParams.id}`,
+                            images: [{ url: imageUrl }],
+                            type: 'article',
+                        },
+                        twitter: {
+                            card: 'summary_large_image',
+                            title: pageTitle,
+                            description,
+                            images: [imageUrl],
                         }
                     };
                 }
@@ -79,7 +104,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-        title: 'Chi Tiết Tuyển Dụng | VinFast Xanh Mekong Cần Thơ',
+        title: fallbackTitle,
+        description: fallbackDesc,
+        alternates: {
+            canonical: `${SITE_URL}/tuyen-dung`,
+        },
+        openGraph: {
+            title: fallbackTitle,
+            description: fallbackDesc,
+            url: `${SITE_URL}/tuyen-dung`,
+            images: [{ url: fallbackImage }],
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: fallbackTitle,
+            description: fallbackDesc,
+            images: [fallbackImage],
+        }
     };
 }
 
@@ -95,7 +137,7 @@ export default async function JobDetailPage({ params }: Props) {
     // Fetch all active jobs
     const { data: jobsRaw, error } = await supabase
         .from('jobs')
-        .select('id, positions, required_documents, application_form_url, hr_hotline, hr_email, submission_note, submission_address')
+        .select('id, positions, required_documents, application_form_url, hr_hotline, hr_email, submission_note, submission_address, created_at')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -155,8 +197,107 @@ export default async function JobDetailPage({ params }: Props) {
     const cleanDescription = pos.description ? pos.description.replace(/\t/g, ' ') : '';
     const cleanRequirements = pos.requirements ? pos.requirements.replace(/\t/g, ' ') : '';
 
+    const parseDeadline = (deadlineStr?: string): string | undefined => {
+        if (!deadlineStr) return undefined;
+        const match = deadlineStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+        const isoMatch = deadlineStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (isoMatch) return deadlineStr;
+        try {
+            const date = new Date(deadlineStr);
+            if (!isNaN(date.getTime())) {
+                return date.toISOString().split('T')[0];
+            }
+        } catch (e) {}
+        return undefined;
+    };
+
+    const getEmploymentType = (jobTypes?: string[]): string | string[] => {
+        if (!jobTypes || jobTypes.length === 0) return "FULL_TIME";
+        const mapped = jobTypes.map(t => {
+            const lower = t.toLowerCase();
+            if (lower.includes("toàn thời gian") || lower.includes("full")) return "FULL_TIME";
+            if (lower.includes("bán thời gian") || lower.includes("part")) return "PART_TIME";
+            if (lower.includes("thực tập") || lower.includes("intern")) return "INTERN";
+            if (lower.includes("hợp đồng") || lower.includes("contract")) return "CONTRACTOR";
+            return "FULL_TIME";
+        });
+        return mapped.length === 1 ? mapped[0] : mapped;
+    };
+
+    const parseSalary = (salaryStr?: string) => {
+        if (!salaryStr || salaryStr.toLowerCase().includes("thỏa thuận")) return undefined;
+        const numbers = salaryStr.match(/\d+/g);
+        if (!numbers || numbers.length === 0) return undefined;
+        const multiplier = salaryStr.toLowerCase().includes("triệu") ? 1000000 : 1;
+        if (numbers.length === 1) {
+            const val = parseInt(numbers[0]) * multiplier;
+            return {
+                "@type": "MonetaryAmount",
+                "currency": "VND",
+                "value": {
+                    "@type": "QuantitativeValue",
+                    "value": val,
+                    "unitText": "MONTH"
+                }
+            };
+        } else if (numbers.length >= 2) {
+            const minVal = parseInt(numbers[0]) * multiplier;
+            const maxVal = parseInt(numbers[1]) * multiplier;
+            return {
+                "@type": "MonetaryAmount",
+                "currency": "VND",
+                "value": {
+                    "@type": "QuantitativeValue",
+                    "minValue": minVal,
+                    "maxValue": maxVal,
+                    "unitText": "MONTH"
+                }
+            };
+        }
+        return undefined;
+    };
+
+    const descriptionHtml = [
+        pos.description ? `<p><strong>Mô tả công việc:</strong></p><p>${pos.description.replace(/\n/g, '<br/>')}</p>` : '',
+        pos.requirements ? `<p><strong>Yêu cầu công việc:</strong></p><p>${pos.requirements.replace(/\n/g, '<br/>')}</p>` : '',
+        benefitsList.length > 0 ? `<p><strong>Quyền lợi được hưởng:</strong></p><ul>${benefitsList.map(b => `<li>${b}</li>`).join('')}</ul>` : ''
+    ].filter(Boolean).join('');
+
+    const jsonLdData = {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": pos.role,
+        "description": descriptionHtml,
+        "datePosted": new Date(job.created_at || Date.now()).toISOString().split('T')[0],
+        "validThrough": parseDeadline(pos.deadline),
+        "employmentType": getEmploymentType(pos.jobTypes),
+        "hiringOrganization": {
+            "@type": "Organization",
+            "name": "VinFast Xanh Mekong",
+            "sameAs": "https://www.vinfastmekong.vn",
+            "logo": "https://csuojiptwnfjnvfmwzhy.supabase.co/storage/v1/object/public/images/logo.png"
+        },
+        "jobLocation": {
+            "@type": "Place",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": pos.location || "Số 10362, đường Võ Nguyên Giáp, P.Hưng Phú",
+                "addressLocality": "Cần Thơ",
+                "addressRegion": "Đồng bằng Sông Cửu Long",
+                "addressCountry": "VN"
+            }
+        },
+        ...(parseSalary(pos.salary) ? { "baseSalary": parseSalary(pos.salary) } : {})
+    };
+
     return (
         <div className="bg-gray-50 min-h-screen pb-16">
+            {/* Google Jobs Schema (JSON-LD) */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+            />
             {/* 1. Detail Hero */}
             <div className="bg-[#0a1128] text-white pt-16 pb-20 md:pt-20 md:pb-24 relative overflow-hidden shadow-md">
                 {/* Background watermarks */}
