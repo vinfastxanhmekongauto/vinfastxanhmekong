@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Briefcase, Calendar, MapPin, GraduationCap, Download, Phone, Mail, CheckCircle, Info, DollarSign } from 'lucide-react';
+import { Briefcase, Calendar, MapPin, GraduationCap, Download, Phone, Mail, CheckCircle, Info, DollarSign, Users } from 'lucide-react';
 import { SITE_URL } from '@/lib/constants';
 import { slugify } from '@/lib/utils';
 
@@ -22,6 +22,7 @@ type Position = {
     deadline?: string;
     benefits?: string | string[];
     thumbnail_url?: string;
+    isActive?: boolean;
 };
 
 type Job = {
@@ -32,6 +33,8 @@ type Job = {
     hr_email?: string;
     application_form_url?: string;
     required_documents?: string;
+    submission_note?: string;
+    submission_address?: string;
 };
 
 interface Props {
@@ -59,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                         } catch (e) { }
                     }
                 }
-                const pos = positions.find(p => slugify(p.role) === resolvedParams.id);
+                const pos = positions.filter(p => p.isActive !== false).find(p => slugify(p.role) === resolvedParams.id);
                 if (pos) {
                     return {
                         title: `${pos.role} | Tuyển Dụng VinFast Xanh Mekong`,
@@ -92,7 +95,7 @@ export default async function JobDetailPage({ params }: Props) {
     // Fetch all active jobs
     const { data: jobsRaw, error } = await supabase
         .from('jobs')
-        .select('id, positions, required_documents, application_form_url, hr_hotline, hr_email')
+        .select('id, positions, required_documents, application_form_url, hr_hotline, hr_email, submission_note, submission_address')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -113,7 +116,7 @@ export default async function JobDetailPage({ params }: Props) {
                 }
             }
         }
-        const pos = positions.find(p => slugify(p.role) === resolvedParams.id);
+        const pos = positions.filter(p => p.isActive !== false).find(p => slugify(p.role) === resolvedParams.id);
         if (pos) {
             matchedPos = pos;
             matchedJob = job;
@@ -193,17 +196,21 @@ export default async function JobDetailPage({ params }: Props) {
 
                             {/* Info pills */}
                             <div className="flex flex-wrap gap-3 pt-2">
-                                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs md:text-sm">
-                                    <MapPin size={16} className="text-blue-400" />
-                                    <span>{pos.location || "Cần Thơ"}</span>
+                                <div className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs md:text-sm font-medium text-blue-100">
+                                    <Users size={16} className="w-4 h-4 text-blue-400 shrink-0" />
+                                    <span>Số lượng: {pos.quantity || "Đang cập nhật"}</span>
                                 </div>
-                                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs md:text-sm">
-                                    <GraduationCap size={16} className="text-blue-400" />
-                                    <span>Kinh nghiệm: {pos.experience || "1 năm"}</span>
+                                <div className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs md:text-sm font-medium text-blue-100">
+                                    <GraduationCap size={16} className="w-4 h-4 text-blue-400 shrink-0" />
+                                    <span>Bằng cấp: {pos.qualification || "Không yêu cầu"}</span>
                                 </div>
-                                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs md:text-sm">
-                                    <DollarSign size={16} className="text-blue-400" />
-                                    <span className="font-bold text-blue-300">{pos.salary || "Thỏa thuận"}</span>
+                                <div className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs md:text-sm font-medium text-blue-100">
+                                    <Briefcase size={16} className="w-4 h-4 text-blue-400 shrink-0" />
+                                    <span>Kinh nghiệm: {pos.experience || "Không yêu cầu"}</span>
+                                </div>
+                                <div className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs md:text-sm font-medium text-blue-100">
+                                    <DollarSign size={16} className="w-4 h-4 text-blue-400 shrink-0" />
+                                    <span className="font-bold text-blue-300">Lương: {pos.salary || "Thỏa thuận"}</span>
                                 </div>
                             </div>
 
@@ -307,40 +314,78 @@ export default async function JobDetailPage({ params }: Props) {
                                 </div>
                             )}
                         </div>
+
+                        {/* HỒ SƠ ỨNG TUYỂN & CÁCH THỨC NỘP */}
+                        <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-3xs space-y-2">
+                            <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight border-l-4 border-blue-600 pl-3 font-display">
+                                HỒ SƠ ỨNG TUYỂN & CÁCH THỨC NỘP
+                            </h3>
+                            <div className="pt-2 text-slate-700 text-sm md:text-base text-justify">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    components={{
+                                        ul: ({ node, ...props }: any) => <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" {...props} />,
+                                        li: ({ node, ...props }: any) => <li className="leading-relaxed" {...props} />,
+                                        p: ({ node, ...props }: any) => <p className="inline" {...props} />
+                                    }}
+                                >
+                                    {job.required_documents || defaultRequiredDocuments}
+                                </ReactMarkdown>
+                            </div>
+
+                            {job.submission_note && (
+                                <span className="mt-6 pt-4 font-bold border-t border-gray-200 text-blue-900  mt-4 block text-lg">
+                                    {job.submission_note}
+                                </span>
+                            )}
+
+                            <div className="space-y-3  text-sm">
+                                {job.submission_address && (
+                                    <div className="flex items-start gap-3 text-sm md:text-base">
+                                        <MapPin size={20} className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                        <div className="flex-1 text-gray-700">
+                                            <span className="font-semibold text-gray-900">Nộp trực tiếp: </span>
+                                            {job.submission_address?.split(/<\/?br\s*\/?>/i).map((line, index, array) => (
+                                                <span key={index}>
+                                                    {line}
+                                                    {index !== array.length - 1 && <br />}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {job.hr_email && (
+                                    <div className="flex items-start gap-3 text-sm md:text-base">
+                                        <Mail size={20} className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                        <div className="flex-1 text-gray-700">
+                                            <span className="font-semibold text-gray-900">Nộp online: </span>
+                                            <a href={`mailto:${job.hr_email}`} className="text-blue-600 hover:underline">{job.hr_email}</a>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex items-start gap-3 text-sm md:text-base">
+                                    <Calendar size={20} className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                    <div className="flex flex-1 items-center justify-start">
+                                        <span className="font-semibold text-gray-900">Hạn nhận hồ sơ:</span>
+                                        <span className="inline-flex items-center rounded-md bg-red-50 mx-2 px-2.5 py-1 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-600/10">
+                                            {pos.deadline || "Đang cập nhật"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Sidebar Column */}
                     <div className="sticky top-24 space-y-6">
-                        {/* Hồ sơ bao gồm Card */}
-                        <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
-                            <h3 className="text-base font-bold text-gray-900 uppercase tracking-tight border-l-4 border-blue-600 pl-3 mb-4">Hồ sơ bao gồm</h3>
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                components={{
-                                    ul: ({ node, ...props }: any) => <ul className="list-disc list-outside ml-4 space-y-2 text-sm text-gray-700 leading-relaxed" {...props} />,
-                                    li: ({ node, ...props }: any) => <li className="leading-relaxed" {...props} />,
-                                    p: ({ node, ...props }: any) => <p className="inline" {...props} />
-                                }}
-                            >
-                                {job.required_documents || defaultRequiredDocuments}
-                            </ReactMarkdown>
-
-                            <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-700">Hạn nộp hồ sơ:</span>
-                                <span className="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-600/10">
-                                    {pos.deadline || "Đang cập nhật"}
-                                </span>
-                            </div>
-                        </div>
-
                         {/* Ứng tuyển ngay Card */}
                         <div className="bg-[#0a1128] text-white rounded-2xl p-6 shadow-md border border-white/10 space-y-6">
                             <div className="space-y-2">
                                 <h4 className="text-lg font-bold tracking-tight font-display uppercase text-blue-300">
-                                    Ứng tuyển ngay
+                                    Hỗ trợ ứng tuyển
                                 </h4>
                                 <p className="text-gray-400 text-sm leading-relaxed">
-                                    Tải mẫu hồ sơ và gửi trực tiếp cho bộ phận nhân sự của VinFast Xanh Mekong để bắt đầu cơ hội của bạn.
+                                    Tải mẫu hồ sơ và liên hệ trực tiếp với bộ phận nhân sự của VinFast Xanh Mekong để bắt đầu cơ hội của bạn.
                                 </p>
                             </div>
 

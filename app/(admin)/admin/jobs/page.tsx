@@ -72,6 +72,22 @@ export default function AdminJobsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, debouncedSearch]);
 
+    const formatJobTitle = (positions: Position[] | undefined, id: string) => {
+        if (!positions || positions.length === 0) return `Chiến dịch #${id.substring(0, 8)}`;
+        
+        const prefix = "Tuyển dụng | ";
+        const firstRole = positions[0].role;
+        
+        if (positions.length === 1) {
+            return prefix + firstRole;
+        }
+        
+        const secondRole = positions[1].role;
+        const truncatedSecondRole = secondRole.split(' ').slice(0, 3).join(' ');
+        
+        return `${prefix}${firstRole}, ${truncatedSecondRole}...`;
+    };
+
     const notify = (type: 'success' | 'error', message: string) => {
         setNotification({ type, message });
         setTimeout(() => setNotification(null), 3000);
@@ -239,9 +255,7 @@ export default function AdminJobsPage() {
                                         <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-gray-900 line-clamp-1">
-                                                    {item.positions && item.positions.length > 0
-                                                        ? item.positions.map(p => p.role).join(', ')
-                                                        : 'Chiến dịch #' + item.id.substring(0, 8)}
+                                                    {formatJobTitle(item.positions, item.id)}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 font-mono text-xs text-gray-500">

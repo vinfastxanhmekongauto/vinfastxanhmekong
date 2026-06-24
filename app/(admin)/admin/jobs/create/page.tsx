@@ -21,10 +21,6 @@ export default function CreateJobPage() {
                 }
                 throw new Error(result.error || 'Có lỗi xảy ra khi tạo tin tuyển dụng.');
             }
-            
-            // Redirect to admin jobs list page
-            router.push('/admin/jobs');
-            router.refresh();
         } catch (err) {
             console.error(err);
             throw err;
@@ -34,12 +30,10 @@ export default function CreateJobPage() {
     };
 
     return (
-        <div className="py-2">
-            <JobForm
-                titleLabel="Tạo Mới Tin Tuyển Dụng"
-                onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
-            />
-        </div>
+        <JobForm
+            titleLabel="Tạo Mới Tin Tuyển Dụng"
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+        />
     );
 }

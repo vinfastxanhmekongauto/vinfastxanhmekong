@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { Briefcase, Calendar, MapPin, GraduationCap, Award, DollarSign, Clock } from 'lucide-react';
+import { Briefcase, Calendar, MapPin, GraduationCap, Award, DollarSign, Clock, Users } from 'lucide-react';
 import { SITE_URL } from '@/lib/constants';
 import { slugify } from '@/lib/utils';
 
@@ -36,6 +36,7 @@ type Position = {
     deadline?: string;
     benefits?: string | string[];
     thumbnail_url?: string;
+    isActive?: boolean;
 };
 
 type Job = {
@@ -56,7 +57,7 @@ function JobCard({ pos, jobId, index }: { pos: EnrichedPosition; jobId: string; 
     return (
         <Link 
             href={detailUrl}
-            className="group bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col justify-between transition-all duration-350 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-200"
+            className="group bg-white rounded-2xl border border-gray-200 overflow-hidden h-full flex flex-col justify-between transition-all duration-350 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-200"
         >
             <div className="relative">
                 {/* Header Image */}
@@ -106,8 +107,8 @@ function JobCard({ pos, jobId, index }: { pos: EnrichedPosition; jobId: string; 
                         <span className="truncate">{pos.location || "Cần Thơ"}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Briefcase size={15} className="text-blue-600 shrink-0" />
-                        <span className="truncate">{displayTypes[0] || "Toàn thời gian"}</span>
+                        <Users size={15} className="text-blue-600 shrink-0" />
+                        <span className="truncate">Số lượng: {pos.quantity || "Đang cập nhật"}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <GraduationCap size={15} className="text-blue-600 shrink-0" />
@@ -159,11 +160,13 @@ export default async function CareerPage() {
                 }
             }
         }
-        return list.map((pos, index) => ({
-            ...pos,
-            jobId: job.id,
-            positionIndex: index
-        }));
+        return list
+            .filter(pos => pos.isActive !== false)
+            .map((pos, index) => ({
+                ...pos,
+                jobId: job.id,
+                positionIndex: index
+            }));
     });
 
     const totalPositions = activePositions.length || 0;
@@ -291,7 +294,7 @@ export default async function CareerPage() {
                         </div>
                     ) : (
                         /* Job Listing Grid */
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {activePositions.map((pos, idx) => (
                                 <JobCard 
                                     key={idx} 

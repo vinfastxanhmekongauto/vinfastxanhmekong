@@ -27,7 +27,7 @@ export default function EditJobPage() {
             try {
                 const { data, error } = await supabase
                     .from('jobs')
-                    .select('required_documents, positions, is_active')
+                    .select('required_documents, positions, is_active, submission_note, submission_address, application_form_url')
                     .eq('id', id)
                     .single();
                 
@@ -58,10 +58,6 @@ export default function EditJobPage() {
                 }
                 throw new Error(result.error || 'Có lỗi xảy ra khi cập nhật tin tuyển dụng.');
             }
-            
-            // Redirect to admin jobs list page
-            router.push('/admin/jobs');
-            router.refresh();
         } catch (err) {
             console.error(err);
             throw err;
@@ -98,13 +94,11 @@ export default function EditJobPage() {
     }
 
     return (
-        <div className="py-2">
-            <JobForm
-                titleLabel="Chỉnh Sửa Tin Tuyển Dụng"
-                initialData={job}
-                onSubmit={handleUpdate}
-                isSubmitting={isSubmitting}
-            />
-        </div>
+        <JobForm
+            titleLabel="Chỉnh Sửa Tin Tuyển Dụng"
+            initialData={job}
+            onSubmit={handleUpdate}
+            isSubmitting={isSubmitting}
+        />
     );
 }
