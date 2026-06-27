@@ -126,60 +126,60 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             <div className="bg-white min-h-screen pb-20">
-            <div className="max-w-4xl mx-auto px-4 md:px-6 pt-8 md:pt-12">
-                {/* Back button */}
-                <Link href="/tin-tuc" className="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-vinfast-blue transition-colors mb-8">
-                    <ArrowLeft size={16} className="mr-2" /> Quay lại danh sách
-                </Link>
+                <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 md:pt-12">
+                    {/* Back button */}
+                    <Link href="/tin-tuc" className="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-vinfast-blue transition-colors mb-8">
+                        <ArrowLeft size={16} className="mr-2" /> Quay lại danh sách
+                    </Link>
 
-                {/* Article Header */}
-                <div className="space-y-6">
-                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight font-display">
-                        {post.title}
-                    </h1>
+                    {/* Article Header */}
+                    <div className="space-y-6">
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight font-display">
+                            {post.title}
+                        </h1>
 
-                    <div className="flex items-center gap-4 text-sm text-vinfast-blue font-semibold">
-                        <span className="bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 flex items-center gap-1">
-                            <Tag size={14} /> {post.category || 'Tin Tức'}
-                        </span>
-                        <span className="flex items-center gap-1 text-gray-500 font-normal">
-                            <Calendar size={16} className="mb-0.5" /> {createdDate}
-                        </span>
+                        <div className="flex items-center gap-4 text-sm text-vinfast-blue font-semibold">
+                            <span className="bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 flex items-center gap-1">
+                                <Tag size={14} /> {post.category || 'Tin Tức'}
+                            </span>
+                            <span className="flex items-center gap-1 text-gray-500 font-normal">
+                                <Calendar size={16} className="mb-0.5" /> {createdDate}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Subtle line separator */}
+                    <div className="my-8 border-b border-gray-200"></div>
+
+                    {/* Excerpt if present */}
+                    {finalExcerpt && (
+                        <p className="text-xl text-gray-600 font-medium leading-relaxed border-l-4 border-vinfast-blue pl-6 mb-8">
+                            {finalExcerpt}
+                        </p>
+                    )}
+
+                    {/* Hero Thumbnail */}
+                    <div className="relative w-full aspect-[16/9] rounded-3xl overflow-hidden  mb-8">
+                        <Image
+                            src={imageUrl}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                            priority
+                        />
+                    </div>
+
+                    {/* Main Content Area */}
+                    <div className="mt-8 mb-16 flow-root">
+                        {post.content ? (
+                            <div className="prose prose-lg max-w-none prose-img:rounded-xl prose-img:w-full flow-root" dangerouslySetInnerHTML={{ __html: post.content }} />
+                        ) : (
+                            <p className="text-gray-500">Đang cập nhật nội dung chi tiết cho bài viết này.</p>
+                        )}
                     </div>
                 </div>
-
-                {/* Subtle line separator */}
-                <div className="my-8 border-b border-gray-200"></div>
-
-                {/* Excerpt if present */}
-                {finalExcerpt && (
-                    <p className="text-xl text-gray-600 font-medium leading-relaxed border-l-4 border-vinfast-blue pl-6 mb-8">
-                        {finalExcerpt}
-                    </p>
-                )}
-
-                {/* Hero Thumbnail */}
-                <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden shadow-md border border-gray-100 bg-gray-100 mb-8">
-                    <Image
-                        src={imageUrl}
-                        alt={post.title}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                        priority
-                    />
-                </div>
-
-                {/* Main Content Area */}
-                <div className="mt-8 mb-16 flow-root">
-                    {post.content ? (
-                        <div className="prose prose-lg max-w-none prose-img:rounded-xl prose-img:w-full flow-root" dangerouslySetInnerHTML={{ __html: post.content }} />
-                    ) : (
-                        <p className="text-gray-500">Đang cập nhật nội dung chi tiết cho bài viết này.</p>
-                    )}
-                </div>
             </div>
-        </div>
         </>
     );
 }

@@ -1,17 +1,31 @@
 import { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { slugify } from '@/lib/utils';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://www.vinfastmekong.vn';
     
     // 1. Static core routes
     const coreRoutes = ['', '/o-to-dien', '/khuyen-mai', '/tin-tuc', '/dich-vu', '/lien-he'];
-    const staticRoutes: MetadataRoute.Sitemap = coreRoutes.map((route) => ({
-        url: `${baseUrl}${route}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: route === '' ? 1.0 : 0.8,
-    }));
+    const staticRoutes: MetadataRoute.Sitemap = [
+        ...coreRoutes.map((route) => ({
+            url: `${baseUrl}${route}`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: route === '' ? 1.0 : 0.8,
+        })),
+        {
+            url: `${baseUrl}/tuyen-dung`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        }
+    ];
 
     let productRoutes: MetadataRoute.Sitemap = [];
     let blogRoutes: MetadataRoute.Sitemap = [];
@@ -35,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Error fetching products for sitemap:', err);
     }
 
-    // 3. Fetch blogs
+    // 3. Fetch blogs (existing fetch)
     try {
         const { data: blogs } = await supabase
             .from('blogs')
@@ -72,5 +86,69 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Error fetching promotions for sitemap:', err);
     }
 
-    return [...staticRoutes, ...productRoutes, ...blogRoutes, ...promoRoutes];
+    const existingRoutes = [...staticRoutes, ...productRoutes, ...blogRoutes, ...promoRoutes];
+
+    // 5. Fetch New Dynamic Routes (Blogs & Jobs) non-destructively
+    let newBlogRoutes: MetadataRoute.Sitemap = [];
+    let newJobRoutes: MetadataRoute.Sitemap = [];
+
+    try {
+        // Fetch new blogs
+        const { data: newBlogs, error: newBlogError } = await supabaseClient
+            .from('blogs')
+            .select('slug, updated_at')
+            .eq('is_published', true);
+
+        if (newBlogError) throw newBlogError;
+
+        if (newBlogs) {
+            newBlogRoutes = newBlogs.map((item) => ({
+                url: `${baseUrl}/tin-tuc/${item.slug}`,
+                lastModified: item.updated_at ? new Date(item.updated_at) : new Date(),
+                changeFrequency: 'monthly',
+                priority: 0.6,
+            }));
+        }
+
+        // Fetch new jobs
+        const { data: jobs, error: jobsError } = await supabaseClient
+            .from('jobs')
+            .select('id, positions, updated_at');
+
+        console.log('Sitemap Jobs Error:', jobsError);
+        console.log('Sitemap Jobs Data Length:', jobs?.length);
+
+        if (jobsError) throw jobsError;
+
+        if (jobs) {
+            jobs.forEach((job) => {
+                let positions: any[] = [];
+                if (job.positions) {
+                    if (Array.isArray(job.positions)) {
+                        positions = job.positions;
+                    } else if (typeof job.positions === 'string') {
+                        try {
+                            positions = JSON.parse(job.positions);
+                        } catch (e) {}
+                    }
+                }
+                positions.forEach((pos) => {
+                    if (pos.role && pos.isActive !== false) {
+                        newJobRoutes.push({
+                            url: `${baseUrl}/tuyen-dung/${slugify(pos.role)}`,
+                            lastModified: new Date(job.updated_at || new Date()),
+                            changeFrequency: 'weekly',
+                            priority: 0.7,
+                        });
+                    }
+                });
+            });
+        }
+
+        return [...existingRoutes, ...newBlogRoutes, ...newJobRoutes];
+    } catch (error) {
+        console.error('Error fetching new dynamic routes for sitemap:', error);
+        // Gracefully fall back to the existing routes
+        return existingRoutes;
+    }
 }

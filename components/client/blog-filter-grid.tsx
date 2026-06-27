@@ -44,8 +44,8 @@ export default function BlogFilterGrid({ initialPosts }: BlogFilterGridProps) {
                         key={category}
                         onClick={() => setActiveCategory(category)}
                         className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-sm border ${activeCategory === category
-                                ? 'bg-vinfast-blue text-white border-vinfast-blue scale-105'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-vinfast-blue hover:text-vinfast-blue hover:shadow-md'
+                            ? 'bg-vinfast-blue text-white border-vinfast-blue scale-105'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-vinfast-blue hover:text-vinfast-blue hover:shadow-md'
                             }`}
                     >
                         {category}
@@ -80,12 +80,12 @@ export default function BlogFilterGrid({ initialPosts }: BlogFilterGridProps) {
                                     </div>
                                 </div>
 
-                                <div className="p-8 md:p-12 xl:p-16 flex flex-col justify-center">
+                                <div className="p-8 md:px-12 xl:px-16 flex flex-col justify-center">
                                     <div className="flex items-center gap-4 text-sm text-vinfast-blue font-semibold mb-4">
                                         <span className="bg-blue-50 px-3 py-1 rounded-md">{featuredPost.category}</span>
                                         <span className="flex items-center gap-1 text-gray-500"><Calendar size={16} className="mb-0.5" /> {new Date(featuredPost.created_at).toLocaleDateString('vi-VN')}</span>
                                     </div>
-                                    <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6 group-hover:text-vinfast-blue transition-colors leading-tight">
+                                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6 group-hover:text-vinfast-blue transition-colors leading-tight">
                                         <Link href={`/tin-tuc/${featuredPost.slug}`}>{featuredPost.title}</Link>
                                     </h2>
                                     <p className="text-gray-600 text-lg leading-relaxed mb-8 line-clamp-3">

@@ -219,10 +219,38 @@ export default function BlogForm({ initialData, onSubmit, isSubmitting, titleLab
         }
     };
 
+    const referenceFormData = {
+        title: (initialData?.title || '').trim(),
+        slug: (initialData?.slug || '').trim(),
+        category: initialData?.category || 'Tin tức VinFast',
+        excerpt: (initialData?.excerpt || '').trim(),
+        content: (initialData?.content || '').trim(),
+        thumbnail_url: initialData?.thumbnail_url || null,
+        meta_title: (initialData?.meta_title || '').trim(),
+        meta_description: (initialData?.meta_description || '').trim(),
+        meta_keywords: (initialData?.meta_keywords || '').trim(),
+        is_published: initialData?.is_published ?? true,
+    };
+
+    const currentFormData = {
+        title: title.trim(),
+        slug: slug.trim(),
+        category,
+        excerpt: excerpt.trim(),
+        content: content.trim(),
+        thumbnail_url: thumbnailUrl,
+        meta_title: metaTitle.trim(),
+        meta_description: metaDescription.trim(),
+        meta_keywords: metaKeywords.trim(),
+        is_published: isPublished,
+    };
+
+    const isDirty = JSON.stringify(currentFormData) !== JSON.stringify(referenceFormData);
+
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6 pb-28 relative">
             {/* Back to List */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-6">
                 <Link
                     href="/admin/blogs"
                     className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-600 hover:text-gray-900 transition-colors bg-gray-50/50 shadow-xs"
@@ -233,13 +261,13 @@ export default function BlogForm({ initialData, onSubmit, isSubmitting, titleLab
             </div>
 
             {formError && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm flex items-start gap-3 animate-fade-in-down">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm flex items-start gap-3 animate-fade-in-down mb-6">
                     <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
                     <span className="font-medium">{formError}</span>
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                 <div className="p-6 md:p-8 space-y-6">
                     {/* Basic Info */}
                     <div className="space-y-4">
@@ -454,26 +482,37 @@ export default function BlogForm({ initialData, onSubmit, isSubmitting, titleLab
                     </div>
                 </div>
 
-                {/* Submit actions */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
-                    <Link
-                        href="/admin/blogs"
-                        className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-sm font-semibold bg-white"
-                    >
-                        Hủy
-                    </Link>
-                    <button
-                        type="submit"
-                        disabled={isSubmitting || isUploading || isUploadingImages}
-                        className="px-5 py-2.5 bg-vinfast-blue text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-semibold disabled:opacity-50 flex items-center gap-2 shadow-xs cursor-pointer"
-                    >
-                        {(isSubmitting || isUploadingImages) && (
-                            <Loader2 className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        )}
-                        {isUploadingImages ? 'Đang xử lý hình ảnh...' : 'Lưu bài viết'}
-                    </button>
+                {/* Fixed Bottom Action Bar */}
+                <div className="fixed bottom-0 left-0 md:left-64 right-0 z-[100] bg-white border-t border-gray-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+                    <div className="max-w-4xl mx-auto w-full px-6 py-4 flex justify-between items-center gap-4">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            {isDirty ? (
+                                <span className="text-blue-600 font-bold animate-pulse">Có thay đổi chưa lưu</span>
+                            ) : (
+                                <span className="text-gray-400">Không có thay đổi</span>
+                            )}
+                        </span>
+                        <div className="flex gap-3">
+                            <Link
+                                href="/admin/blogs"
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-sm font-semibold bg-white"
+                            >
+                                Hủy
+                            </Link>
+                            <button
+                                type="submit"
+                                disabled={!isDirty || isSubmitting || isUploading || isUploadingImages}
+                                className="px-4 py-2 bg-vinfast-blue text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-xs cursor-pointer"
+                            >
+                                {(isSubmitting || isUploadingImages) && (
+                                    <Loader2 className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                )}
+                                {isUploadingImages ? 'Đang xử lý hình ảnh...' : 'Lưu bài viết'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 }

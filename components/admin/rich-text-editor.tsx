@@ -11,6 +11,8 @@ import {
     Bold, 
     Italic, 
     Heading2, 
+    Heading3,
+    Heading4,
     List, 
     ListOrdered, 
     Code, 
@@ -69,7 +71,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         extensions: [
             StarterKit.configure({
                 heading: {
-                    levels: [2, 3],
+                    levels: [2, 3, 4],
                 },
             }),
             CustomImage,
@@ -204,6 +206,24 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     title="Tiêu đề 2"
                 >
                     <Heading2 size={18} />
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    className={`p-2 rounded hover:bg-gray-200 transition-colors ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200 text-blue-600 font-bold' : 'text-gray-700'}`}
+                    title="Tiêu đề 3"
+                >
+                    <Heading3 size={18} />
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+                    className={`p-2 rounded hover:bg-gray-200 transition-colors ${editor.isActive('heading', { level: 4 }) ? 'bg-gray-200 text-blue-600 font-bold' : 'text-gray-700'}`}
+                    title="Tiêu đề 4"
+                >
+                    <Heading4 size={18} />
                 </button>
 
                 <button

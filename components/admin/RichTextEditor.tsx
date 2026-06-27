@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import {
     Bold, Italic, List, ListOrdered,
-    Heading2, Heading3, ImageIcon, FileText
+    Heading2, Heading3, Heading4, ImageIcon, FileText
 } from 'lucide-react';
 import * as mammoth from 'mammoth';
 import { useRef } from 'react';
@@ -121,6 +121,14 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     title="Tiêu đề 3"
                 >
                     <Heading3 className="w-4 h-4" />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+                    className={`p-1.5 rounded text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors ${editor.isActive('heading', { level: 4 }) ? 'bg-gray-200 text-gray-900 font-bold' : ''}`}
+                    title="Tiêu đề 4"
+                >
+                    <Heading4 className="w-4 h-4" />
                 </button>
 
                 <div className="w-px h-6 bg-gray-300 mx-1"></div>
