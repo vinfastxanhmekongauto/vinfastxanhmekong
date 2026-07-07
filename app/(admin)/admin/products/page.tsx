@@ -819,6 +819,22 @@ export default function AdminProductsPage() {
 
             if (error) throw error;
 
+            // Trigger Google Indexing API revalidation
+            try {
+                const revalRes = await fetch('/api/revalidate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: `https://www.vinfastmekong.vn/o-to-dien/${payload.slug}` })
+                });
+                if (revalRes.ok) {
+                    console.log('Đã tự động gửi yêu cầu Index lên Google.');
+                } else {
+                    console.error('Lỗi khi gửi yêu cầu Index lên Google:', await revalRes.json());
+                }
+            } catch (revalErr) {
+                console.error('Lỗi kết nối khi gửi yêu cầu Index lên Google:', revalErr);
+            }
+
             // Delete queued images from Supabase storage
             if (imagesToDelete.length > 0) {
                 const { error: removeError } = await supabase.storage.from('images').remove(imagesToDelete);
@@ -830,7 +846,7 @@ export default function AdminProductsPage() {
 
             fetchProducts();
             handleCloseModal();
-            showNotification('success', 'Sản phẩm đã được lưu thành công');
+            showNotification('success', 'Sản phẩm đã được lưu thành công. Đã tự động gửi yêu cầu Index lên Google.');
         } catch (error) {
             const e = error as Error & { details?: string };
             console.error('Lỗi chi tiết:', e.message, e.details);
