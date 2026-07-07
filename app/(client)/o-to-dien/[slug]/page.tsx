@@ -41,9 +41,18 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     const seoTitle = `${product.name} - Giá bán, Thông số & Ưu đãi | VinFast Xanh Mekong`;
     const seoDescription = `Khám phá chi tiết xe ${product.name} tại VinFast Xanh Mekong. Xem ngay giá lăn bánh và thông số kỹ thuật.`;
 
+    const carKey = product.name.toLowerCase().replace(/\s+/g, '');
+    const keywords = [
+        `vinfast ${carKey}`,
+        carKey,
+        `vinfast ${carKey} vinfast xanh mekong`,
+        `vinfast ${carKey} vinfast mekong`
+    ];
+
     return {
         title: seoTitle,
         description: seoDescription,
+        keywords,
         alternates: {
             canonical: exactUrl,
         },
