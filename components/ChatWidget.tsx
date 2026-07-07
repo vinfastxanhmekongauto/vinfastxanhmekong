@@ -53,7 +53,7 @@ export default function ChatWidget() {
 
     const storedName = localStorage.getItem('user_name') || '';
     const storedLocation = localStorage.getItem('user_location') || '';
-    
+
     setUserName(storedName);
     setUserLocation(storedLocation);
 
@@ -93,7 +93,7 @@ export default function ChatWidget() {
   const initializeDefaultWelcome = () => {
     const initialMessage: Message = {
       id: Date.now().toString(),
-      text: 'Xin chào! Trợ lý ảo VinFast đã sẵn sàng. Anh/chị cần hỗ trợ thông tin gì ạ?',
+      text: 'Xin chào! Trợ lý ảo VinFast Xanh Mekong đã sẵn sàng. Anh/chị cần hỗ trợ thông tin gì ạ?',
       sender: 'bot',
       timestamp: Date.now(),
     };
@@ -188,7 +188,7 @@ export default function ChatWidget() {
 
     const greetingMessage: Message = {
       id: 'greeting_' + Date.now(),
-      text: 'Xin chào! Trợ lý ảo VinFast đã sẵn sàng. Anh/chị cần hỗ trợ thông tin gì ạ?',
+      text: 'Xin chào! Trợ lý ảo VinFast Xanh Mekong đã sẵn sàng. Anh/chị cần hỗ trợ thông tin gì ạ?',
       sender: 'bot',
       timestamp: Date.now(),
     };
@@ -216,7 +216,7 @@ export default function ChatWidget() {
 
     const greetingMessage: Message = {
       id: 'greeting_' + Date.now(),
-      text: `Chào anh/chị ${name}, em là trợ lý ảo VinFast. Anh/chị cần hỏi gì ạ?`,
+      text: `Chào anh/chị ${name}, em là trợ lý ảo VinFast Xanh Mekong. Anh/chị cần hỏi gì ạ?`,
       sender: 'bot',
       timestamp: Date.now(),
     };
@@ -229,7 +229,7 @@ export default function ChatWidget() {
     }, 100);
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // 1. Spam / Rate Limit Check (3 seconds debounce)
@@ -274,18 +274,45 @@ export default function ChatWidget() {
     // Log the actual payload being sent to the simulated backend API
     console.log("🚀 [DEBUG] Dữ liệu chuẩn bị gửi cho AI:", apiMessagePayload);
 
-    // Simulate backend response after 2 seconds
-    setTimeout(() => {
+    try {
+      const response = await fetch('https://ai.toyotacantho.com.vn/webhook/eb79a683-e036-483c-ac1a-4b393581d48a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: apiMessagePayload,
+          sessionId: 'web-session-123',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const botResponseText = data.message || 'Workflow was started';
+
       const botResponse: Message = {
         id: 'msg_bot_' + Date.now(),
-        text: 'Chào bạn, tôi là trợ lý ảo VinFast Xanh Mekong. Hiện tại hệ thống đang nâng cấp, tôi sẽ hỗ trợ bạn ngay sau khi hoàn tất nhé!',
+        text: botResponseText,
         sender: 'bot',
         timestamp: Date.now(),
       };
 
-      setMessages(prev => [...prev, botResponse]);
+      setMessages((prev) => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Error sending message to webhook:', error);
+      const botResponse: Message = {
+        id: 'msg_bot_' + Date.now(),
+        text: 'Có lỗi xảy ra khi kết nối với trợ lý ảo. Xin vui lòng thử lại sau.',
+        sender: 'bot',
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, botResponse]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -417,8 +444,8 @@ export default function ChatWidget() {
                     {/* Avatar */}
                     <div
                       className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${msg.sender === 'user'
-                          ? 'bg-blue-100 text-vinfast-blue'
-                          : 'bg-vinfast-blue text-white'
+                        ? 'bg-blue-100 text-vinfast-blue'
+                        : 'bg-vinfast-blue text-white'
                         }`}
                     >
                       {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
@@ -428,8 +455,8 @@ export default function ChatWidget() {
                     <div className="flex flex-col">
                       <div
                         className={`px-4 py-2.5 text-sm shadow-sm leading-relaxed ${msg.sender === 'user'
-                            ? 'bg-vinfast-blue text-vinfast-white rounded-2xl rounded-tr-sm'
-                            : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'
+                          ? 'bg-vinfast-blue text-vinfast-white rounded-2xl rounded-tr-sm'
+                          : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'
                           }`}
                       >
                         {msg.text}
