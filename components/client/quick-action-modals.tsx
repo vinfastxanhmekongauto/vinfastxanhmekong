@@ -40,14 +40,14 @@ export function ModalWrapper({
   const modalContent = (
     <AnimatePresence mode="wait">
       {isOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[10000] flex items-start md:items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto cursor-pointer"
           onClick={onClose}
         >
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -169,9 +169,8 @@ export function SearchableCarSelect({
                     setIsOpen(false);
                     setSearchTerm('');
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                    value === opt ? 'bg-blue-50 text-vinfast-blue font-semibold' : 'text-gray-700'
-                  }`}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${value === opt ? 'bg-blue-50 text-vinfast-blue font-semibold' : 'text-gray-700'
+                    }`}
                 >
                   {opt}
                 </button>
@@ -189,14 +188,14 @@ export function SearchableCarSelect({
 }
 
 // --- 1 & 4. Lead Form Modal (Test Drive & Quote) ---
-export function LeadFormModal({ 
-  title, 
+export function LeadFormModal({
+  title,
   onClose,
   selectedCar,
   initialNotes,
   leadType
-}: { 
-  title: string; 
+}: {
+  title: string;
   onClose: () => void;
   selectedCar?: string;
   initialNotes?: string;
@@ -331,7 +330,7 @@ export function LeadFormModal({
       <div className="hidden md:flex md:col-span-2 text-white flex-col justify-center p-8 relative overflow-hidden bg-[#152B4D]">
         <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('/bg-vinfast-cars.webp')" }}></div>
         <div className="relative z-10">
-          <h3 className="text-3xl font-bold mb-4 leading-tight text-white">Khởi Đầu<br/>Hành Trình Xanh</h3>
+          <h3 className="text-3xl font-bold mb-4 leading-tight text-white">Khởi Đầu<br />Hành Trình Xanh</h3>
           <p className="text-blue-100 mb-8 text-sm leading-relaxed">Cùng VinFast kiến tạo tương lai di chuyển thông minh và bền vững ngay hôm nay.</p>
           <ul className="space-y-5">
             <li className="flex items-center gap-3 text-sm font-medium">
@@ -351,88 +350,88 @@ export function LeadFormModal({
       <div className="md:col-span-3 p-6 md:p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
         <form onSubmit={handleSubmit} className="space-y-5">
-        {status === 'error' && (
-          <div className="p-4 bg-red-50 text-red-600 rounded-md flex items-start gap-3 text-sm">
-            <AlertCircle size={18} className="shrink-0 mt-0.5" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Họ và tên *</label>
-            <input
-              type="text"
-              required
-              value={formData.full_name}
-              onChange={e => setFormData({ ...formData, full_name: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
-              placeholder="Nhập họ tên của bạn"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại *</label>
-            <input
-              type="tel"
-              required
-              value={formData.phone}
-              onChange={e => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
-              placeholder="VD: 0912345678"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Email <span className="text-gray-400 font-normal">(Không bắt buộc)</span></label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
-              placeholder="Nhập địa chỉ email"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Dòng xe quan tâm</label>
-            <SearchableCarSelect
-              value={formData.car_model}
-              onChange={val => setFormData(prev => ({ ...prev, car_model: val }))}
-              options={
-                selectedCar && !carVariantOptions.includes(selectedCar)
-                  ? Array.from(new Set([selectedCar, ...carVariantOptions]))
-                  : carVariantOptions
-              }
-              bgColorClass="bg-gray-50"
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Lời nhắn tư vấn <span className="text-gray-400 font-normal">(Không bắt buộc)</span></label>
-          <textarea
-            rows={3}
-            value={formData.notes}
-            onChange={e => setFormData({ ...formData, notes: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none resize-none"
-            placeholder="Bạn có yêu cầu gì khác..."
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-vinfast-blue text-white py-4 rounded-md font-bold text-lg hover:bg-blue-800 transition-colors flex justify-center items-center gap-2 disabled:opacity-70"
-        >
-          {loading ? (
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <>
-              <Send size={20} />
-              <span>Gửi yêu cầu</span>
-            </>
+          {status === 'error' && (
+            <div className="p-4 bg-red-50 text-red-600 rounded-md flex items-start gap-3 text-sm">
+              <AlertCircle size={18} className="shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
           )}
-        </button>
-      </form>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Họ và tên *</label>
+              <input
+                type="text"
+                required
+                value={formData.full_name}
+                onChange={e => setFormData({ ...formData, full_name: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
+                placeholder="Nhập họ tên của bạn"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại *</label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
+                placeholder="VD: 0912345678"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Email <span className="text-gray-400 font-normal">(Không bắt buộc)</span></label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
+                placeholder="Nhập địa chỉ email"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Dòng xe quan tâm</label>
+              <SearchableCarSelect
+                value={formData.car_model}
+                onChange={val => setFormData(prev => ({ ...prev, car_model: val }))}
+                options={
+                  selectedCar && !carVariantOptions.includes(selectedCar)
+                    ? Array.from(new Set([selectedCar, ...carVariantOptions]))
+                    : carVariantOptions
+                }
+                bgColorClass="bg-gray-50"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Lời nhắn tư vấn <span className="text-gray-400 font-normal">(Không bắt buộc)</span></label>
+            <textarea
+              rows={3}
+              value={formData.notes}
+              onChange={e => setFormData({ ...formData, notes: e.target.value })}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none resize-none"
+              placeholder="Bạn có yêu cầu gì khác..."
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-vinfast-blue text-white py-4 rounded-md font-bold text-lg hover:bg-blue-800 transition-colors flex justify-center items-center gap-2 disabled:opacity-70"
+          >
+            {loading ? (
+              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <Send size={20} />
+                <span>Gửi yêu cầu</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
   );
 }
 
@@ -531,11 +530,11 @@ export function CostEstimateModal({
   const carPrice = selectedVariant?.price || 0;
   const hasVariants = selectedProduct && Array.isArray(selectedProduct.variants) && selectedProduct.variants.length > 0;
   const hasPrice = hasVariants && carPrice > 0;
-  
+
   // Registration fees
   const registrationFee = carPrice * 0; // EV registration fee is 0% currently
-  const plateFee = location === 'Hà Nội' || location === 'TP.HCM' ? 20000000 : 1000000;
-  const inspectionFee = 340000;
+  const plateFee = location === 'Hà Nội' || location === 'TP.HCM' ? 14000000 : 140000;
+  const inspectionFee = 95000;
   const roadMaintenanceFee = 1560000;
   const insuranceFee = 480700;
 
@@ -548,7 +547,7 @@ export function CostEstimateModal({
   return (
     <div className="p-6 md:p-8">
       <h2 className="text-3xl font-bold text-vinfast-blue mb-8 text-center">Dự Toán Chi Phí Lăn Bánh</h2>
-      
+
       {loading ? (
         <div className="py-12 flex flex-col items-center justify-center space-y-3">
           <div className="w-8 h-8 border-4 border-vinfast-blue border-t-transparent rounded-full animate-spin"></div>
@@ -590,9 +589,8 @@ export function CostEstimateModal({
                           key={p.id}
                           type="button"
                           onClick={() => handleSelectProduct(p)}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                            selectedProduct?.id === p.id ? 'bg-blue-50 text-vinfast-blue font-semibold' : 'text-gray-700'
-                          }`}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${selectedProduct?.id === p.id ? 'bg-blue-50 text-vinfast-blue font-semibold' : 'text-gray-700'
+                            }`}
                         >
                           {p.name}
                         </button>
@@ -642,7 +640,7 @@ export function CostEstimateModal({
           {/* Right Column: Results */}
           <div className="bg-white p-6 rounded-xl border-2 border-vinfast-blue/20 shadow-lg flex flex-col">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Bảng tính chi tiết</h3>
-            
+
             <div className="space-y-3 flex-grow">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
                 <span className="text-gray-600 truncate max-w-[280px]" title={selectedVariant ? `${selectedVariant.name}${selectedVariant.note ? ` - ${selectedVariant.note}` : ''}` : 'Chưa chọn'}>
@@ -687,7 +685,7 @@ export function CostEstimateModal({
                 type="button"
                 onClick={() => {
                   const formattedTotalCost = hasPrice ? formatCurrency(totalCost) : 'Liên hệ để nhận báo giá';
-                  const notes = hasPrice 
+                  const notes = hasPrice
                     ? `Tôi cần tư vấn chi phí lăn bánh cho xe ${selectedProduct?.name || ''} - Phiên bản: ${selectedVariant?.name || ''}. Nơi đăng ký: ${location}. Tổng dự toán tham khảo: ${formattedTotalCost}.`
                     : `Tôi cần tư vấn chi phí lăn bánh cho xe ${selectedProduct?.name || ''}. Nơi đăng ký: ${location}.`;
                   const selectedCarCombined = getCarDisplayName(selectedProduct?.name, selectedVariant?.name);
@@ -797,7 +795,7 @@ export function InstallmentModal({
   const downPaymentAmount = carPrice * (downPaymentPercent / 100);
   const loanAmount = carPrice - downPaymentAmount;
   const months = loanTerm * 12;
-  
+
   // Standard EMI formula
   const r = (interestRateYearly / 100) / 12;
   const n = months;
@@ -812,7 +810,7 @@ export function InstallmentModal({
   return (
     <div className="p-6 md:p-8">
       <h2 className="text-3xl font-bold text-vinfast-blue mb-8 text-center">Ước Tính Chi Phí Trả Góp</h2>
-      
+
       {loading ? (
         <div className="py-12 flex flex-col items-center justify-center space-y-3">
           <div className="w-8 h-8 border-4 border-vinfast-blue border-t-transparent rounded-full animate-spin"></div>
@@ -853,9 +851,8 @@ export function InstallmentModal({
                           key={p.id}
                           type="button"
                           onClick={() => handleSelectProduct(p)}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                            selectedProduct?.id === p.id ? 'bg-blue-50 text-vinfast-blue font-semibold' : 'text-gray-700'
-                          }`}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${selectedProduct?.id === p.id ? 'bg-blue-50 text-vinfast-blue font-semibold' : 'text-gray-700'
+                            }`}
                         >
                           {p.name}
                         </button>
@@ -942,7 +939,7 @@ export function InstallmentModal({
                 {hasPrice ? formatCurrency(downPaymentAmount) : 'Đang cập nhật'}
               </div>
             </div>
-            
+
             <div className="text-center p-6 rounded-xl bg-vinfast-blue text-white shadow-md">
               <div className="text-sm text-blue-100 mb-2">Góp ước tính mỗi tháng</div>
               <div className="text-4xl font-bold">
@@ -958,7 +955,7 @@ export function InstallmentModal({
                 type="button"
                 onClick={() => {
                   const formattedMonthlyPayment = hasPrice ? formatCurrency(monthlyPayment) : 'Đang cập nhật';
-                  const notes = hasPrice 
+                  const notes = hasPrice
                     ? `Tôi muốn tư vấn trả góp xe ${selectedProduct?.name || ''}${selectedVariant?.name ? ` - ${selectedVariant.name}` : ''}. Trả trước: ${downPaymentPercent}%. Thời gian vay: ${loanTerm} năm. Trả mỗi tháng khoảng: ${formattedMonthlyPayment}.`
                     : `Tôi muốn nhận tư vấn trả góp cho xe ${selectedProduct?.name || ''}.`;
                   const selectedCarCombined = getCarDisplayName(selectedProduct?.name, selectedVariant?.name);

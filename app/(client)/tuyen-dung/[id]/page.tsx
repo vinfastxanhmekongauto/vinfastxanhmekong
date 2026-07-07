@@ -43,7 +43,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const resolvedParams = await params;
-    
+
     const fallbackTitle = 'Chi Tiết Tuyển Dụng | VinFast Xanh Mekong Cần Thơ';
     const fallbackDesc = 'Khám phá các vị trí tuyển dụng hấp dẫn tại Showroom VinFast Xanh Mekong Cần Thơ. Xem chi tiết các cơ hội việc làm và nộp hồ sơ ứng tuyển ngay.';
     const fallbackImage = `${SITE_URL}/banner-tuyen-dung.webp`;
@@ -208,7 +208,7 @@ export default async function JobDetailPage({ params }: Props) {
             if (!isNaN(date.getTime())) {
                 return date.toISOString().split('T')[0];
             }
-        } catch (e) {}
+        } catch (e) { }
         return undefined;
     };
 

@@ -1,6 +1,7 @@
 import Header from '@/components/client/header';
 import Footer from '@/components/client/footer';
 import StickyContact from '@/components/client/sticky-cta';
+import ChatWidget from '@/components/ChatWidget';
 import { SiteSettingsProvider } from '@/components/client/SiteSettingsProvider';
 import { QuoteModalProvider } from '@/components/client/QuoteModalProvider';
 import { supabase } from '@/lib/supabase';
@@ -67,6 +68,7 @@ export default async function ClientLayout({
                     </main>
                     <Footer />
                     <StickyContact />
+                    <ChatWidget />
                 </div>
             </QuoteModalProvider>
         </SiteSettingsProvider>

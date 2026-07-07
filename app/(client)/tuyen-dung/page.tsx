@@ -60,9 +60,9 @@ interface EnrichedPosition extends Position {
 function JobCard({ pos, jobId, index }: { pos: EnrichedPosition; jobId: string; index: number }) {
     const detailUrl = `/tuyen-dung/${slugify(pos.role)}`;
     const displayTypes = pos.jobTypes || ["Toàn thời gian"];
-    
+
     return (
-        <Link 
+        <Link
             href={detailUrl}
             className="group bg-white rounded-2xl border border-gray-200 overflow-hidden h-full flex flex-col justify-between transition-all duration-350 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-200"
         >
@@ -88,8 +88,8 @@ function JobCard({ pos, jobId, index }: { pos: EnrichedPosition; jobId: string; 
                         </span>
                     )}
                     {displayTypes.map((type, i) => (
-                        <span 
-                            key={i} 
+                        <span
+                            key={i}
                             className="bg-white/95 text-blue-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm border border-gray-100"
                         >
                             {type}
@@ -303,11 +303,11 @@ export default async function CareerPage() {
                         /* Job Listing Grid */
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {activePositions.map((pos, idx) => (
-                                <JobCard 
-                                    key={idx} 
-                                    pos={pos} 
-                                    jobId={pos.jobId} 
-                                    index={pos.positionIndex} 
+                                <JobCard
+                                    key={idx}
+                                    pos={pos}
+                                    jobId={pos.jobId}
+                                    index={pos.positionIndex}
                                 />
                             ))}
                         </div>

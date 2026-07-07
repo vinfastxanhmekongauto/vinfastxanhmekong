@@ -85,15 +85,15 @@ export default function AboutDealership() {
             {/* Modals */}
             <ModalWrapper isOpen={activeModal !== null} onClose={handleCloseModal}>
                 {activeModal === 'testDrive' && (
-                    <LeadFormModal 
-                        title="Đăng Ký Lái Thử" 
-                        onClose={handleCloseModal} 
+                    <LeadFormModal
+                        title="Đăng Ký Lái Thử"
+                        onClose={handleCloseModal}
                         selectedCar={preFilledCar}
                         initialNotes={preFilledNotes}
                     />
                 )}
                 {activeModal === 'estimate' && (
-                    <CostEstimateModal 
+                    <CostEstimateModal
                         onQuoteTrigger={(carName, notes) => {
                             setPreFilledCar(carName);
                             setPreFilledNotes(notes);
@@ -102,7 +102,7 @@ export default function AboutDealership() {
                     />
                 )}
                 {activeModal === 'installment' && (
-                    <InstallmentModal 
+                    <InstallmentModal
                         onQuoteTrigger={(carName, notes) => {
                             setPreFilledCar(carName);
                             setPreFilledNotes(notes);
@@ -111,9 +111,9 @@ export default function AboutDealership() {
                     />
                 )}
                 {activeModal === 'quote' && (
-                    <LeadFormModal 
-                        title="Nhận Báo Giá Chi Tiết" 
-                        onClose={handleCloseModal} 
+                    <LeadFormModal
+                        title="Nhận Báo Giá Chi Tiết"
+                        onClose={handleCloseModal}
                         selectedCar={preFilledCar}
                         initialNotes={preFilledNotes}
                     />
