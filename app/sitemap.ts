@@ -113,7 +113,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // Fetch new jobs
         const { data: jobs, error: jobsError } = await supabaseClient
             .from('jobs')
-            .select('id, positions, updated_at');
+            .select('id, positions, created_at');
 
         console.log('Sitemap Jobs Error:', jobsError);
         console.log('Sitemap Jobs Data Length:', jobs?.length);
@@ -136,7 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     if (pos.role && pos.isActive !== false) {
                         newJobRoutes.push({
                             url: `${baseUrl}/tuyen-dung/${slugify(pos.role)}`,
-                            lastModified: new Date(job.updated_at || new Date()),
+                            lastModified: new Date(job.created_at || new Date()),
                             changeFrequency: 'weekly',
                             priority: 0.7,
                         });

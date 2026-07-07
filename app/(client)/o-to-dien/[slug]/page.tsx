@@ -37,16 +37,20 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
         imageUrl = `${SITE_URL}${imageUrl}`;
     }
 
+    const exactUrl = `${SITE_URL}/o-to-dien/${product.slug}`;
+    const seoTitle = `${product.name} - Giá bán, Thông số & Ưu đãi | VinFast Xanh Mekong`;
+    const seoDescription = `Khám phá chi tiết xe ${product.name} tại VinFast Xanh Mekong. Xem ngay giá lăn bánh và thông số kỹ thuật.`;
+
     return {
-        title: `${product.name} | VinFast Xanh Mekong`,
-        description: product.excerpt || `Trải nghiệm tương lai di chuyển thông minh cùng VinFast ${product.name}.`,
+        title: seoTitle,
+        description: seoDescription,
         alternates: {
-            canonical: `/o-to-dien/${product.slug}`,
+            canonical: exactUrl,
         },
         openGraph: {
-            title: `${product.name} | VinFast Xanh Mekong`,
-            description: product.excerpt || `Khám phá xe điện VinFast ${product.name} tại Cần Thơ.`,
-            url: `${SITE_URL}/o-to-dien/${product.slug}`,
+            title: seoTitle,
+            description: seoDescription,
+            url: exactUrl,
             siteName: 'VinFast Xanh Mekong',
             images: [{ url: imageUrl, width: 1200, height: 630, alt: product.name }],
             locale: 'vi_VN',
