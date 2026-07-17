@@ -20,6 +20,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState<string>('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [sessionId, setSessionId] = useState<string>('');
 
   // Responsive / Keyboard layout states
   const [viewportHeight, setViewportHeight] = useState<string>('100vh');
@@ -41,6 +42,14 @@ export default function ChatWidget() {
 
   // Initialize session and chat history on mount
   useEffect(() => {
+    // Initialize or retrieve vivi_session_id
+    let currentSessionId = localStorage.getItem('vivi_session_id');
+    if (!currentSessionId) {
+      currentSessionId = crypto.randomUUID();
+      localStorage.setItem('vivi_session_id', currentSessionId);
+    }
+    setSessionId(currentSessionId);
+
     // Generate or fetch session
     const storedSession = localStorage.getItem('chat_session');
     let session: ChatSession;
@@ -275,14 +284,14 @@ export default function ChatWidget() {
     console.log("🚀 [DEBUG] Dữ liệu chuẩn bị gửi cho AI:", apiMessagePayload);
 
     try {
-      const response = await fetch('https://ai.toyotacantho.com.vn/webhook/eb79a683-e036-483c-ac1a-4b393581d48a', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: apiMessagePayload,
-          sessionId: 'web-session-123',
+          sessionId: sessionId,
         }),
       });
 
@@ -291,7 +300,10 @@ export default function ChatWidget() {
       }
 
       const data = await response.json();
-      const botResponseText = data.message || 'Workflow was started';
+      if (!data.success) {
+        throw new Error(data.error || 'Request to chat API returned success = false');
+      }
+      const botResponseText = data.reply || 'Workflow was started';
 
       const botResponse: Message = {
         id: 'msg_bot_' + Date.now(),
