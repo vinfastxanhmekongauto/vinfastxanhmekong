@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import Image from 'next/image';
 
 interface ChatSession {
   userId: string;
@@ -329,14 +330,39 @@ export default function ChatWidget() {
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes attention-shake {
+          0%, 25%, 100% { transform: rotate(0deg); }
+          5% { transform: rotate(-12deg) scale(1.05); }
+          10% { transform: rotate(12deg) scale(1.05); }
+          15% { transform: rotate(-12deg) scale(1.05); }
+          20% { transform: rotate(12deg) scale(1.05); }
+        }
+        .animate-attention {
+          animation: attention-shake 4s ease-in-out infinite;
+        }
+      `}} />
+
       {/* Floating Action Button (FAB) */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 md:bottom-6 right-6 z-[90] bg-vinfast-blue text-vinfast-white shadow-xl hover:shadow-2xl w-14 h-14 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 duration-200 border border-blue-800/20"
+          className="fixed bottom-20 md:bottom-6 left-6 z-[90] shadow-2xl w-14 h-14 md:w-[72px] md:h-[72px] rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer group animate-attention"
           aria-label="Mở cửa sổ chat"
         >
-          <MessageCircle size={28} className="animate-pulse" />
+          <Image
+            src="/bot-avatar.svg"
+            alt="Trợ lý ảo thông minh"
+            width={72}
+            height={72}
+            className="w-full h-full object-contain"
+            priority={true}
+          />
+          <span className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-3 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 whitespace-nowrap shadow-lg">
+            Trợ lý ảo VinFast Xanh Mekong
+            {/* Tooltip Arrow */}
+            <span className="absolute top-1/2 -left-1 -translate-y-1/2 border-[6px] border-transparent border-r-gray-800"></span>
+          </span>
         </button>
       )}
 
@@ -348,22 +374,22 @@ export default function ChatWidget() {
             fixed z-[100] bg-white flex flex-col shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300
             ${isMobile
               ? 'inset-0 w-full rounded-none'
-              : 'bottom-24 right-6 w-96 rounded-2xl animate-scale-up'
+              : 'bottom-24 left-6 w-96 rounded-2xl animate-scale-up origin-bottom-left'
             }
           `}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-vinfast-blue text-vinfast-white flex-shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#327ad7] text-white flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="relative w-10 h-10 rounded-full bg-blue-900/40 flex items-center justify-center border border-white/20">
+              <div className="relative w-10 h-10 rounded-full bg-[#2862ac]/40 flex items-center justify-center border border-white/20">
                 <Bot size={20} className="text-white" />
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-vinfast-blue"></span>
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#327ad7]"></span>
               </div>
               <div>
                 <h3 className="font-semibold text-sm tracking-tight text-white leading-tight">
                   Trợ lý ảo VinFast Xanh Mekong
                 </h3>
-                <span className="text-[10px] text-blue-200 flex items-center gap-1 font-medium">
+                <span className="text-[10px] text-blue-100 flex items-center gap-1 font-medium">
                   Trực tuyến
                 </span>
               </div>
@@ -382,7 +408,7 @@ export default function ChatWidget() {
             <div className="flex-1 p-6 flex flex-col justify-center bg-gray-50/50 overflow-y-auto animate-fade-in">
               <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5 text-center">
-                  <div className="w-12 h-12 rounded-full bg-blue-50 text-vinfast-blue flex items-center justify-center mx-auto mb-2 border border-blue-100">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 text-[#327ad7] flex items-center justify-center mx-auto mb-2 border border-[#327ad7]/20">
                     <Bot size={24} />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-800 tracking-tight leading-snug">
@@ -405,7 +431,7 @@ export default function ChatWidget() {
                       value={tempName}
                       onChange={(e) => setTempName(e.target.value)}
                       placeholder="Nhập họ và tên..."
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-vinfast-blue focus:ring-1 focus:ring-vinfast-blue/30 transition-all text-gray-800 placeholder-gray-400 font-sans"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400 font-sans"
                     />
                   </div>
 
@@ -419,13 +445,13 @@ export default function ChatWidget() {
                       value={tempLocation}
                       onChange={(e) => setTempLocation(e.target.value)}
                       placeholder="Nhập tỉnh thành (VD: Cần Thơ)..."
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-vinfast-blue focus:ring-1 focus:ring-vinfast-blue/30 transition-all text-gray-800 placeholder-gray-400 font-sans"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400 font-sans"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-vinfast-blue hover:bg-blue-800 text-vinfast-white text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] mt-2 cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 bg-[#327ad7] hover:bg-[#2862ac] text-white text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] mt-2 cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     Bắt đầu Chat
                   </button>
@@ -435,7 +461,7 @@ export default function ChatWidget() {
                   <button
                     type="button"
                     onClick={handleSkipForm}
-                    className="text-xs text-gray-400 hover:text-vinfast-blue underline cursor-pointer transition-colors focus:outline-none"
+                    className="text-xs text-gray-400 hover:text-[#327ad7] underline cursor-pointer transition-colors focus:outline-none"
                   >
                     Bỏ qua / Hỏi trực tiếp
                   </button>
@@ -456,8 +482,8 @@ export default function ChatWidget() {
                     {/* Avatar */}
                     <div
                       className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${msg.sender === 'user'
-                        ? 'bg-blue-100 text-vinfast-blue'
-                        : 'bg-vinfast-blue text-white'
+                        ? 'bg-blue-100 text-[#327ad7]'
+                        : 'bg-[#327ad7] text-white'
                         }`}
                     >
                       {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
@@ -467,7 +493,7 @@ export default function ChatWidget() {
                     <div className="flex flex-col">
                       <div
                         className={`px-4 py-2.5 text-sm shadow-sm leading-relaxed ${msg.sender === 'user'
-                          ? 'bg-vinfast-blue text-vinfast-white rounded-2xl rounded-tr-sm'
+                          ? 'bg-[#327ad7] text-white rounded-2xl rounded-tr-sm'
                           : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'
                           }`}
                       >
@@ -489,7 +515,7 @@ export default function ChatWidget() {
                 {/* Typing Indicator */}
                 {isTyping && (
                   <div className="flex gap-2.5 max-w-[80%] mr-auto items-end">
-                    <div className="w-7 h-7 rounded-full bg-vinfast-blue text-white flex-shrink-0 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-full bg-[#327ad7] text-white flex-shrink-0 flex items-center justify-center">
                       <Bot size={14} />
                     </div>
                     <div className="px-4 py-3 bg-white border border-gray-100 rounded-2xl rounded-tl-sm shadow-sm flex items-center space-x-1.5 h-9">
@@ -520,12 +546,12 @@ export default function ChatWidget() {
                     }
                   }}
                   placeholder="Nhập tin nhắn..."
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-vinfast-blue focus:ring-1 focus:ring-vinfast-blue/30 transition-all text-gray-800 placeholder-gray-400"
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400"
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim() || isTyping}
-                  className="w-9 h-9 rounded-full bg-vinfast-blue text-vinfast-white flex items-center justify-center hover:bg-blue-800 active:scale-95 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:opacity-50 flex-shrink-0"
+                  className="w-9 h-9 rounded-full bg-[#327ad7] text-white flex items-center justify-center hover:bg-[#2862ac] active:scale-95 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:opacity-50 flex-shrink-0"
                   aria-label="Gửi tin nhắn"
                 >
                   <Send size={16} />
