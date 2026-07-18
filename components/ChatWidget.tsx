@@ -373,10 +373,10 @@ export default function ChatWidget() {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col w-full h-[100dvh] bg-white border border-gray-100 overflow-hidden transition-all duration-300 md:inset-auto md:left-6 md:bottom-24 md:w-[400px] md:h-[600px] md:rounded-2xl md:shadow-2xl md:animate-scale-up md:origin-bottom-left"
+          className="fixed inset-0 z-[9999] flex flex-col w-full bg-white border border-gray-100 overflow-hidden transition-all duration-300 md:inset-auto md:left-6 md:bottom-24 md:w-[400px] md:h-[600px] md:rounded-2xl md:shadow-2xl md:animate-scale-up md:origin-bottom-left"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-[#327ad7] text-white flex-shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#327ad7] text-white flex-none w-full">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-full bg-[#2862ac]/40 flex items-center justify-center border border-white/20">
                 <Bot size={20} className="text-white" />
@@ -402,7 +402,7 @@ export default function ChatWidget() {
 
           {showOnboardingForm ? (
             /* Onboarding Form UI Overlay */
-            <div className="flex-1 p-6 flex flex-col justify-center bg-gray-50/50 overflow-y-auto animate-fade-in">
+            <div className="flex-1 w-full p-6 flex flex-col justify-center bg-gray-50/50 overflow-y-auto animate-fade-in">
               <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5 text-center">
                   <div className="w-12 h-12 rounded-full bg-blue-50 text-[#327ad7] flex items-center justify-center mx-auto mb-2 border border-[#327ad7]/20">
@@ -469,7 +469,7 @@ export default function ChatWidget() {
             /* Normal Chat Interface */
             <>
               {/* Messages Container */}
-              <div className="flex-1 overflow-y-auto p-4 bg-gray-50/50 space-y-4">
+              <div className="flex-1 overflow-y-auto w-full relative p-4 bg-gray-50/50 space-y-4">
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -563,7 +563,7 @@ export default function ChatWidget() {
               {/* Input Area */}
               <form
                 onSubmit={handleSendMessage}
-                className="p-3 bg-white border-t border-gray-100 flex items-center gap-2 flex-shrink-0"
+                className="p-3 pb-safe bg-white border-t border-gray-100 flex items-center gap-2 flex-none w-full"
               >
                 <input
                   ref={inputRef}
