@@ -81,6 +81,7 @@ export default function ChatWidget() {
       setUserLocation('');
       setShowOnboardingForm(true);
       setMessages([]);
+
     } else {
       // Session exists, load chat history
       const storedMessages = localStorage.getItem('chat_history');
