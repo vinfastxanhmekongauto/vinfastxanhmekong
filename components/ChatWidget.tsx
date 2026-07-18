@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatSession {
   userId: string;
@@ -330,7 +332,8 @@ export default function ChatWidget() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes attention-shake {
           0%, 25%, 100% { transform: rotate(0deg); }
           5% { transform: rotate(-12deg) scale(1.05); }
@@ -369,14 +372,7 @@ export default function ChatWidget() {
       {/* Chat Window */}
       {isOpen && (
         <div
-          style={{ height: isMobile ? viewportHeight : '500px' }}
-          className={`
-            fixed z-[100] bg-white flex flex-col shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300
-            ${isMobile
-              ? 'inset-0 w-full rounded-none'
-              : 'bottom-24 left-6 w-96 rounded-2xl animate-scale-up origin-bottom-left'
-            }
-          `}
+          className="fixed inset-0 z-[100] flex flex-col w-full h-[100dvh] bg-white border border-gray-100 overflow-hidden transition-all duration-300 md:inset-auto md:left-6 md:bottom-24 md:w-[400px] md:h-[600px] md:rounded-2xl md:shadow-2xl md:animate-scale-up md:origin-bottom-left"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-[#327ad7] text-white flex-shrink-0">
@@ -476,7 +472,7 @@ export default function ChatWidget() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex gap-2.5 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                    className={`flex gap-2.5 max-w-[90%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'
                       }`}
                   >
                     {/* Avatar */}
@@ -490,14 +486,48 @@ export default function ChatWidget() {
                     </div>
 
                     {/* Message Bubble */}
-                    <div className="flex flex-col">
+                    <div className={`flex flex-col min-w-0 max-w-full ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                       <div
-                        className={`px-4 py-2.5 text-sm shadow-sm leading-relaxed ${msg.sender === 'user'
+                        className={`px-4 py-2.5 text-sm shadow-sm leading-relaxed min-w-0 max-w-[90%] overflow-hidden ${msg.sender === 'user'
                           ? 'bg-[#327ad7] text-white rounded-2xl rounded-tr-sm'
                           : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'
                           }`}
                       >
-                        {msg.text}
+                        {msg.sender === 'bot' ? (
+                          <div className="w-full overflow-hidden text-sm leading-normal break-words [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:mb-2 [&_li]:mb-1 [&_img]:max-w-full [&_img]:h-auto [&_img]:object-contain [&_img]:rounded-lg [&_img]:mt-2 [&_img]:shadow-sm">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                a: ({ node, ...props }) => {
+                                  const href = props.href || '';
+                                  // Regex to check if the link is an image (matches .jpg, .jpeg, .png, .gif, .webp)
+                                  const isImage = href.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
+
+                                  if (isImage) {
+                                    return (
+                                      <img
+                                        src={href}
+                                        alt="VinFast"
+                                        className="w-full h-auto rounded-lg mt-2 shadow-sm object-contain"
+                                      />
+                                    );
+                                  }
+
+                                  // If not an image, render a normal link
+                                  return (
+                                    <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline break-all">
+                                      {props.children}
+                                    </a>
+                                  );
+                                }
+                              }}
+                            >
+                              {msg.text || ''}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          msg.text
+                        )}
                       </div>
                       <span
                         className={`text-[9px] text-gray-400 mt-1 ${msg.sender === 'user' ? 'text-right' : 'text-left'
