@@ -351,7 +351,7 @@ export default function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 md:bottom-6 left-6 z-[90] shadow-2xl w-14 h-14 md:w-[72px] md:h-[72px] rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer group animate-attention"
+          className="fixed bottom-20 md:bottom-6 left-6 z-[90] w-14 h-14 md:w-[72px] md:h-[72px] rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer group animate-attention drop-shadow-[0_0_4px_rgba(255,255,255,0.8)] drop-shadow-[0_8px_12px_rgba(0,0,0,0.6)]"
           aria-label="Mở cửa sổ chat"
         >
           <Image
