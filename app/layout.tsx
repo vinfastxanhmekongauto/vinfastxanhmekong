@@ -52,6 +52,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'xq7mFYLB5sbbVJ0mP-CHMatuBLyg5gtPN...',
+    other: {
+      'zalo-platform-site-verification': 'OksR4gZ7FJSfxUq8rS1hC53GsYgyfW1tDJ0n',
+    },
   },
 };
 
