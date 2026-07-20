@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { X, Send, Bot, User } from 'lucide-react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -29,14 +29,6 @@ export default function ChatWidget() {
   const [viewportHeight, setViewportHeight] = useState<string>('100vh');
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  // Onboarding & Context Injection States
-  const [showOnboardingForm, setShowOnboardingForm] = useState<boolean>(false);
-  const [tempName, setTempName] = useState<string>('');
-  const [tempLocation, setTempLocation] = useState<string>('');
-  const [userName, setUserName] = useState<string>('');
-  const [userLocation, setUserLocation] = useState<string>('');
-  const [hasSentFirstApiMessage, setHasSentFirstApiMessage] = useState<boolean>(false);
-
   // Security Guards States & Refs
   const lastMessageTime = useRef<number>(0);
 
@@ -57,31 +49,13 @@ export default function ChatWidget() {
     const storedSession = localStorage.getItem('chat_session');
     let session: ChatSession;
 
-    // Load onboarding and tracking states
-    const storedHasSent = localStorage.getItem('chat_has_sent_first_api_message');
-    if (storedHasSent === 'true') {
-      setHasSentFirstApiMessage(true);
-    }
-
-    const storedName = localStorage.getItem('user_name') || '';
-    const storedLocation = localStorage.getItem('user_location') || '';
-
-    setUserName(storedName);
-    setUserLocation(storedLocation);
-
     if (!storedSession) {
       session = {
         userId: 'user_' + Math.random().toString(36).substring(2, 11),
         conversationId: 'conv_' + Math.random().toString(36).substring(2, 11),
       };
       localStorage.setItem('chat_session', JSON.stringify(session));
-
-      // Force showing the onboarding form
-      setUserName('');
-      setUserLocation('');
-      setShowOnboardingForm(true);
-      setMessages([]);
-
+      initializeDefaultWelcome();
     } else {
       // Session exists, load chat history
       const storedMessages = localStorage.getItem('chat_history');
@@ -99,7 +73,6 @@ export default function ChatWidget() {
       } else {
         initializeDefaultWelcome();
       }
-      setShowOnboardingForm(false);
     }
   }, []);
 
@@ -120,15 +93,6 @@ export default function ChatWidget() {
       localStorage.setItem('chat_history', JSON.stringify(messages));
     }
   }, [messages]);
-
-  // Persist onboarding parameters when they change
-  useEffect(() => {
-    localStorage.setItem('user_name', userName);
-  }, [userName]);
-
-  useEffect(() => {
-    localStorage.setItem('user_location', userLocation);
-  }, [userLocation]);
 
   // Scroll to bottom when messages or typing state change
   useEffect(() => {
@@ -192,56 +156,6 @@ export default function ChatWidget() {
     }
   }, [isOpen, isMobile]);
 
-  const handleSkipForm = () => {
-    setUserName('');
-    setUserLocation('');
-    localStorage.setItem('user_name', '');
-    localStorage.setItem('user_location', '');
-    setShowOnboardingForm(false);
-
-    const greetingMessage: Message = {
-      id: 'greeting_' + Date.now(),
-      text: 'Xin chào! Trợ lý ảo VinFast Xanh Mekong đã sẵn sàng. Anh/chị cần hỗ trợ thông tin gì ạ?',
-      sender: 'bot',
-      timestamp: Date.now(),
-    };
-
-    setMessages([greetingMessage]);
-    localStorage.setItem('chat_history', JSON.stringify([greetingMessage]));
-
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
-
-  const handleSubmitForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tempName.trim()) return;
-
-    const name = tempName.trim();
-    const location = tempLocation.trim();
-
-    setUserName(name);
-    setUserLocation(location);
-    localStorage.setItem('user_name', name);
-    localStorage.setItem('user_location', location);
-    setShowOnboardingForm(false);
-
-    const greetingMessage: Message = {
-      id: 'greeting_' + Date.now(),
-      text: `Chào anh/chị ${name}, em là trợ lý ảo VinFast Xanh Mekong. Anh/chị cần hỏi gì ạ?`,
-      sender: 'bot',
-      timestamp: Date.now(),
-    };
-
-    setMessages([greetingMessage]);
-    localStorage.setItem('chat_history', JSON.stringify([greetingMessage]));
-
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -272,20 +186,8 @@ export default function ChatWidget() {
 
     setIsTyping(true);
 
-    // Behind-the-scenes Context Injection
-    let apiMessagePayload = userInput;
-    if (!hasSentFirstApiMessage) {
-      if (userName.trim() && userLocation.trim()) {
-        apiMessagePayload = `Thông tin khách hàng: Tên là ${userName}, ở ${userLocation}. Câu hỏi: ${userInput}`;
-      } else {
-        apiMessagePayload = `Khách hàng ẩn danh hỏi: ${userInput}`;
-      }
-      setHasSentFirstApiMessage(true);
-      localStorage.setItem('chat_has_sent_first_api_message', 'true');
-    }
-
-    // Log the actual payload being sent to the simulated backend API
-    console.log("🚀 [DEBUG] Dữ liệu chuẩn bị gửi cho AI:", apiMessagePayload);
+    // Log the actual payload being sent to the backend API
+    console.log("🚀 [DEBUG] Dữ liệu chuẩn bị gửi cho AI:", userInput);
 
     try {
       const response = await fetch('/api/chat', {
@@ -294,7 +196,7 @@ export default function ChatWidget() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: apiMessagePayload,
+          message: userInput,
           sessionId: sessionId,
         }),
       });
@@ -400,198 +302,127 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          {showOnboardingForm ? (
-            /* Onboarding Form UI Overlay */
-            <div className="flex-1 w-full p-6 flex flex-col justify-center bg-gray-50/50 overflow-y-auto animate-fade-in">
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5 text-center">
-                  <div className="w-12 h-12 rounded-full bg-blue-50 text-[#327ad7] flex items-center justify-center mx-auto mb-2 border border-[#327ad7]/20">
-                    <Bot size={24} />
-                  </div>
-                  <h4 className="text-sm font-semibold text-gray-800 tracking-tight leading-snug">
-                    Thông tin tư vấn
-                  </h4>
-                  <p className="text-xs text-gray-500 leading-normal px-2 font-medium">
-                    Để tiện xưng hô và hỗ trợ anh/chị tốt hơn, xin vui lòng cung cấp thông tin cơ bản.
-                  </p>
+          {/* Messages Container */}
+          <div className="flex-1 overflow-y-auto w-full relative p-4 bg-gray-50/50 space-y-4">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex gap-2.5 max-w-[90%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                  }`}
+              >
+                {/* Avatar */}
+                <div
+                  className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${msg.sender === 'user'
+                    ? 'bg-blue-100 text-[#327ad7]'
+                    : 'bg-[#327ad7] text-white'
+                    }`}
+                >
+                  {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
                 </div>
 
-                <form onSubmit={handleSubmitForm} className="flex flex-col gap-3.5 mt-2">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="tempName" className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider pl-1">
-                      Họ tên <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      id="tempName"
-                      type="text"
-                      required
-                      value={tempName}
-                      onChange={(e) => setTempName(e.target.value)}
-                      placeholder="Nhập họ và tên..."
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400 font-sans"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="tempLocation" className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider pl-1">
-                      Tỉnh / Thành phố
-                    </label>
-                    <input
-                      id="tempLocation"
-                      type="text"
-                      value={tempLocation}
-                      onChange={(e) => setTempLocation(e.target.value)}
-                      placeholder="Nhập tỉnh thành (VD: Cần Thơ)..."
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400 font-sans"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 bg-[#327ad7] hover:bg-[#2862ac] text-white text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] mt-2 cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    Bắt đầu Chat
-                  </button>
-                </form>
-
-                <div className="text-center mt-1">
-                  <button
-                    type="button"
-                    onClick={handleSkipForm}
-                    className="text-xs text-gray-400 hover:text-[#327ad7] underline cursor-pointer transition-colors focus:outline-none"
-                  >
-                    Bỏ qua / Hỏi trực tiếp
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* Normal Chat Interface */
-            <>
-              {/* Messages Container */}
-              <div className="flex-1 overflow-y-auto w-full relative p-4 bg-gray-50/50 space-y-4">
-                {messages.map((msg) => (
+                {/* Message Bubble */}
+                <div className={`flex flex-col min-w-0 max-w-full ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                   <div
-                    key={msg.id}
-                    className={`flex gap-2.5 max-w-[90%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                    className={`px-4 py-2.5 text-sm shadow-sm leading-relaxed min-w-0 max-w-[90%] overflow-hidden ${msg.sender === 'user'
+                      ? 'bg-[#327ad7] text-white rounded-2xl rounded-tr-sm'
+                      : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'
                       }`}
                   >
-                    {/* Avatar */}
-                    <div
-                      className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${msg.sender === 'user'
-                        ? 'bg-blue-100 text-[#327ad7]'
-                        : 'bg-[#327ad7] text-white'
-                        }`}
-                    >
-                      {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
-                    </div>
+                    {msg.sender === 'bot' ? (
+                      <div className="w-full overflow-hidden text-sm leading-normal break-words [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:mb-2 [&_li]:mb-1 [&_img]:max-w-full [&_img]:h-auto [&_img]:object-contain [&_img]:rounded-lg [&_img]:mt-2 [&_img]:shadow-sm">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            a: ({ node, ...props }) => {
+                              const href = props.href || '';
+                              const isImage = href.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
 
-                    {/* Message Bubble */}
-                    <div className={`flex flex-col min-w-0 max-w-full ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                      <div
-                        className={`px-4 py-2.5 text-sm shadow-sm leading-relaxed min-w-0 max-w-[90%] overflow-hidden ${msg.sender === 'user'
-                          ? 'bg-[#327ad7] text-white rounded-2xl rounded-tr-sm'
-                          : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'
-                          }`}
-                      >
-                        {msg.sender === 'bot' ? (
-                          <div className="w-full overflow-hidden text-sm leading-normal break-words [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:mb-2 [&_li]:mb-1 [&_img]:max-w-full [&_img]:h-auto [&_img]:object-contain [&_img]:rounded-lg [&_img]:mt-2 [&_img]:shadow-sm">
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              components={{
-                                a: ({ node, ...props }) => {
-                                  const href = props.href || '';
-                                  // Regex to check if the link is an image (matches .jpg, .jpeg, .png, .gif, .webp)
-                                  const isImage = href.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
+                              if (isImage) {
+                                return (
+                                  <img
+                                    src={href}
+                                    alt="VinFast"
+                                    className="w-full h-auto rounded-lg mt-2 shadow-sm object-contain"
+                                  />
+                                );
+                              }
 
-                                  if (isImage) {
-                                    return (
-                                      <img
-                                        src={href}
-                                        alt="VinFast"
-                                        className="w-full h-auto rounded-lg mt-2 shadow-sm object-contain"
-                                      />
-                                    );
-                                  }
-
-                                  // If not an image, render a normal link
-                                  return (
-                                    <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline break-all">
-                                      {props.children}
-                                    </a>
-                                  );
-                                }
-                              }}
-                            >
-                              {msg.text || ''}
-                            </ReactMarkdown>
-                          </div>
-                        ) : (
-                          msg.text
-                        )}
+                              return (
+                                <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline break-all">
+                                  {props.children}
+                                </a>
+                              );
+                            }
+                          }}
+                        >
+                          {msg.text || ''}
+                        </ReactMarkdown>
                       </div>
-                      <span
-                        className={`text-[9px] text-gray-400 mt-1 ${msg.sender === 'user' ? 'text-right' : 'text-left'
-                          }`}
-                      >
-                        {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
+                    ) : (
+                      msg.text
+                    )}
                   </div>
-                ))}
-
-                {/* Typing Indicator */}
-                {isTyping && (
-                  <div className="flex gap-2.5 max-w-[80%] mr-auto items-end">
-                    <div className="w-7 h-7 rounded-full bg-[#327ad7] text-white flex-shrink-0 flex items-center justify-center">
-                      <Bot size={14} />
-                    </div>
-                    <div className="px-4 py-3 bg-white border border-gray-100 rounded-2xl rounded-tl-sm shadow-sm flex items-center space-x-1.5 h-9">
-                      <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '0.8s' }}></div>
-                      <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms', animationDuration: '0.8s' }}></div>
-                      <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms', animationDuration: '0.8s' }}></div>
-                    </div>
-                  </div>
-                )}
-
-                <div ref={messagesEndRef} />
+                  <span
+                    className={`text-[9px] text-gray-400 mt-1 ${msg.sender === 'user' ? 'text-right' : 'text-left'
+                      }`}
+                  >
+                    {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
               </div>
+            ))}
 
-              {/* Input Area */}
-              <form
-                onSubmit={handleSendMessage}
-                className="p-3 pb-safe bg-white border-t border-gray-100 flex items-center gap-2 flex-none w-full"
-              >
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && isTyping) {
-                      e.preventDefault();
-                      return;
-                    }
-                  }}
-                  placeholder="Nhập tin nhắn..."
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400"
-                />
-                <button
-                  type="submit"
-                  disabled={!inputText.trim() || isTyping}
-                  className="w-9 h-9 rounded-full bg-[#327ad7] text-white flex items-center justify-center hover:bg-[#2862ac] active:scale-95 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:opacity-50 flex-shrink-0"
-                  aria-label="Gửi tin nhắn"
-                >
-                  <Send size={16} />
-                </button>
-              </form>
-            </>
-          )}
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex gap-2.5 max-w-[80%] mr-auto items-end">
+                <div className="w-7 h-7 rounded-full bg-[#327ad7] text-white flex-shrink-0 flex items-center justify-center">
+                  <Bot size={14} />
+                </div>
+                <div className="px-4 py-3 bg-white border border-gray-100 rounded-2xl rounded-tl-sm shadow-sm flex items-center space-x-1.5 h-9">
+                  <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '0.8s' }}></div>
+                  <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms', animationDuration: '0.8s' }}></div>
+                  <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms', animationDuration: '0.8s' }}></div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Area */}
+          <form
+            onSubmit={handleSendMessage}
+            className="p-3 pb-safe bg-white border-t border-gray-100 flex items-center gap-2 flex-none w-full"
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && isTyping) {
+                  e.preventDefault();
+                  return;
+                }
+              }}
+              placeholder="Nhập tin nhắn..."
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#327ad7] focus:ring-1 focus:ring-[#327ad7]/30 transition-all text-gray-800 placeholder-gray-400"
+            />
+            <button
+              type="submit"
+              disabled={!inputText.trim() || isTyping}
+              className="w-9 h-9 rounded-full bg-[#327ad7] text-white flex items-center justify-center hover:bg-[#2862ac] active:scale-95 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:opacity-50 flex-shrink-0"
+              aria-label="Gửi tin nhắn"
+            >
+              <Send size={16} />
+            </button>
+          </form>
         </div>
       )}
     </>
   );
 }
+
