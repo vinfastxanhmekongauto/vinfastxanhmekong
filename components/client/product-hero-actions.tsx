@@ -40,11 +40,11 @@ export default function ProductHeroActions({ productName, layout = 'center' }: P
                 but for now we'll keep it here with conditional alignment */}
             {layout === 'center' && (
                 <a
-                    href="tel:0907697036"
+                    href="tel:0946156156"
                     className="inline-flex items-center gap-2 text-xs font-bold text-white/40 hover:text-white transition-colors tracking-[0.2em] uppercase"
                 >
                     <Phone size={14} fill="currentColor" />
-                    Hotline: 0907 697 036
+                    Hotline: 0946 156 156
                 </a>
             )}
 

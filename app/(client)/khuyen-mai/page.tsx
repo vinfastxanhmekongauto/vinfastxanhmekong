@@ -135,10 +135,10 @@ export default async function PromotionsPage() {
                             Hiện tại các chương trình khuyến mãi đã kết thúc. Quý khách vui lòng để lại thông tin hoặc liên hệ trực tiếp Hotline để nhận báo giá và ưu đãi riêng tốt nhất.
                         </p>
                         <a
-                            href="tel:0907697036"
+                            href="tel:0946156156"
                             className="inline-flex items-center justify-center gap-2 bg-vinfast-blue text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-800 transition-colors shadow-lg hover:shadow-xl w-full md:w-auto"
                         >
-                            Gọi Hotline: 0907 697 036
+                            Gọi Hotline: 0946 156 156
                         </a>
                     </div>
                 )}

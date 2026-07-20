@@ -171,7 +171,7 @@ export default function SiteSettings() {
                                 type="text"
                                 name="phone"
                                 id="phone"
-                                placeholder="VD: 0907 697 036"
+                                placeholder="VD: 0946 156 156"
                                 value={formData.phone}
                                 onChange={handleChange}
                                 className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
@@ -296,7 +296,7 @@ export default function SiteSettings() {
                                 type="text"
                                 name="zalo_link"
                                 id="zalo_link"
-                                placeholder="VD: 0907697036"
+                                placeholder="VD: 0946156156"
                                 value={formData.zalo_link}
                                 onChange={handleChange}
                                 className="shadow-sm focus:ring-vinfast-blue focus:border-vinfast-blue block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
@@ -355,11 +355,10 @@ export default function SiteSettings() {
                             <button
                                 type="button"
                                 onClick={() => setMarkdownTab('write')}
-                                className={`py-2.5 px-4 border-b-2 font-medium text-sm flex items-center gap-1.5 transition-colors cursor-pointer ${
-                                    markdownTab === 'write'
+                                className={`py-2.5 px-4 border-b-2 font-medium text-sm flex items-center gap-1.5 transition-colors cursor-pointer ${markdownTab === 'write'
                                         ? 'border-vinfast-blue text-vinfast-blue'
                                         : 'border-transparent text-gray-550 hover:text-gray-800'
-                                }`}
+                                    }`}
                             >
                                 <Edit3 className="w-4 h-4" />
                                 Soạn thảo
@@ -367,11 +366,10 @@ export default function SiteSettings() {
                             <button
                                 type="button"
                                 onClick={() => setMarkdownTab('preview')}
-                                className={`py-2.5 px-4 border-b-2 font-medium text-sm flex items-center gap-1.5 transition-colors cursor-pointer ${
-                                    markdownTab === 'preview'
+                                className={`py-2.5 px-4 border-b-2 font-medium text-sm flex items-center gap-1.5 transition-colors cursor-pointer ${markdownTab === 'preview'
                                         ? 'border-vinfast-blue text-vinfast-blue'
                                         : 'border-transparent text-gray-550 hover:text-gray-800'
-                                }`}
+                                    }`}
                             >
                                 <Eye className="w-4 h-4" />
                                 Xem trước

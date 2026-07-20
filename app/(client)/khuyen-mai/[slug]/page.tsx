@@ -211,7 +211,7 @@ export default async function PromotionDetailPage({ params }: PromotionDetailPag
                 {/* 3. Mobile Sticky Action Bar */}
                 <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex items-center gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-40">
                     <ShareButton variant="full" />
-                    <a href="tel:0907697036" className="flex-[2] bg-vinfast-blue text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:bg-blue-800">
+                    <a href="tel:0946156156" className="flex-[2] bg-vinfast-blue text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:bg-blue-800">
                         <Phone size={20} className="animate-pulse" /> Hotline Ngay
                     </a>
                 </div>

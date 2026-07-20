@@ -39,7 +39,7 @@ export default async function ClientLayout({
                             "name": "VinFast Xanh Mekong",
                             "description": "Đại lý VinFast tại Cần Thơ bán ô tô điện và xe máy điện",
                             "url": SITE_URL,
-                            "telephone": "0907697036",
+                            "telephone": "0946156156",
                             "address": {
                                 "@type": "PostalAddress",
                                 "streetAddress": "Số 10362, đường Võ Nguyên Giáp, P.Hưng Phú",
