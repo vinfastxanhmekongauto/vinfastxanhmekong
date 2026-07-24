@@ -55,6 +55,27 @@ export default function PromotionLeadForm({ promotionTitle }: PromotionLeadFormP
                 return;
             }
 
+            // Trigger Zalo notification
+            try {
+                const zaloResponse = await fetch('/api/zalo-notify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: formData.full_name,
+                        phone: formData.phone,
+                        serviceType: `Khuyến mãi: ${promotionTitle}`,
+                    }),
+                });
+
+                if (!zaloResponse.ok) {
+                    console.error("Zalo notification warning: API responded with an error.");
+                }
+            } catch (zaloError) {
+                console.error("Failed to send Zalo notification:", zaloError);
+            }
+
             setStatus('success');
             setFormData({ full_name: '', phone: '', notes: '' });
         } catch (error) {

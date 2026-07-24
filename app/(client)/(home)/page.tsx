@@ -8,6 +8,7 @@ import { ProductDisplay } from "@/components/client/product-card";
 import HeroBanner, { type PromotionSlide } from "@/components/client/hero-banner";
 import AboutDealership from "@/components/client/about-dealership";
 import type { Metadata } from "next";
+import TestZaloButton from '@/components/ui/TestZaloButton';
 
 export const metadata: Metadata = {
   title: "VinFast Mekong Cần Thơ | Ô tô điện & Xe máy điện VinFast",
@@ -55,7 +56,7 @@ export default async function Home() {
       <h1 className="sr-only">VinFast Mekong Cần Thơ - Ô tô điện & Xe máy điện VinFast chính hãng</h1>
       {/* Hero Banner Carousel */}
       <HeroBanner promotions={activePromotions} />
-
+      {/* <TestZaloButton /> */}
       {/* About Dealership & Quick Actions */}
       <AboutDealership />
 

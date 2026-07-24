@@ -257,7 +257,7 @@ export default function ChatWidget() {
           aria-label="Mở cửa sổ chat"
         >
           <Image
-            src="/bot-avatar.svg"
+            src="/chatbox-Xanh-AI.svg"
             alt="Trợ lý ảo thông minh"
             width={72}
             height={72}
