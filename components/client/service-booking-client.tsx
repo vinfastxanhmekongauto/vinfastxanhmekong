@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Send, CheckCircle2, AlertCircle, Calendar, ShieldCheck, ClipboardList, Car, Clock } from 'lucide-react';
 import { SearchableCarSelect, getCarDisplayName } from '@/components/client/quick-action-modals';
 import { submitLead } from '@/app/actions/lead';
+import { sendGAEvent } from '@/lib/gtag';
+import { getAttributionForLead } from '@/lib/attribution';
 
 const SERVICES = [
     'Bảo dưỡng định kỳ',
@@ -55,6 +57,8 @@ export default function ServiceBookingClient({ bannerUrl }: ServiceBookingClient
     const [products, setProducts] = useState<any[]>([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [toasts, setToasts] = useState<Toast[]>([]);
+    const isSubmittingRef = useRef(false);
+    const submissionIdRef = useRef<string | null>(null);
 
     const addToast = useCallback((type: 'success' | 'error', message: string) => {
         const id = Date.now();
@@ -97,21 +101,19 @@ export default function ServiceBookingClient({ bannerUrl }: ServiceBookingClient
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setStatus('idle');
+
+        if (isSubmittingRef.current) return;
 
         // Validation
         if (!formData.full_name.trim() || !formData.phone.trim() || !formData.car_model || !formData.service || !formData.date || !formData.time) {
             setStatus('error');
             setErrorMessage('Vui lòng điền đầy đủ các thông tin bắt buộc.');
-            setLoading(false);
             return;
         }
 
         if (formData.car_model === 'Khác' && !formData.other_car_model.trim()) {
             setStatus('error');
             setErrorMessage('Vui lòng điền thông tin dòng xe của bạn.');
-            setLoading(false);
             return;
         }
 
@@ -119,18 +121,28 @@ export default function ServiceBookingClient({ bannerUrl }: ServiceBookingClient
         if (!phoneRegex.test(formData.phone)) {
             setStatus('error');
             setErrorMessage('Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.');
-            setLoading(false);
             return;
         }
 
         if (!formData.privacy_policy_accepted) {
             setStatus('error');
             setErrorMessage('Bạn phải đồng ý với Chính sách bảo mật thông tin để tiếp tục.');
-            setLoading(false);
             return;
         }
 
+        isSubmittingRef.current = true;
+        setLoading(true);
+        setStatus('idle');
+
         try {
+            if (!submissionIdRef.current) {
+                submissionIdRef.current = typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            }
+
+            const attributionData = getAttributionForLead();
+            const sourceUrl = typeof window !== 'undefined' ? window.location.href : '';
             const finalCarModel = formData.car_model === 'Khác' ? formData.other_car_model : formData.car_model;
 
             // Notes formatting strictly as requested
@@ -141,16 +153,27 @@ Giờ hẹn: ${formData.time}
 Ghi chú: ${formData.notes || 'Không có ghi chú'}`;
 
             const result = await submitLead({
-                full_name: formData.full_name,
-                phone: formData.phone,
+                full_name: formData.full_name.trim(),
+                phone: formData.phone.trim(),
                 car_model: finalCarModel,
                 lead_type: 'service_booking',
+                source_url: sourceUrl,
+                submission_id: submissionIdRef.current,
                 notes: formattedNotes,
                 appointment_date: formData.date,
-                appointment_time: formData.time
+                appointment_time: formData.time,
+                attribution: attributionData
             });
 
             if (!result.success) throw new Error(result.error);
+
+            if (!result.isRetry) {
+                sendGAEvent('generate_lead_service', {
+                    source: 'service_booking_page',
+                    service_type: formData.service,
+                    car_model: finalCarModel
+                });
+            }
 
             // Trigger Zalo notification
             try {
@@ -173,6 +196,7 @@ Ghi chú: ${formData.notes || 'Không có ghi chú'}`;
                 console.error("Failed to send Zalo notification:", zaloError);
             }
 
+            submissionIdRef.current = null;
             setStatus('success');
             addToast('success', 'Đặt lịch thành công. Chúng tôi sẽ liên hệ xác nhận trong thời gian sớm nhất.');
 
@@ -194,6 +218,7 @@ Ghi chú: ${formData.notes || 'Không có ghi chú'}`;
             setStatus('error');
             setErrorMessage('Có lỗi xảy ra khi đặt lịch. Vui lòng liên hệ hotline hoặc thử lại sau.');
         } finally {
+            isSubmittingRef.current = false;
             setLoading(false);
         }
     };

@@ -3,38 +3,94 @@
 import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
 import { FALLBACK_EMAIL } from '@/lib/constants';
+import type { AttributionData } from '@/lib/attribution';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+export interface LeadAttributionPayload {
+    firstTouch?: AttributionData | null;
+    lastTouch?: AttributionData | null;
+    sourceUrl?: string;
+    notesSummary?: string;
+}
 
 export async function submitLead(formData: {
     full_name: string;
     phone: string;
-    car_model: string;
-    notes: string;
+    car_model?: string;
+    notes?: string;
     email?: string;
     lead_type?: string;
     appointment_date?: string;
     appointment_time?: string;
+    source_url?: string;
+    submission_id?: string;
+    attribution_notes?: string;
+    attribution?: LeadAttributionPayload;
 }) {
     try {
         const leadType = formData.lead_type || 'contact';
-        const dbNotes = leadType === 'service_booking' 
-            ? formData.notes 
-            : (formData.car_model ? `Quan tâm: ${formData.car_model} - Lời nhắn: ${formData.notes}` : formData.notes);
 
-        // 1. Insert into Supabase
+        // 1. Idempotency Check theo submission_id
+        if (formData.submission_id) {
+            const { data: existingLead } = await supabase
+                .from('leads')
+                .select('id')
+                .ilike('notes', `%Submission ID: ${formData.submission_id}%`)
+                .limit(1)
+                .maybeSingle();
+
+            if (existingLead) {
+                console.log(`[Idempotency] Lead with submission_id ${formData.submission_id} already exists (${existingLead.id}). Returning without duplicate.`);
+                return { success: true, leadId: existingLead.id, isRetry: true };
+            }
+        }
+
+        // 2. Chuẩn bị UUID và số điện thoại BIGINT
+        const leadId = crypto.randomUUID();
+        const cleanDigits = (formData.phone || '').replace(/\D/g, '');
+        const phoneInt = cleanDigits ? parseInt(cleanDigits, 10) : null;
+
+        // 3. Xây dựng notes metadata (bảo tồn SĐT gốc có số 0, submission_id, và attribution)
+        const noteParts: string[] = [];
+        if (leadType === 'service_booking') {
+            if (formData.notes) noteParts.push(formData.notes);
+        } else {
+            if (formData.car_model) {
+                noteParts.push(`Quan tâm: ${formData.car_model}`);
+            }
+            if (formData.notes) {
+                noteParts.push(`Lời nhắn: ${formData.notes}`);
+            }
+        }
+
+        noteParts.push(`Raw Phone (SĐT gốc): ${formData.phone}`);
+        if (formData.submission_id) {
+            noteParts.push(`Submission ID: ${formData.submission_id}`);
+        }
+        if (formData.attribution?.notesSummary) {
+            noteParts.push(formData.attribution.notesSummary);
+        } else if (formData.attribution_notes) {
+            noteParts.push(formData.attribution_notes);
+        }
+
+        const dbNotes = noteParts.join('\n');
+
+        // 4. Insert vào Supabase
         const { error: dbError } = await supabase
             .from('leads')
             .insert([{
+                id: leadId,
                 full_name: formData.full_name,
-                phone: formData.phone,
+                phone: phoneInt,
                 email: formData.email || null,
                 car_model: formData.car_model || null,
                 notes: dbNotes,
                 status: 'Mới',
                 lead_type: leadType,
+                source_url: formData.source_url || formData.attribution?.sourceUrl || null,
                 appointment_date: formData.appointment_date || null,
-                appointment_time: formData.appointment_time || null
+                appointment_time: formData.appointment_time || null,
             }]);
 
         if (dbError) {
@@ -42,16 +98,10 @@ export async function submitLead(formData: {
             return { success: false, error: 'Database error' };
         }
 
-        // 2. Try to send email with Resend
+        // 5. Gửi email thông báo qua Resend (không chặn luồng nếu email lỗi)
         try {
-            console.log("Đang bắt đầu gửi email...");
-
-            if (!process.env.ADMIN_EMAIL) {
-                console.error(`ERROR: Environment variable ADMIN_EMAIL is missing! Falling back to default: ${FALLBACK_EMAIL}`);
-            }
             const recipientEmail = process.env.ADMIN_EMAIL || FALLBACK_EMAIL;
 
-            // Determine email subject & heading based on lead_type
             let emailSubject = '📩 [VinFast Xanh Mekong] Có yêu cầu liên hệ mới!';
             let emailHeading = 'Thông báo khách hàng mới';
 
@@ -74,13 +124,9 @@ export async function submitLead(formData: {
                     break;
             }
 
-            // Clean format notes with <br /> for HTML emails
-            const cleanNotesHtml = formData.notes 
-                ? formData.notes.replace(/\n/g, '<br />')
-                : 'Trống';
+            const cleanNotesHtml = (formData.notes || 'Trống').replace(/\n/g, '<br />');
 
-            // Send Email
-            const data = await resend.emails.send({
+            await resend.emails.send({
                 from: 'VinFast Mekong <onboarding@resend.dev>',
                 to: recipientEmail,
                 subject: emailSubject,
@@ -118,17 +164,14 @@ export async function submitLead(formData: {
                     <p>Vui lòng đăng nhập hệ thống quản trị để xử lý.</p>
                 `
             });
-            console.log("Email đã gửi thành công:", data);
         } catch (emailError) {
-            console.error("Lỗi gửi mail:", emailError);
+            console.error("Lỗi gửi mail qua Resend:", emailError);
         }
 
-        console.log('--- KẾT THÚC SERVER ACTION ---');
-        return { success: true };
+        return { success: true, leadId, isRetry: false };
 
     } catch (error) {
         console.error('Unexpected error in submitLead:', error);
-        console.log('--- KẾT THÚC SERVER ACTION ---');
         return { success: false, error: 'Unexpected error' };
     }
 }

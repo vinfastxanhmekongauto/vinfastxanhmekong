@@ -5,10 +5,11 @@ import Image from 'next/image';
 import { MapPin, Phone, Mail, Clock, Facebook } from 'lucide-react';
 import { useSiteSettings } from '@/components/client/SiteSettingsProvider';
 import { FALLBACK_EMAIL } from '@/lib/constants';
+import { sendGAEvent } from '@/lib/gtag';
 
 export default function Footer() {
     const { settings } = useSiteSettings();
-    const fallbackAddress = "Số 10362, đường Võ Nguyễn Giáp, phường Hưng Phú, TP. Cần Thơ";
+    const fallbackAddress = "Số 10362, đường Võ Nguyên Giáp, phường Hưng Phú, TP. Cần Thơ";
     const fallbackPhone = "0946 156 156";
     const fallbackEmail = FALLBACK_EMAIL;
     const fallbackGoogleMaps = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.84145437704!2d105.76802281479443!3d10.029938992830847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0883d2192b0f1%3A0x4c90a391d232ccce!2zMjc0IMSQLiAzMCBUaMOhbmcgNCwgWHXDom4gS2jDoW5oLCBOaW5oIEtp4buBdSwgQ-G6p24gVGjGoSwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1680000000000!5m2!1svi!2s";
@@ -62,7 +63,13 @@ export default function Footer() {
                             </li>
                             <li className="flex items-center gap-4">
                                 <Phone className="text-gray-300 shrink-0" size={20} />
-                                <span>Hotline/Zalo: <a href={`tel:${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`} className="font-bold text-white hover:text-vinfast-blue transition-colors">{settings?.phone || fallbackPhone}</a></span>
+                                <span>Hotline/Zalo: <a
+                                    href={`tel:${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`}
+                                    onClick={() => sendGAEvent('click_phone', { source: 'footer' })}
+                                    className="font-bold text-white hover:text-vinfast-blue transition-colors"
+                                >
+                                    {settings?.phone || fallbackPhone}
+                                </a></span>
                             </li>
                             <li className="flex items-center gap-4">
                                 <Mail className="text-gray-300 shrink-0" size={20} />
@@ -74,10 +81,23 @@ export default function Footer() {
                             </li>
                         </ul>
                         <div className="pt-4 flex items-center gap-4">
-                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition" aria-label="Facebook Fanpage VinFast Xanh Mekong">
+                            <a
+                                href={settings?.facebook_link || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => sendGAEvent('click_messenger', { source: 'footer' })}
+                                className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-700 transition"
+                                aria-label="Facebook Fanpage VinFast Xanh Mekong"
+                            >
                                 <Facebook size={20} fill="white" />
                             </a>
-                            <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="h-10 px-4 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm hover:bg-blue-600 transition">
+                            <a
+                                href={settings?.zalo_link || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => sendGAEvent('click_zalo', { source: 'footer' })}
+                                className="h-10 px-4 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm hover:bg-blue-600 transition"
+                            >
                                 Zalo Chat
                             </a>
                         </div>

@@ -4,6 +4,7 @@ import StickyContact from '@/components/client/sticky-cta';
 import ChatWidget from '@/components/ChatWidget';
 import { SiteSettingsProvider } from '@/components/client/SiteSettingsProvider';
 import { QuoteModalProvider } from '@/components/client/QuoteModalProvider';
+import SmartLeadPopup from '@/components/client/SmartLeadPopup';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
 
@@ -29,6 +30,7 @@ export default async function ClientLayout({
     return (
         <SiteSettingsProvider>
             <QuoteModalProvider>
+                <SmartLeadPopup products={products} />
                 {/* LocalBusiness Schema for SEO */}
                 <script
                     type="application/ld+json"

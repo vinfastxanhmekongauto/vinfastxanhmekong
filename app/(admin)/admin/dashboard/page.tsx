@@ -28,6 +28,29 @@ const statusStyle: Record<string, string> = {
     'Hủy': 'bg-red-100 text-red-700 border-red-200',
 };
 
+export function formatDisplayPhone(phone: string | number | null | undefined, notes: string | null | undefined): string {
+    if (notes) {
+        const match = notes.match(/Raw Phone \(SĐT gốc\):\s*([0-9+]+)/i);
+        if (match && match[1]) {
+            return match[1].trim();
+        }
+    }
+
+    if (!phone) return '';
+    const phoneStr = String(phone).trim();
+    if (!phoneStr) return '';
+
+    if (phoneStr.startsWith('0') || phoneStr.startsWith('+')) {
+        return phoneStr;
+    }
+
+    if (/^[35789]\d{8}$/.test(phoneStr)) {
+        return '0' + phoneStr;
+    }
+
+    return phoneStr;
+}
+
 export default function AdminDashboard() {
     const router = useRouter();
     const pathname = usePathname();
@@ -88,7 +111,13 @@ export default function AdminDashboard() {
                 .range(from, to);
 
             if (q.trim()) {
-                query = query.or(`full_name.ilike.%${q}%,phone.ilike.%${q}%`);
+                const cleanDigits = q.replace(/\D/g, '');
+                if (cleanDigits && cleanDigits.length <= 15) {
+                    const intPhone = cleanDigits.startsWith('0') ? cleanDigits.substring(1) : cleanDigits;
+                    query = query.or(`full_name.ilike.%${q}%,notes.ilike.%${q}%,phone.eq.${intPhone}`);
+                } else {
+                    query = query.or(`full_name.ilike.%${q}%,notes.ilike.%${q}%`);
+                }
             }
             if (st) {
                 query = query.eq('status', st);
@@ -182,7 +211,7 @@ export default function AdminDashboard() {
     // Edit modal
     const openEditModal = (lead: Lead) => {
         setEditingLead(lead);
-        setEditForm({ full_name: lead.full_name, phone: lead.phone, car_model: lead.car_model || '', notes: lead.notes || '', status: lead.status });
+        setEditForm({ full_name: lead.full_name, phone: formatDisplayPhone(lead.phone, lead.notes), car_model: lead.car_model || '', notes: lead.notes || '', status: lead.status });
     };
     const handleSaveEdit = async () => {
         if (!editingLead) return;
@@ -366,7 +395,11 @@ export default function AdminDashboard() {
                                                 onChange={e => setSelectedIds(prev => e.target.checked ? [...prev, lead.id] : prev.filter(x => x !== lead.id))} />
                                         </td>
                                         <td className="px-5 py-3.5 font-bold text-gray-900 whitespace-nowrap">{lead.full_name}</td>
-                                        <td className="px-5 py-3.5 font-medium whitespace-nowrap">{lead.phone}</td>
+                                        <td className="px-5 py-3.5 font-medium whitespace-nowrap">
+                                            <a href={`tel:${formatDisplayPhone(lead.phone, lead.notes)}`} className="text-gray-900 hover:text-vinfast-blue font-semibold">
+                                                {formatDisplayPhone(lead.phone, lead.notes)}
+                                            </a>
+                                        </td>
                                         <td className="px-5 py-3.5 text-vinfast-blue font-medium whitespace-nowrap">
                                             {lead.car_model || <span className="text-gray-300 italic font-normal">—</span>}
                                         </td>

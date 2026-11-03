@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Plus_Jakarta_Sans, Montserrat } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import AttributionTracker from "@/components/client/AttributionTracker";
 import "./globals.css";
 import { SITE_URL } from "@/lib/constants";
 
@@ -72,6 +73,7 @@ export default function RootLayout({
       <body
         className={`${beVietnamPro.variable} ${plusJakartaSans.variable} ${montserrat.variable} font-sans antialiased bg-vinfast-gray text-gray-900`}
       >
+        <AttributionTracker />
         {children}
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
       </body>

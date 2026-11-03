@@ -2,6 +2,7 @@
 
 import { Phone, MessageCircle, Car } from 'lucide-react';
 import Link from 'next/link';
+import { sendGAEvent } from '@/lib/gtag';
 
 export default function StickyContact() {
     return (
@@ -9,6 +10,7 @@ export default function StickyContact() {
             <div className="flex h-16">
                 <a
                     href="tel:0946156156"
+                    onClick={() => sendGAEvent('click_phone', { source: 'sticky_cta' })}
                     className="flex flex-1 flex-col items-center justify-center gap-1 border-r border-vinfast-gray text-vinfast-blue hover:bg-gray-50 transition-colors"
                 >
                     <Phone size={20} />
@@ -18,6 +20,7 @@ export default function StickyContact() {
                     href="https://zalo.me/0946156156"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => sendGAEvent('click_zalo', { source: 'sticky_cta' })}
                     className="flex flex-1 flex-col items-center justify-center gap-1 border-r border-vinfast-gray text-blue-500 hover:bg-gray-50 transition-colors"
                 >
                     <MessageCircle size={20} />

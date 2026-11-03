@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle, MessageSquare } from 'lucide-react';
 import { submitLead } from '@/app/actions/lead';
 import { useSiteSettings } from '@/components/client/SiteSettingsProvider';
 import { SearchableCarSelect, getCarDisplayName } from '@/components/client/quick-action-modals';
 import { FALLBACK_EMAIL } from '@/lib/constants';
+import { sendGAEvent } from '@/lib/gtag';
+import { getAttributionForLead } from '@/lib/attribution';
 
 export default function ContactClient() {
     const { settings } = useSiteSettings();
@@ -24,6 +26,9 @@ export default function ContactClient() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+
+    const isSubmittingRef = useRef(false);
+    const submissionIdRef = useRef<string | null>(null);
 
     const [products, setProducts] = useState<any[]>([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
@@ -62,14 +67,13 @@ export default function ContactClient() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setStatus('idle');
+
+        if (isSubmittingRef.current) return;
 
         // Validation
         if (!formData.full_name.trim() || !formData.phone.trim()) {
             setStatus('error');
             setErrorMessage('Vui lòng nhập đầy đủ Họ tên và Số điện thoại.');
-            setLoading(false);
             return;
         }
 
@@ -77,15 +81,47 @@ export default function ContactClient() {
         if (!phoneRegex.test(formData.phone)) {
             setStatus('error');
             setErrorMessage('Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.');
-            setLoading(false);
             return;
         }
 
+        isSubmittingRef.current = true;
+        setLoading(true);
+        setStatus('idle');
+
         try {
-            const result = await submitLead({ ...formData, lead_type: 'contact' });
+            if (!submissionIdRef.current) {
+                submissionIdRef.current = typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            }
+
+            const attributionData = getAttributionForLead();
+            const sourceUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+            const formDataToSubmit = {
+                full_name: formData.full_name.trim(),
+                phone: formData.phone.trim(),
+                car_model: formData.car_model || '',
+                lead_type: 'contact',
+                source_url: sourceUrl,
+                submission_id: submissionIdRef.current,
+                notes: formData.notes.trim(),
+                attribution: attributionData
+            };
+
+            const result = await submitLead(formDataToSubmit);
 
             if (!result.success) {
-                throw new Error(result.error);
+                setStatus('error');
+                setErrorMessage(result.error || 'Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
+                return;
+            }
+
+            if (!result.isRetry) {
+                sendGAEvent('generate_lead_contact', {
+                    source: 'contact_page',
+                    car_model: formData.car_model || 'none'
+                });
             }
 
             // Trigger Zalo notification
@@ -109,6 +145,7 @@ export default function ContactClient() {
                 console.error("Failed to send Zalo notification:", zaloError);
             }
 
+            submissionIdRef.current = null;
             setStatus('success');
             setFormData({ full_name: '', phone: '', car_model: '', notes: '' });
         } catch (error) {
@@ -116,6 +153,7 @@ export default function ContactClient() {
             setStatus('error');
             setErrorMessage('Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
         } finally {
+            isSubmittingRef.current = false;
             setLoading(false);
         }
     };
@@ -170,7 +208,13 @@ export default function ContactClient() {
                                     </div>
                                     <div className="pt-1">
                                         <h4 className="font-bold text-gray-900 mb-1">Hotline Tư Vấn</h4>
-                                        <a href={`tel:${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`} className="text-vinfast-blue font-bold hover:underline">{settings?.phone || fallbackPhone}</a>
+                                        <a
+                                            href={`tel:${settings?.phone?.replace(/\s+/g, '') || fallbackPhone.replace(/\s+/g, '')}`}
+                                            onClick={() => sendGAEvent('click_phone', { source: 'contact_page' })}
+                                            className="text-vinfast-blue font-bold hover:underline"
+                                        >
+                                            {settings?.phone || fallbackPhone}
+                                        </a>
                                     </div>
                                 </li>
 
@@ -200,6 +244,7 @@ export default function ContactClient() {
                                     href={settings?.facebook_link || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={() => sendGAEvent('click_messenger', { source: 'contact_page' })}
                                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md text-center"
                                 >
                                     Fanpage Facebook
@@ -208,6 +253,7 @@ export default function ContactClient() {
                                     href={settings?.zalo_link || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={() => sendGAEvent('click_zalo', { source: 'contact_page' })}
                                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md text-center"
                                 >
                                     <MessageSquare size={20} /> Chat Zalo

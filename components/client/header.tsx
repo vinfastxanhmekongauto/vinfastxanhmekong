@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, MapPin, Map, ChevronDown, Facebook } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { ProductDisplay } from './product-card';
+import { sendGAEvent } from '@/lib/gtag';
 
 const CATEGORIES = [
     { id: 'dong_co_dien', label: 'XE ĐỘNG CƠ ĐIỆN' },
@@ -24,7 +25,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
     const isBlogActive = pathname.startsWith('/tin-tuc') || pathname.startsWith('/khuyen-mai') || pathname.startsWith('/blog');
     const blogLinkClass = `font-bold hover:text-blue-600 uppercase text-sm transition-colors ${isBlogActive ? 'text-blue-600' : 'text-gray-800'}`;
 
-    const hasActiveServices = serviceSettings.booking || serviceSettings.care || serviceSettings.gifts;
+    const hasActiveServices = true;
 
     const toggleSubmenu = (menu: string) => {
         setMobileExpanded(mobileExpanded === menu ? null : menu);
@@ -119,7 +120,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                 </a>
 
                                 <div className="flex items-center gap-2">
-                                    <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi Fanpage Vinfast Xanh Mekong" aria-label="Facebook Fanpage VinFast Xanh Mekong">
+                                    <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" onClick={() => sendGAEvent('click_messenger', { source: 'header' })} className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi Fanpage Vinfast Xanh Mekong" aria-label="Facebook Fanpage VinFast Xanh Mekong">
                                         <Facebook size={14} className="text-[#1877F2]" />
                                     </a>
                                     <a href={settings?.tiktok_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Theo dõi TikTok Vinfast Xanh Mekong" aria-label="TikTok VinFast Xanh Mekong">
@@ -127,7 +128,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                             <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z" />
                                         </svg>
                                     </a>
-                                    <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Liên hệ Zalo Vinfast Xanh Mekong" aria-label="Zalo VinFast Xanh Mekong">
+                                    <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" onClick={() => sendGAEvent('click_zalo', { source: 'header' })} className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Liên hệ Zalo Vinfast Xanh Mekong" aria-label="Zalo VinFast Xanh Mekong">
                                         <img src="/zalo-icon.png" alt="Zalo" className="w-5 h-5 object-contain" />
                                     </a>
                                 </div>
@@ -226,6 +227,9 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                                         <Link href="/qua-tang-dich-vu" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Quà tặng VinFast</Link>
                                                     </li>
                                                 )}
+                                                <li>
+                                                    <Link href="/dich-vu/huong-dan-su-dung" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">Hướng dẫn sử dụng</Link>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -322,6 +326,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                                     {serviceSettings.gifts && (
                                         <Link href="/qua-tang-dich-vu" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Quà tặng VinFast</Link>
                                     )}
+                                    <Link href="/dich-vu/huong-dan-su-dung" onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-700 hover:text-[#1464F4]">Hướng dẫn sử dụng</Link>
                                 </div>
                             </div>
                         </div>
@@ -372,13 +377,13 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                             <Map size={16} /> Vị trí
                         </a>
                         <div className="flex items-center gap-4 pt-2">
-                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Theo dõi Fanpage Vinfast Xanh Mekong" aria-label="Facebook Fanpage VinFast Xanh Mekong"><Facebook size={16} className="text-[#1877F2]" /></a>
+                            <a href={settings?.facebook_link || '#'} target="_blank" rel="noopener noreferrer" onClick={() => sendGAEvent('click_messenger', { source: 'header_mobile' })} className="p-2 bg-gray-100 rounded-full" title="Theo dõi Fanpage Vinfast Xanh Mekong" aria-label="Facebook Fanpage VinFast Xanh Mekong"><Facebook size={16} className="text-[#1877F2]" /></a>
                             <a href={settings?.tiktok_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Theo dõi TikTok Vinfast Xanh Mekong" aria-label="TikTok VinFast Xanh Mekong">
                                 <svg fill="currentColor" viewBox="0 0 448 512" width="16" height="16" className="text-black">
                                     <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z" />
                                 </svg>
                             </a>
-                            <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 rounded-full" title="Liên hệ Zalo Vinfast Xanh Mekong" aria-label="Zalo VinFast Xanh Mekong">
+                            <a href={settings?.zalo_link || '#'} target="_blank" rel="noopener noreferrer" onClick={() => sendGAEvent('click_zalo', { source: 'header_mobile' })} className="p-2 bg-gray-100 rounded-full" title="Liên hệ Zalo Vinfast Xanh Mekong" aria-label="Zalo VinFast Xanh Mekong">
                                 <img src="/zalo-icon.png" alt="Zalo" className="w-5 h-5 object-contain" />
                             </a>
                         </div>

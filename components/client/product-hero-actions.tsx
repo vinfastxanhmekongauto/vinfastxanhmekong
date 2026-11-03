@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Car, FileText, Phone } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { sendGAEvent } from '@/lib/gtag';
 
 const ModalWrapper = dynamic(() => import('./quick-action-modals').then(mod => mod.ModalWrapper), { ssr: false });
 const LeadFormModal = dynamic(() => import('./quick-action-modals').then(mod => mod.LeadFormModal), { ssr: false });
@@ -41,6 +42,7 @@ export default function ProductHeroActions({ productName, layout = 'center' }: P
             {layout === 'center' && (
                 <a
                     href="tel:0946156156"
+                    onClick={() => sendGAEvent('click_phone', { source: 'product_hero' })}
                     className="inline-flex items-center gap-2 text-xs font-bold text-white/40 hover:text-white transition-colors tracking-[0.2em] uppercase"
                 >
                     <Phone size={14} fill="currentColor" />
@@ -55,6 +57,8 @@ export default function ProductHeroActions({ productName, layout = 'center' }: P
                             title={`Đăng Ký Lái Thử ${productName}`}
                             onClose={() => setActiveModal(null)}
                             selectedCar={productName}
+                            leadType="test_drive"
+                            triggerSource="product_hero"
                         />
                     )}
                     {activeModal === 'quote' && (
@@ -62,6 +66,8 @@ export default function ProductHeroActions({ productName, layout = 'center' }: P
                             title={`Nhận Báo Giá ${productName}`}
                             onClose={() => setActiveModal(null)}
                             selectedCar={productName}
+                            leadType="quote"
+                            triggerSource="product_hero"
                         />
                     )}
                 </ModalWrapper>
@@ -69,4 +75,3 @@ export default function ProductHeroActions({ productName, layout = 'center' }: P
         </div>
     );
 }
-

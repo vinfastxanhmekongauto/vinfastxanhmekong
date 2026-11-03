@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, CheckCircle2, AlertCircle, ChevronDown, Search } from 'lucide-react';
 import { submitLead } from '@/app/actions/lead';
 import { supabase } from '@/lib/supabase';
+import { sendGAEvent } from '@/lib/gtag';
+import { getAttributionForLead } from '@/lib/attribution';
 
 // --- Modal Wrapper ---
 export function ModalWrapper({
@@ -193,16 +195,41 @@ export function LeadFormModal({
   onClose,
   selectedCar,
   initialNotes,
-  leadType
+  leadType,
+  triggerSource,
 }: {
   title: string;
   onClose: () => void;
   selectedCar?: string;
   initialNotes?: string;
   leadType?: string;
+  triggerSource?: string;
 }) {
   const [products, setProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+
+  const hasTrackedViewRef = useRef(false);
+  const isSubmittingRef = useRef(false);
+  const submissionIdRef = useRef<string | null>(null);
+
+  if (!submissionIdRef.current) {
+    submissionIdRef.current = crypto.randomUUID();
+  }
+
+  const detectedLeadType = leadType || (title.includes('Lái Thử') ? 'test_drive' : 'quote');
+
+  useEffect(() => {
+    if (hasTrackedViewRef.current) return;
+    hasTrackedViewRef.current = true;
+
+    const isTestDrive = detectedLeadType === 'test_drive';
+    const eventName = isTestDrive ? 'view_test_drive_form' : 'view_quote_form';
+
+    sendGAEvent(eventName, {
+      source: triggerSource || (isTestDrive ? 'test_drive_modal' : 'quote_modal'),
+      car_model: selectedCar || 'none'
+    });
+  }, [detectedLeadType, selectedCar, triggerSource]);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -268,6 +295,8 @@ export function LeadFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     setStatus('idle');
 
@@ -275,6 +304,7 @@ export function LeadFormModal({
       setStatus('error');
       setErrorMessage('Vui lòng nhập đầy đủ Họ tên và Số điện thoại.');
       setLoading(false);
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -283,17 +313,33 @@ export function LeadFormModal({
       setStatus('error');
       setErrorMessage('Số điện thoại không hợp lệ.');
       setLoading(false);
+      isSubmittingRef.current = false;
       return;
     }
 
     try {
-      const detectedLeadType = leadType || (title.includes('Lái Thử') ? 'test_drive' : 'quote');
-      const result = await submitLead({ ...formData, lead_type: detectedLeadType });
+      const { sourceUrl, notesSummary } = getAttributionForLead();
+      const result = await submitLead({
+        ...formData,
+        lead_type: detectedLeadType,
+        source_url: sourceUrl,
+        submission_id: submissionIdRef.current || undefined,
+        attribution_notes: notesSummary || undefined,
+      });
 
       if (!result.success) {
         setStatus('error');
         setErrorMessage(result.error || 'Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
         return;
+      }
+
+      // Phát sự kiện GA4 Primary Conversion (chỉ khi DB thành công và không phải retry)
+      if (!result.isRetry) {
+        const primaryEvent = detectedLeadType === 'test_drive' ? 'generate_lead_test_drive' : 'generate_lead_quote';
+        sendGAEvent(primaryEvent, {
+          car_model: formData.car_model || selectedCar || 'none',
+          lead_id: result.leadId || null,
+        });
       }
 
       // Trigger Zalo notification
@@ -324,6 +370,7 @@ export function LeadFormModal({
       setErrorMessage('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.');
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

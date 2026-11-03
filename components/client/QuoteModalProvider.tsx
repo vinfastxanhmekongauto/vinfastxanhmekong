@@ -6,10 +6,15 @@ import dynamic from 'next/dynamic';
 const ModalWrapper = dynamic(() => import('./quick-action-modals').then(mod => mod.ModalWrapper), { ssr: false });
 const LeadFormModal = dynamic(() => import('./quick-action-modals').then(mod => mod.LeadFormModal), { ssr: false });
 
+export interface QuoteModalOptions {
+    source?: string;
+}
+
 interface QuoteModalContextType {
     isOpen: boolean;
     selectedCar: string;
-    openQuoteModal: (carName?: string) => void;
+    triggerSource: string;
+    openQuoteModal: (carName?: string, options?: QuoteModalOptions) => void;
     closeQuoteModal: () => void;
 }
 
@@ -18,19 +23,22 @@ const QuoteModalContext = createContext<QuoteModalContextType | undefined>(undef
 export function QuoteModalProvider({ children }: { children: React.ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedCar, setSelectedCar] = useState('');
+    const [triggerSource, setTriggerSource] = useState('quote_modal');
 
-    const openQuoteModal = (carName?: string) => {
+    const openQuoteModal = (carName?: string, options?: QuoteModalOptions) => {
         setSelectedCar(carName || '');
+        setTriggerSource(options?.source || 'quote_modal');
         setIsOpen(true);
     };
 
     const closeQuoteModal = () => {
         setIsOpen(false);
         setSelectedCar('');
+        setTriggerSource('quote_modal');
     };
 
     return (
-        <QuoteModalContext.Provider value={{ isOpen, selectedCar, openQuoteModal, closeQuoteModal }}>
+        <QuoteModalContext.Provider value={{ isOpen, selectedCar, triggerSource, openQuoteModal, closeQuoteModal }}>
             {children}
             {isOpen && (
                 <ModalWrapper isOpen={isOpen} onClose={closeQuoteModal}>
@@ -38,6 +46,8 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                         title="Nhận Báo Giá Chi Tiết" 
                         onClose={closeQuoteModal} 
                         selectedCar={selectedCar} 
+                        leadType="quote"
+                        triggerSource={triggerSource}
                     />
                 </ModalWrapper>
             )}
@@ -52,4 +62,3 @@ export function useQuoteModal() {
     }
     return context;
 }
-

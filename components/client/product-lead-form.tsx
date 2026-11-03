@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useRef } from 'react';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { submitLead } from '@/app/actions/lead';
+import { sendGAEvent } from '@/lib/gtag';
+import { getAttributionForLead } from '@/lib/attribution';
 
 interface ProductLeadFormProps {
     productName: string;
@@ -19,15 +20,17 @@ export default function ProductLeadForm({ productName }: ProductLeadFormProps) {
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const isSubmittingRef = useRef(false);
+    const submissionIdRef = useRef<string | null>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setStatus('idle');
+
+        if (isSubmittingRef.current) return;
 
         if (!formData.full_name.trim() || !formData.phone.trim()) {
             setStatus('error');
             setErrorMessage('Vui lòng nhập đầy đủ Họ tên và Số điện thoại.');
-            setLoading(false);
             return;
         }
 
@@ -35,16 +38,32 @@ export default function ProductLeadForm({ productName }: ProductLeadFormProps) {
         if (!phoneRegex.test(formData.phone)) {
             setStatus('error');
             setErrorMessage('Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.');
-            setLoading(false);
             return;
         }
 
+        isSubmittingRef.current = true;
+        setLoading(true);
+        setStatus('idle');
+
         try {
+            if (!submissionIdRef.current) {
+                submissionIdRef.current = typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            }
+
+            const attributionData = getAttributionForLead();
+            const sourceUrl = typeof window !== 'undefined' ? window.location.href : '';
+
             const formDataToSubmit = {
-                full_name: formData.full_name,
-                phone: formData.phone,
+                full_name: formData.full_name.trim(),
+                phone: formData.phone.trim(),
                 car_model: productName,
-                notes: formData.notes
+                lead_type: 'quote',
+                source_url: sourceUrl,
+                submission_id: submissionIdRef.current,
+                notes: formData.notes.trim(),
+                attribution: attributionData
             };
 
             const result = await submitLead(formDataToSubmit);
@@ -53,6 +72,13 @@ export default function ProductLeadForm({ productName }: ProductLeadFormProps) {
                 setStatus('error');
                 setErrorMessage(result.error || 'Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
                 return;
+            }
+
+            if (!result.isRetry) {
+                sendGAEvent('generate_lead_quote', {
+                    source: 'product_lead_form',
+                    car_model: productName
+                });
             }
 
             // Trigger Zalo notification
@@ -76,6 +102,7 @@ export default function ProductLeadForm({ productName }: ProductLeadFormProps) {
                 console.error("Failed to send Zalo notification:", zaloError);
             }
 
+            submissionIdRef.current = null;
             setStatus('success');
             setFormData({ full_name: '', phone: '', notes: '' });
         } catch (error) {
@@ -83,6 +110,7 @@ export default function ProductLeadForm({ productName }: ProductLeadFormProps) {
             setStatus('error');
             setErrorMessage('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.');
         } finally {
+            isSubmittingRef.current = false;
             setLoading(false);
         }
     };

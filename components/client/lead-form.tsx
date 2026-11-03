@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useRef } from 'react';
+import { sendGAEvent } from '@/lib/gtag';
+import { getAttributionForLead } from '@/lib/attribution';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { submitLead } from '@/app/actions/lead';
 
@@ -16,16 +17,18 @@ export default function LeadForm() {
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const isSubmittingRef = useRef(false);
+    const submissionIdRef = useRef<string | null>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setStatus('idle');
+
+        if (isSubmittingRef.current) return;
 
         // Basic Validation
         if (!formData.full_name.trim() || !formData.phone.trim()) {
             setStatus('error');
             setErrorMessage('Vui lòng nhập đầy đủ Họ tên và Số điện thoại.');
-            setLoading(false);
             return;
         }
 
@@ -33,17 +36,33 @@ export default function LeadForm() {
         if (!phoneRegex.test(formData.phone)) {
             setStatus('error');
             setErrorMessage('Số điện thoại không hợp lệ.');
-            setLoading(false);
             return;
         }
 
+        isSubmittingRef.current = true;
+        setLoading(true);
+        setStatus('idle');
+
         try {
+            if (!submissionIdRef.current) {
+                submissionIdRef.current = typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            }
+
+            const attributionData = getAttributionForLead();
+            const sourceUrl = typeof window !== 'undefined' ? window.location.href : '';
+
             const formDataToSubmit = {
-                full_name: formData.full_name,
-                phone: formData.phone,
-                email: formData.email,
-                car_model: '', // Fallback empty string if component doesn't have car_model
-                notes: formData.notes
+                full_name: formData.full_name.trim(),
+                phone: formData.phone.trim(),
+                email: formData.email.trim(),
+                car_model: '',
+                lead_type: 'quote',
+                source_url: sourceUrl,
+                submission_id: submissionIdRef.current,
+                notes: formData.notes.trim(),
+                attribution: attributionData
             };
 
             const result = await submitLead(formDataToSubmit);
@@ -52,6 +71,14 @@ export default function LeadForm() {
                 setStatus('error');
                 setErrorMessage(result.error || 'Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
                 return;
+            }
+
+            // Only fire conversion event if not a deduplicated retry
+            if (!result.isRetry) {
+                sendGAEvent('generate_lead_quote', {
+                    source: 'homepage_lead_form',
+                    car_model: 'none'
+                });
             }
 
             // Trigger Zalo notification
@@ -64,7 +91,7 @@ export default function LeadForm() {
                     body: JSON.stringify({
                         name: formData.full_name,
                         phone: formData.phone,
-                        serviceType: "Đăng ký lái thử & tư vấn",
+                        serviceType: "Đăng ký tư vấn báo giá (Trang chủ)",
                     }),
                 });
 
@@ -75,6 +102,7 @@ export default function LeadForm() {
                 console.error("Failed to send Zalo notification:", zaloError);
             }
 
+            submissionIdRef.current = null;
             setStatus('success');
             setFormData({ full_name: '', phone: '', email: '', notes: '' });
         } catch (error) {
@@ -82,6 +110,7 @@ export default function LeadForm() {
             setStatus('error');
             setErrorMessage('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.');
         } finally {
+            isSubmittingRef.current = false;
             setLoading(false);
         }
     };
@@ -136,8 +165,8 @@ export default function LeadForm() {
                                         required
                                         value={formData.full_name}
                                         onChange={e => setFormData({ ...formData, full_name: e.target.value })}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:rin-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
-                                        placeholder="Nhập họ tên của bạn 123"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
+                                        placeholder="Nhập họ tên của bạn"
                                     />
                                 </div>
                                 <div>
@@ -147,7 +176,7 @@ export default function LeadForm() {
                                         required
                                         value={formData.phone}
                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:rin-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-vinfast-blue focus:border-vinfast-blue transition-colors outline-none"
                                         placeholder="VD: 0912345678"
                                     />
                                 </div>
