@@ -81,27 +81,6 @@ export default function LeadForm() {
                 });
             }
 
-            // Trigger Zalo notification
-            try {
-                const zaloResponse = await fetch('/api/zalo-notify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: formData.full_name,
-                        phone: formData.phone,
-                        serviceType: "Đăng ký tư vấn báo giá (Trang chủ)",
-                    }),
-                });
-
-                if (!zaloResponse.ok) {
-                    console.error("Zalo notification warning: API responded with an error.");
-                }
-            } catch (zaloError) {
-                console.error("Failed to send Zalo notification:", zaloError);
-            }
-
             submissionIdRef.current = null;
             setStatus('success');
             setFormData({ full_name: '', phone: '', email: '', notes: '' });
