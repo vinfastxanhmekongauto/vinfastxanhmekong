@@ -3,6 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
 import { FALLBACK_EMAIL } from '@/lib/constants';
+import { getAdminNotificationRecipients, formatResendToField } from '@/lib/email-helpers';
 import type { AttributionData } from '@/lib/attribution';
 import { syncLeadToBos } from '@/lib/bos-crm';
 import { after } from 'next/server';
@@ -101,9 +102,10 @@ export async function submitLead(formData: {
             return { success: false, error: 'Database error' };
         }
 
-        // 5. Gửi email thông báo qua Resend (Giữ nguyên vẹn 100% logic email gốc)
+        // 5. Gửi email thông báo qua Resend (Giữ nguyên vẹn 100% logic email gốc, hỗ trợ gửi đồng thời nhiều người nhận)
         try {
-            const recipientEmail = process.env.ADMIN_EMAIL || FALLBACK_EMAIL;
+            const recipients = getAdminNotificationRecipients();
+            const recipientTo = formatResendToField(recipients);
 
             let emailSubject = '📩 [VinFast Xanh Mekong] Có yêu cầu liên hệ mới!';
             let emailHeading = 'Thông báo khách hàng mới';
@@ -131,7 +133,7 @@ export async function submitLead(formData: {
 
             await resend.emails.send({
                 from: 'VinFast Mekong <onboarding@resend.dev>',
-                to: recipientEmail,
+                to: recipientTo,
                 subject: emailSubject,
                 html: `
                     <h2>${emailHeading}</h2>
