@@ -104,10 +104,6 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
                         {/* Top Row (Utilities) */}
                         <div className="w-full">
                             <div className="flex items-center gap-6 border-b border-gray-300 pb-2 w-max ml-auto">
-                                <a href={settings?.link_gf_xanh_mekong || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:opacity-80">
-                                    <img src="/logo_gf.webp" alt="GF Logo" className="h-4 w-auto object-contain" />
-                                    <span className="text-sm text-gray-600 transition-colors">Xanh Mekong</span>
-                                </a>
 
                                 <a href={settings?.link_xe_may_dien || '#'} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600">
                                     <MapPin size={16} />
@@ -366,10 +362,7 @@ export default function Header({ products = [] }: { products?: ProductDisplay[] 
 
                     {/* Mobile Utilities */}
                     <div className="pt-6 pb-8 flex flex-col gap-4 text-sm text-gray-600">
-                        <a href={settings?.link_gf_xanh_mekong || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-blue-600">
-                            <img src="/logo_gf.webp" alt="GF Logo" className="h-4 w-auto object-contain" />
-                            <span className="text-sm text-gray-600 transition-colors">Xanh Mekong</span>
-                        </a>
+
                         <a href={settings?.link_xe_may_dien || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-blue-600">
                             <MapPin size={16} /> Ôtô điện Vinfast
                         </a>

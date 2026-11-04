@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
 import { FALLBACK_EMAIL } from '@/lib/constants';
 import type { AttributionData } from '@/lib/attribution';
+import { syncLeadToBos } from '@/lib/bos-crm';
+import { after } from 'next/server';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -31,7 +33,7 @@ export async function submitLead(formData: {
     try {
         const leadType = formData.lead_type || 'contact';
 
-        // 1. Idempotency Check theo submission_id
+        // 1. Idempotency Check theo submission_id trên Supabase
         if (formData.submission_id) {
             const { data: existingLead } = await supabase
                 .from('leads')
@@ -46,7 +48,7 @@ export async function submitLead(formData: {
             }
         }
 
-        // 2. Chuẩn bị UUID và số điện thoại BIGINT
+        // 2. Chuẩn bị UUID và số điện thoại BIGINT cho Supabase
         const leadId = crypto.randomUUID();
         const cleanDigits = (formData.phone || '').replace(/\D/g, '');
         const phoneInt = cleanDigits ? parseInt(cleanDigits, 10) : null;
@@ -76,7 +78,7 @@ export async function submitLead(formData: {
 
         const dbNotes = noteParts.join('\n');
 
-        // 4. Insert vào Supabase
+        // 4. LƯU VÀO SUPABASE (PRIMARY DATABASE & SOURCE OF TRUTH)
         const { error: dbError } = await supabase
             .from('leads')
             .insert([{
@@ -93,12 +95,13 @@ export async function submitLead(formData: {
                 appointment_time: formData.appointment_time || null,
             }]);
 
+        // NẾU SUPABASE THẤT BẠI: DỪNG LẠI NGAY VÀ BÁO LỖI (KHÔNG GỌI BOS CRM, KHÔNG GỬI EMAIL, KHÔNG TẠO CHUYỂN ĐỔI ẢO)
         if (dbError) {
             console.error('Lỗi khi lưu lead vào Supabase:', dbError);
             return { success: false, error: 'Database error' };
         }
 
-        // 5. Gửi email thông báo qua Resend (không chặn luồng nếu email lỗi)
+        // 5. Gửi email thông báo qua Resend (Giữ nguyên vẹn 100% logic email gốc)
         try {
             const recipientEmail = process.env.ADMIN_EMAIL || FALLBACK_EMAIL;
 
@@ -168,6 +171,41 @@ export async function submitLead(formData: {
             console.error("Lỗi gửi mail qua Resend:", emailError);
         }
 
+        // 6. ĐỒNG BỘ THỨ CẤP SANG BOS CRM (NON-BLOCKING BACKGROUND EXECUTION)
+        // Sử dụng after() của Next.js: Phản hồi trả ngay cho Client trong ~150ms,
+        // Việc đồng bộ BOS CRM chạy nền trên máy chủ, hoàn toàn không chặn UI hay GA4 của khách hàng.
+        const leadSyncPayload = {
+            websiteLeadId: leadId,
+            customerName: formData.full_name,
+            phone: formData.phone,
+            leadType: (['quote', 'test_drive', 'service_booking'].includes(leadType) ? leadType : 'contact') as any,
+            carModel: formData.car_model,
+            notes: formData.notes,
+            email: formData.email,
+            appointmentDate: formData.appointment_date,
+            appointmentTime: formData.appointment_time,
+            sourceUrl: formData.source_url || formData.attribution?.sourceUrl,
+            submissionId: formData.submission_id,
+            attribution: formData.attribution,
+            attributionNotes: formData.attribution_notes,
+        };
+
+        try {
+            after(async () => {
+                try {
+                    await syncLeadToBos(leadSyncPayload);
+                } catch (bosSyncErr: any) {
+                    console.error('[BOS Sync Background] Error (safely suppressed):', bosSyncErr?.message || bosSyncErr);
+                }
+            });
+        } catch {
+            // Fallback khi chạy ngoài request context (môi trường test hoặc script)
+            syncLeadToBos(leadSyncPayload).catch(err => {
+                console.error('[BOS Sync Fallback] Error:', err?.message || err);
+            });
+        }
+
+        // 7. TRẢ VỀ KẾT QUẢ THÀNH CÔNG NGAY LẬP TỨC (KÍCH HOẠT GA4 CHUYỂN ĐỔI CHUẨN XÁC KHÔNG ĐỘ TRỄ)
         return { success: true, leadId, isRetry: false };
 
     } catch (error) {

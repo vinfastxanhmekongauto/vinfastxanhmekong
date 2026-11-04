@@ -28,7 +28,7 @@ const statusStyle: Record<string, string> = {
     'Hủy': 'bg-red-100 text-red-700 border-red-200',
 };
 
-export function formatDisplayPhone(phone: string | number | null | undefined, notes: string | null | undefined): string {
+function formatDisplayPhone(phone: string | number | null | undefined, notes: string | null | undefined): string {
     if (notes) {
         const match = notes.match(/Raw Phone \(SĐT gốc\):\s*([0-9+]+)/i);
         if (match && match[1]) {
