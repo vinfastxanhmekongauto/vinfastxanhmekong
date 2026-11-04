@@ -3,7 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
 import { FALLBACK_EMAIL } from '@/lib/constants';
-import { getAdminNotificationRecipients, formatResendToField } from '@/lib/email-helpers';
+import { getAdminNotificationRecipients, formatResendToField, getResendSenderAddress } from '@/lib/email-helpers';
 import type { AttributionData } from '@/lib/attribution';
 import { syncLeadToBos } from '@/lib/bos-crm';
 import { after } from 'next/server';
@@ -131,8 +131,8 @@ export async function submitLead(formData: {
 
             const cleanNotesHtml = (formData.notes || 'Trống').replace(/\n/g, '<br />');
 
-            await resend.emails.send({
-                from: 'VinFast Mekong <onboarding@resend.dev>',
+            const { data, error } = await resend.emails.send({
+                from: getResendSenderAddress(),
                 to: recipientTo,
                 subject: emailSubject,
                 html: `
@@ -169,8 +169,21 @@ export async function submitLead(formData: {
                     <p>Vui lòng đăng nhập hệ thống quản trị để xử lý.</p>
                 `
             });
-        } catch (emailError) {
-            console.error("Lỗi gửi mail qua Resend:", emailError);
+
+            if (error) {
+                console.error('[Resend Error] Không thể gửi email thông báo:', {
+                    statusCode: (error as any).statusCode,
+                    name: error.name,
+                    message: error.message,
+                });
+            } else {
+                console.log('[Resend Success] Email thông báo đã gửi thành công:', {
+                    id: data?.id,
+                    recipientCount: Array.isArray(recipientTo) ? recipientTo.length : 1,
+                });
+            }
+        } catch (emailError: any) {
+            console.error("Lỗi gửi mail qua Resend (exception):", emailError?.message || emailError);
         }
 
         // 6. ĐỒNG BỘ THỨ CẤP SANG BOS CRM (NON-BLOCKING BACKGROUND EXECUTION)

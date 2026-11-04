@@ -63,6 +63,16 @@ export function getAdminNotificationRecipients(): string[] {
   return parseAdminNotificationRecipients(process.env.ADMIN_EMAIL);
 }
 
+export const DEFAULT_RESEND_SENDER = 'VinFast Mekong <thongbao@vinfastmekong.vn>';
+
+/**
+ * Lấy địa chỉ người gửi Resend (đã xác thực tên miền vinfastmekong.vn).
+ * Hỗ trợ ghi đè qua biến môi trường RESEND_FROM_EMAIL nếu cần.
+ */
+export function getResendSenderAddress(): string {
+  return (process.env.RESEND_FROM_EMAIL || '').trim() || DEFAULT_RESEND_SENDER;
+}
+
 /**
  * Định dạng danh sách người nhận thành tham số `to` cho Resend API:
  * - Nếu chỉ có 1 recipient: trả về string duy nhất (đảm bảo hành vi nguyên trạng 100%)
