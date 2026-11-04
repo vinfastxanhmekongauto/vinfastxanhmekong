@@ -47,10 +47,9 @@ export interface BosLeadResult {
 }
 
 export interface BosSyncResult {
-  status: 'SUCCESS' | 'DUPLICATE_30D' | 'FAILED' | 'FAILED_FATAL' | 'SKIPPED_BACKOFF';
+  status: 'SUCCESS' | 'DUPLICATE_30D' | 'FAILED' | 'PENDING';
   bosLeadId?: string;
   bosCustomerId?: number;
-  attempt?: number;
   error?: string;
 }
 
@@ -674,18 +673,16 @@ export async function createBosLead(input: BosLeadInput): Promise<BosLeadResult>
 
 // ── 7. SECONDARY SYNCHRONIZATION RUNNER (NON-BLOCKING / SAFE) ────────────────
 
-const MAX_RETRIES = 3;
-const RETRY_BACKOFF_MS = [5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 * 1000]; // 5m, 15m, 30m
-
 /**
  * Thực hiện đồng bộ thứ cấp một Website Lead đã lưu Supabase sang BOS CRM.
  * 
  * NGUYÊN TẮC BẤT DI BẤT DỊCH:
- * - Được gọi SAU KHI Supabase lưu thành công.
- * - Thất bại hoặc timeout ở đây KHÔNG BAO GIỜ làm ảnh hưởng đến kết quả thành công của khách hàng.
- * - Trạng thái đồng bộ được cập nhật an toàn vào cột `notes` của Supabase bằng appendOrUpdateBosSyncNote.
+ * - Được gọi SAU KHI Supabase lưu thành công (chạy ở background, không chặn phản hồi).
+ * - Thất bại hoặc timeout ở đây KHÔNG BAO GIỜ làm ảnh hưởng đến kết quả lưu Lead thành công trên Supabase.
+ * - Ghi nhận trạng thái đồng bộ BOS (SUCCESS, DUPLICATE_30D, FAILED / PENDING) vào cột `notes` của Supabase.
+ * - Không tự động retry định kỳ, không dùng cron/scheduler.
  */
-export async function syncLeadToBos(input: BosLeadInput, attemptNumber: number = 1): Promise<BosSyncResult> {
+export async function syncLeadToBos(input: BosLeadInput): Promise<BosSyncResult> {
   try {
     const bosResult = await createBosLead(input);
 
@@ -701,18 +698,8 @@ export async function syncLeadToBos(input: BosLeadInput, attemptNumber: number =
         syncStatusNote = `[BOS Sync: SUCCESS | BOS Lead ID: ${bosResult.leadId} | BOS Customer ID: ${bosResult.customerId || 'N/A'} | Synced At: ${new Date().toISOString()}]`;
       }
     } else {
-      if (bosResult.isUnfixable) {
-        resultStatus = 'FAILED_FATAL';
-        syncStatusNote = `[BOS Sync: FAILED_FATAL | Error: ${bosResult.error || 'Dữ liệu không hợp lệ'} | Status: UNFIXABLE_DATA | Failed At: ${new Date().toISOString()}]`;
-      } else if (attemptNumber >= MAX_RETRIES) {
-        resultStatus = 'FAILED_FATAL';
-        syncStatusNote = `[BOS Sync: FAILED_FATAL | Attempt: ${attemptNumber}/${MAX_RETRIES} | Error: ${bosResult.error || 'Quá số lần thử lại'} | Status: ABORTED | Failed At: ${new Date().toISOString()}]`;
-      } else {
-        resultStatus = 'FAILED';
-        const backoffMs = RETRY_BACKOFF_MS[attemptNumber - 1] || 15 * 60 * 1000;
-        const nextRetryAt = new Date(Date.now() + backoffMs).toISOString();
-        syncStatusNote = `[BOS Sync: FAILED | Attempt: ${attemptNumber}/${MAX_RETRIES} | NextRetryAfter: ${nextRetryAt} | Error: ${bosResult.error || 'Unknown error'} | Status: PENDING_RETRY | Failed At: ${new Date().toISOString()}]`;
-      }
+      resultStatus = 'FAILED';
+      syncStatusNote = `[BOS Sync: FAILED | Status: PENDING | Error: ${bosResult.error || 'Unknown error'} | Failed At: ${new Date().toISOString()}]`;
     }
 
     // Cập nhật an toàn vào Supabase notes (Bảo toàn 100% dữ liệu gốc)
@@ -738,7 +725,6 @@ export async function syncLeadToBos(input: BosLeadInput, attemptNumber: number =
       status: resultStatus,
       bosLeadId: bosResult.leadId,
       bosCustomerId: bosResult.customerId,
-      attempt: attemptNumber,
       error: bosResult.error,
     };
 
@@ -746,7 +732,7 @@ export async function syncLeadToBos(input: BosLeadInput, attemptNumber: number =
     console.error('[BOS Sync] Unhandled exception in syncLeadToBos:', err.message);
 
     try {
-      const syncStatusNote = `[BOS Sync: FAILED | Attempt: ${attemptNumber}/${MAX_RETRIES} | Exception: ${err.message} | Status: PENDING_RETRY | Failed At: ${new Date().toISOString()}]`;
+      const syncStatusNote = `[BOS Sync: FAILED | Status: PENDING | Exception: ${err.message} | Failed At: ${new Date().toISOString()}]`;
       const { data: currentLead } = await supabase
         .from('leads')
         .select('notes')
@@ -766,143 +752,7 @@ export async function syncLeadToBos(input: BosLeadInput, attemptNumber: number =
 
     return {
       status: 'FAILED',
-      attempt: attemptNumber,
       error: err.message,
     };
   }
-}
-
-// ── 8. AUTOMATIC RETRY ENGINE WITH EXPONENTIAL BACKOFF ───────────────────────
-
-/**
- * Thử lại đồng bộ cho một lead cụ thể theo Supabase Lead ID.
- * - Đảm bảo Idempotent: Bỏ qua nếu đã SUCCESS hoặc FAILED_FATAL.
- * - Kiểm tra thời gian NextRetryAfter: Bỏ qua nếu chưa đến hạn.
- * - Đếm số lần attempt: Dừng nếu quá MAX_RETRIES (3 lần).
- */
-export async function retryBosSyncForLead(leadId: string): Promise<BosSyncResult> {
-  const { data: lead, error } = await supabase
-    .from('leads')
-    .select('*')
-    .eq('id', leadId)
-    .maybeSingle();
-
-  if (error || !lead) {
-    return { status: 'FAILED_FATAL', error: 'Lead không tồn tại trong Supabase.' };
-  }
-
-  const notes = lead.notes || '';
-
-  // 1. Idempotency: Nếu đã thành công, không gửi lại
-  if (notes.includes('[BOS Sync: SUCCESS') || notes.includes('[BOS Sync: DUPLICATE_30D')) {
-    return { status: 'SUCCESS', error: 'Lead này đã đồng bộ thành công trước đó.' };
-  }
-
-  // 2. Không thử lại nếu là lỗi bất khả kháng (FAILED_FATAL)
-  if (notes.includes('[BOS Sync: FAILED_FATAL')) {
-    return { status: 'FAILED_FATAL', error: 'Lead này mang lỗi không thể khắc phục tự động hoặc đã vượt quá số lần thử lại.' };
-  }
-
-  // 3. Phân tích số lần đã thử và kiểm tra Backoff
-  let currentAttempt = 1;
-  const attemptMatch = notes.match(/Attempt:\s*(\d+)\/(\d+)/i);
-  if (attemptMatch && attemptMatch[1]) {
-    currentAttempt = parseInt(attemptMatch[1], 10);
-  }
-
-  const nextAttempt = currentAttempt + 1;
-  if (currentAttempt >= MAX_RETRIES) {
-    const finalNote = `[BOS Sync: FAILED_FATAL | Reason: Max retries (${MAX_RETRIES}/${MAX_RETRIES}) reached | Status: ABORTED | Time: ${new Date().toISOString()}]`;
-    const updatedNotes = appendOrUpdateBosSyncNote(notes, finalNote);
-    await supabase.from('leads').update({ notes: updatedNotes }).eq('id', leadId);
-    return { status: 'FAILED_FATAL', error: `Đã thử lại ${MAX_RETRIES} lần nhưng không thành công.` };
-  }
-
-  // Kiểm tra NextRetryAfter
-  const nextRetryMatch = notes.match(/NextRetryAfter:\s*([0-9T:\-\.Z]+)/i);
-  if (nextRetryMatch && nextRetryMatch[1]) {
-    const nextRetryTime = new Date(nextRetryMatch[1]).getTime();
-    if (Date.now() < nextRetryTime) {
-      return { status: 'SKIPPED_BACKOFF', error: `Chưa đến thời hạn thử lại (Hẹn lúc: ${nextRetryMatch[1]}).` };
-    }
-  }
-
-  // Trích xuất SĐT gốc nếu có
-  let phone = String(lead.phone || '');
-  const rawMatch = notes.match(/Raw Phone \(SĐT gốc\):\s*([0-9+]+)/i);
-  if (rawMatch && rawMatch[1]) {
-    phone = rawMatch[1].trim();
-  }
-
-  // Trích xuất submission_id nếu có
-  const subMatch = notes.match(/Submission ID:\s*([a-zA-Z0-9_-]+)/i);
-  const submissionId = subMatch ? subMatch[1].trim() : undefined;
-
-  return syncLeadToBos({
-    websiteLeadId: lead.id,
-    customerName: lead.full_name || 'Khách hàng',
-    phone,
-    leadType: (lead.lead_type || 'quote') as any,
-    carModel: lead.car_model || undefined,
-    notes: lead.notes || undefined,
-    email: lead.email || undefined,
-    appointmentDate: lead.appointment_date || undefined,
-    appointmentTime: lead.appointment_time || undefined,
-    sourceUrl: lead.source_url || undefined,
-    submissionId,
-  }, nextAttempt);
-}
-
-/**
- * Quét tự động danh sách các leads đang ở trạng thái PENDING_RETRY và thực hiện thử lại có kiểm soát.
- * Giới hạn số lượng `limit` mỗi chu kỳ để bảo vệ API BOS Gateway.
- */
-export async function retryPendingBosSync(limit: number = 10): Promise<{
-  attempted: number;
-  succeeded: number;
-  failed: number;
-  skippedBackoff: number;
-  details: { leadId: string; status: BosSyncResult['status']; error?: string }[];
-}> {
-  const { data: pendingLeads } = await supabase
-    .from('leads')
-    .select('id, notes')
-    .ilike('notes', '%[BOS Sync: FAILED%')
-    .order('created_at', { ascending: false })
-    .limit(limit);
-
-  if (!pendingLeads || pendingLeads.length === 0) {
-    return { attempted: 0, succeeded: 0, failed: 0, skippedBackoff: 0, details: [] };
-  }
-
-  let succeeded = 0;
-  let failed = 0;
-  let skippedBackoff = 0;
-  const details: { leadId: string; status: BosSyncResult['status']; error?: string }[] = [];
-
-  for (const item of pendingLeads) {
-    // Bỏ qua nếu sau đó đã thành công hoặc đã bị hủy
-    if (item.notes && (item.notes.includes('[BOS Sync: SUCCESS') || item.notes.includes('[BOS Sync: FAILED_FATAL'))) {
-      continue;
-    }
-
-    const res = await retryBosSyncForLead(item.id);
-    details.push({ leadId: item.id, status: res.status, error: res.error });
-
-    if (res.status === 'SUCCESS' || res.status === 'DUPLICATE_30D') {
-      succeeded++;
-    } else if (res.status === 'SKIPPED_BACKOFF') {
-      skippedBackoff++;
-    } else {
-      failed++;
-    }
-  }
-
-  return {
-    attempted: details.length,
-    succeeded,
-    failed,
-    skippedBackoff,
-    details,
-  };
 }
