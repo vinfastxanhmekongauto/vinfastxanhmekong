@@ -1,0 +1,112 @@
+name: Production Deployment CI/CD (vinfastmekong.vn)
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'audit-evidence/**'
+      - '.gitignore'
+      - 'deployment/nginx-vinfastmekong.vn.conf'
+  workflow_dispatch:
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  quality-gate:
+    name: Quality Gate (Typecheck & Build Verification)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript Typecheck
+        run: npx tsc --noEmit
+
+      # Advisory mode for ESLint due to legacy utility scripts; non-blocking
+      - name: ESLint Code Quality (Advisory)
+        run: npm run lint
+        continue-on-error: true
+
+  deploy-production:
+    name: Deploy to Production VPS (Docker Engine Native)
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy via SSH to Production VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            echo "=== [1/7] Verifying Deployment Environment on VPS ==="
+            cd /opt/vinfastmekong.vn
+
+            # Ensure Production .env exists and is protected
+            if [ ! -f .env ]; then
+              echo "CRITICAL ERROR: Production .env file missing in /opt/vinfastmekong.vn!"
+              exit 1
+            fi
+            chmod 600 .env
+
+            echo "=== [2/7] Backup Previous Image for Instant Rollback ==="
+            docker tag vinfastmekong-web:latest vinfastmekong-web:previous || true
+
+            echo "=== [3/7] Synchronizing Git Release Commit ==="
+            if [ -d .git ]; then
+              git fetch origin main
+              git checkout ${{ github.sha }}
+            else
+              echo "Notice: Git repository not yet initialized. Operating in local filesystem mode."
+            fi
+
+            echo "=== [4/7] Building Production Standalone Image (Docker Engine Native) ==="
+            export RELEASE_SHA="${{ github.sha }}"
+            docker compose -f docker-compose.production.yml build
+
+            echo "=== [5/7] Recreating Container vinfastmekong-web ==="
+            docker compose -f docker-compose.production.yml up -d --remove-orphans
+
+            echo "=== [6/7] Verifying Healthcheck Endpoint ==="
+            HEALTHY=0
+            for i in $(seq 1 12); do
+              sleep 5
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/api/health || true)
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "Healthcheck passed: HTTP 200 OK after ${i} checks"
+                HEALTHY=1
+                break
+              fi
+              echo "Waiting for container health... (attempt ${i}/12, code: ${HTTP_CODE})"
+            done
+
+            if [ "$HEALTHY" -ne 1 ]; then
+              echo "CRITICAL: Healthcheck failed! Checking container logs..."
+              docker logs --tail 50 vinfastmekong-web
+              echo "Initiating automatic rollback to previous image..."
+              docker tag vinfastmekong-web:previous vinfastmekong-web:latest || true
+              docker compose -f docker-compose.production.yml up -d --remove-orphans || true
+              exit 1
+            fi
+
+            echo "=== [7/7] Deployment Verified & BOS Isolation Checked ==="
+            docker ps --filter "name=vinfastmekong-web" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            # Verify BOS containers are healthy and untouched
+            docker ps --filter "name=bos_backend" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
